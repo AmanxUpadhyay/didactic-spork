@@ -152,6 +152,54 @@ export type Database = {
           },
         ]
       }
+      couple_rescues: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          cooldown_until: string
+          created_at: string
+          id: string
+          rescue_task_title: string
+          rescuer_id: string
+          streak_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          cooldown_until: string
+          created_at?: string
+          id?: string
+          rescue_task_title: string
+          rescuer_id: string
+          streak_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          cooldown_until?: string
+          created_at?: string
+          id?: string
+          rescue_task_title?: string
+          rescuer_id?: string
+          streak_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_rescues_rescuer_id_fkey"
+            columns: ["rescuer_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "couple_rescues_streak_id_fkey"
+            columns: ["streak_id"]
+            isOneToOne: false
+            referencedRelation: "streaks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       date_history: {
         Row: {
           activity_type: string | null
@@ -195,6 +243,84 @@ export type Database = {
             columns: ["punishment_id"]
             isOneToOne: false
             referencedRelation: "punishments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      date_memory_state: {
+        Row: {
+          consecutive_low_ratings: number
+          id: string
+          intensity_wave_position: number
+          last_categories: string[]
+          last_cuisines: string[]
+          last_venues: string[]
+          total_dates_completed: number
+          updated_at: string
+        }
+        Insert: {
+          consecutive_low_ratings?: number
+          id?: string
+          intensity_wave_position?: number
+          last_categories?: string[]
+          last_cuisines?: string[]
+          last_venues?: string[]
+          total_dates_completed?: number
+          updated_at?: string
+        }
+        Update: {
+          consecutive_low_ratings?: number
+          id?: string
+          intensity_wave_position?: number
+          last_categories?: string[]
+          last_cuisines?: string[]
+          last_venues?: string[]
+          total_dates_completed?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      date_ratings: {
+        Row: {
+          created_at: string
+          date_history_id: string
+          highlights: string | null
+          id: string
+          improvements: string | null
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_history_id: string
+          highlights?: string | null
+          id?: string
+          improvements?: string | null
+          rating: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_history_id?: string
+          highlights?: string | null
+          id?: string
+          improvements?: string | null
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "date_ratings_date_history_id_fkey"
+            columns: ["date_history_id"]
+            isOneToOne: false
+            referencedRelation: "date_history"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "date_ratings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -519,11 +645,16 @@ export type Database = {
           date_plan: Json
           id: string
           intensity: Database["public"]["Enums"]["punishment_intensity"]
+          is_both_win: boolean
+          is_mutual_failure: boolean
           loser_id: string
+          scheduled_date: string | null
           sprint_id: string
+          surprise_element: Json | null
           updated_at: string
           vetoes_granted: number
           vetoes_used: number
+          winner_id: string | null
         }
         Insert: {
           accepted?: boolean | null
@@ -532,11 +663,16 @@ export type Database = {
           date_plan?: Json
           id?: string
           intensity?: Database["public"]["Enums"]["punishment_intensity"]
+          is_both_win?: boolean
+          is_mutual_failure?: boolean
           loser_id: string
+          scheduled_date?: string | null
           sprint_id: string
+          surprise_element?: Json | null
           updated_at?: string
           vetoes_granted?: number
           vetoes_used?: number
+          winner_id?: string | null
         }
         Update: {
           accepted?: boolean | null
@@ -545,11 +681,16 @@ export type Database = {
           date_plan?: Json
           id?: string
           intensity?: Database["public"]["Enums"]["punishment_intensity"]
+          is_both_win?: boolean
+          is_mutual_failure?: boolean
           loser_id?: string
+          scheduled_date?: string | null
           sprint_id?: string
+          surprise_element?: Json | null
           updated_at?: string
           vetoes_granted?: number
           vetoes_used?: number
+          winner_id?: string | null
         }
         Relationships: [
           {
@@ -564,6 +705,13 @@ export type Database = {
             columns: ["sprint_id"]
             isOneToOne: true
             referencedRelation: "sprints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "punishments_winner_id_fkey"
+            columns: ["winner_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -949,6 +1097,60 @@ export type Database = {
           },
         ]
       }
+      tp_audit_log: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string
+          sprint_id: string | null
+          tier_after: string
+          tier_before: string
+          tp_after: number
+          tp_before: number
+          tp_delta: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason: string
+          sprint_id?: string | null
+          tier_after: string
+          tier_before: string
+          tp_after: number
+          tp_before: number
+          tp_delta: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string
+          sprint_id?: string | null
+          tier_after?: string
+          tier_before?: string
+          tp_after?: number
+          tp_before?: number
+          tp_delta?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tp_audit_log_sprint_id_fkey"
+            columns: ["sprint_id"]
+            isOneToOne: false
+            referencedRelation: "sprints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tp_audit_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_ai_profiles: {
         Row: {
           communication_preferences: Json | null
@@ -1018,6 +1220,48 @@ export type Database = {
         }
         Relationships: []
       }
+      veto_records: {
+        Row: {
+          created_at: string
+          id: string
+          punishment_id: string
+          user_id: string
+          veto_number: number
+          vetoed_option: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          punishment_id: string
+          user_id: string
+          veto_number: number
+          vetoed_option: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          punishment_id?: string
+          user_id?: string
+          veto_number?: number
+          vetoed_option?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "veto_records_punishment_id_fkey"
+            columns: ["punishment_id"]
+            isOneToOne: false
+            referencedRelation: "punishments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "veto_records_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       mv_user_mood_recent: {
@@ -1046,6 +1290,9 @@ export type Database = {
       generate_invite_code: { Args: never; Returns: Json }
       get_partner_id: { Args: never; Returns: string }
       get_sprint_history: { Args: { p_limit?: number }; Returns: Json }
+      get_tier_unlocks: { Args: { p_user_id: string }; Returns: Json }
+      is_partner: { Args: { p_other_id: string }; Returns: boolean }
+      trigger_prestige: { Args: { p_user_id: string }; Returns: Json }
       update_streak_for_task: { Args: { p_task_id: string }; Returns: Json }
       update_tier_points: {
         Args: { p_score: number; p_user_id: string }
@@ -1064,6 +1311,8 @@ export type Database = {
         | "context_assembly"
         | "task_suggest"
         | "excuse_eval"
+        | "date_rate"
+        | "rescue_task"
       date_category:
         | "restaurant"
         | "activity"
@@ -1245,6 +1494,8 @@ export const Constants = {
         "context_assembly",
         "task_suggest",
         "excuse_eval",
+        "date_rate",
+        "rescue_task",
       ],
       date_category: [
         "restaurant",
@@ -1297,3 +1548,4 @@ export const Constants = {
     },
   },
 } as const
+

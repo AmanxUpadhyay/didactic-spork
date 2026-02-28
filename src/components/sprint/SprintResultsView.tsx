@@ -4,7 +4,7 @@ import { SprintResultsReveal } from './SprintResultsReveal'
 import { ScoreBreakdown } from './ScoreBreakdown'
 import { SprintHistoryCard } from './SprintHistoryCard'
 import { KiraSprintVerdict } from '@/components/kira/KiraSprintVerdict'
-import { KiraDatePlan } from '@/components/kira/KiraDatePlan'
+import { PunishmentDateFlow } from '@/components/punishment/PunishmentDateFlow'
 import { supabase } from '@/lib/supabase'
 import type { ScoreBreakdown as ScoreBreakdownType } from '@/hooks/useSprint'
 import type { Database } from '@/types/database'
@@ -93,10 +93,16 @@ export function SprintResultsView({
       {/* Kira's sprint verdict */}
       <KiraSprintVerdict sprintId={sprintId} />
 
-      {/* Date plan (only for losers) */}
-      {!iWon && !isTie && (
-        <KiraDatePlan sprintId={sprintId} />
-      )}
+      {/* Punishment date flow (both winner and loser) */}
+      <PunishmentDateFlow
+        sprintId={sprintId}
+        myScore={myScore}
+        partnerScore={partnerScore}
+        myName={myName}
+        partnerName={partnerName}
+        iWon={iWon}
+        isTie={isTie}
+      />
 
       {/* Score breakdowns side-by-side */}
       {myBreakdown && (

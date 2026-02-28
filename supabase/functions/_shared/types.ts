@@ -7,7 +7,9 @@ export type KiraFunctionType =
   | "weekly_summary"
   | "mood_response"
   | "task_suggest"
-  | "excuse_eval";
+  | "excuse_eval"
+  | "date_rate"
+  | "rescue_task";
 
 export type PersonalityMode =
   | "cheerful"
@@ -34,6 +36,8 @@ export const FUNCTION_MODEL_CONFIG: Record<KiraFunctionType, ModelConfig> = {
   weekly_summary: { modelId: MODEL_IDS.haiku, maxTokens: 512 },
   task_suggest: { modelId: MODEL_IDS.haiku, maxTokens: 1024 },
   mood_response: { modelId: MODEL_IDS.haiku, maxTokens: 512 },
+  date_rate: { modelId: MODEL_IDS.haiku, maxTokens: 512 },
+  rescue_task: { modelId: MODEL_IDS.haiku, maxTokens: 512 },
   sprint_judge: { modelId: MODEL_IDS.sonnet, maxTokens: 2048 },
   date_plan: { modelId: MODEL_IDS.sonnet, maxTokens: 2048 },
   excuse_eval: { modelId: MODEL_IDS.sonnet, maxTokens: 1024 },
@@ -147,4 +151,19 @@ export interface CronRequestBody {
 export interface InteractiveRequestBody {
   function_type: KiraFunctionType;
   payload?: Record<string, unknown>;
+}
+
+export interface DateMemoryState {
+  lastCategories: string[];
+  lastCuisines: string[];
+  lastVenues: string[];
+  intensityWavePosition: number;
+  consecutiveLowRatings: number;
+  totalDatesCompleted: number;
+}
+
+export interface RescueTaskResult {
+  task: string;
+  description: string;
+  timeEstimate: string;
 }

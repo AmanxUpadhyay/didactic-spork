@@ -49,6 +49,10 @@ Deno.serve(async (req: Request) => {
         return await handleMoodResponse(supabase, userId, payload);
       case "date_plan":
         return await handleDatePlan(supabase, userId, payload);
+      case "date_rate":
+        return await handleDateRate(supabase, userId, payload);
+      case "rescue_task":
+        return await handleRescueTask(supabase, userId, payload);
       default:
         return new Response(
           JSON.stringify({ error: `Unknown function_type: ${functionType}` }),
@@ -305,7 +309,7 @@ async function handleMoodResponse(
   );
 }
 
-// --- Date Plan Handler ---
+// --- Date Plan Handler (Enhanced for Phase 4) ---
 
 async function handleDatePlan(
   supabase: ReturnType<typeof import("jsr:@supabase/supabase-js@2").createClient>,
@@ -313,6 +317,10 @@ async function handleDatePlan(
   payload: Record<string, unknown>
 ) {
   const sprintId = payload.sprint_id as string;
+  const vetoRegenerate = payload.veto_regenerate as boolean | undefined;
+  const vetoedIndices = payload.vetoed_indices as number[] | undefined;
+  const existingOptions = payload.existing_options as unknown[] | undefined;
+
   if (!sprintId) {
     return new Response(
       JSON.stringify({ error: "Missing 'sprint_id' in payload" }),
@@ -322,10 +330,10 @@ async function handleDatePlan(
 
   const userContext = await assembleUserContext(supabase, userId);
 
-  // Get sprint data for intensity calculation
+  // Get sprint data with user info
   const { data: sprint } = await supabase
     .from("sprints")
-    .select("score_a, score_b, winner_id, relative_performance_index")
+    .select("score_a, score_b, winner_id, relative_performance_index, user_a, user_b")
     .eq("id", sprintId)
     .single();
 
@@ -336,11 +344,24 @@ async function handleDatePlan(
     );
   }
 
+  // Calculate completion rates for mutual failure / both-win detection
+  const scoreA = sprint.score_a ?? 0;
+  const scoreB = sprint.score_b ?? 0;
+  const isMutualFailure = scoreA < 30 && scoreB < 30;
+  const isBothWin = scoreA >= 85 && scoreB >= 85;
+
   // Determine intensity from RPI
   const rpi = Math.abs(sprint.relative_performance_index ?? 0);
   let intensity: string;
   let budget: number;
-  if (rpi < 10) {
+
+  if (isMutualFailure) {
+    intensity = "gentle";
+    budget = 30;
+  } else if (isBothWin) {
+    intensity = "moderate";
+    budget = 60;
+  } else if (rpi < 10) {
     intensity = "gentle";
     budget = 30;
   } else if (rpi < 25) {
@@ -351,6 +372,55 @@ async function handleDatePlan(
     budget = 100;
   }
 
+  // Query date_memory_state for rotation
+  const { data: memoryState } = await supabase
+    .from("date_memory_state")
+    .select("*")
+    .limit(1)
+    .maybeSingle();
+
+  // Quality safeguard: downgrade intensity if consecutive low ratings >= 2
+  if (memoryState && memoryState.consecutive_low_ratings >= 2) {
+    if (intensity === "spicy") {
+      intensity = "moderate";
+      budget = 60;
+    } else if (intensity === "moderate") {
+      intensity = "gentle";
+      budget = 30;
+    }
+  }
+
+  // Calculate winner's veto count from completion rate
+  const winnerScore = Math.max(scoreA, scoreB);
+  let vetoesGranted: number;
+  if (winnerScore >= 85) {
+    vetoesGranted = 3;
+  } else if (winnerScore >= 70) {
+    vetoesGranted = 2;
+  } else {
+    vetoesGranted = 1;
+  }
+
+  // Tier 3+ (mighty_oak) users get +1 veto
+  const winnerId = sprint.winner_id;
+  if (winnerId) {
+    const { data: tierUnlocks } = await supabase.rpc("get_tier_unlocks", {
+      p_user_id: winnerId,
+    });
+    if (tierUnlocks?.unlocks?.bonus_veto) {
+      vetoesGranted += 1;
+    }
+  }
+
+  // Surprise element eligibility (mighty_oak+)
+  let surpriseEligible = false;
+  if (winnerId) {
+    const { data: tierUnlocks } = await supabase.rpc("get_tier_unlocks", {
+      p_user_id: winnerId,
+    });
+    surpriseEligible = !!tierUnlocks?.unlocks?.surprise_dates;
+  }
+
   // Get recent date history to avoid repeats
   const { data: recentDates } = await supabase
     .from("date_history")
@@ -359,14 +429,22 @@ async function handleDatePlan(
     .limit(8);
 
   const now = new Date();
-  const mood = selectMood({
-    completionRate7d: userContext.completions.completionRate7d,
-    streakActive: userContext.streaks.bestIndividual > 0,
-    recentStreakBreak: userContext.streaks.recentBreaks > 0,
-    avgMoodScore: userContext.recentMood.avgMood7d,
-    hourOfDay: now.getUTCHours(),
-    dayOfWeek: now.getUTCDay(),
-  });
+  // For mutual failure, use disappointed mood; for both-win, use hype_man
+  let mood;
+  if (isMutualFailure) {
+    mood = "disappointed" as const;
+  } else if (isBothWin) {
+    mood = "hype_man" as const;
+  } else {
+    mood = selectMood({
+      completionRate7d: userContext.completions.completionRate7d,
+      streakActive: userContext.streaks.bestIndividual > 0,
+      recentStreakBreak: userContext.streaks.recentBreaks > 0,
+      avgMoodScore: userContext.recentMood.avgMood7d,
+      hourOfDay: now.getUTCHours(),
+      dayOfWeek: now.getUTCDay(),
+    });
+  }
 
   const config = getModelConfig("date_plan");
   const systemPrompt = assembleSystemPrompt(mood, "date_plan");
@@ -375,10 +453,25 @@ async function handleDatePlan(
     intensity,
     recentDates: recentDates || [],
     sprintId,
+    isMutualFailure,
+    isBothWin,
+    surpriseEligible,
+    vetoRegenerate: vetoRegenerate || false,
+    vetoedIndices: vetoedIndices || [],
+    existingOptions: existingOptions || [],
+    memoryState: memoryState
+      ? {
+          lastCategories: memoryState.last_categories,
+          lastCuisines: memoryState.last_cuisines,
+          lastVenues: memoryState.last_venues,
+          intensityWavePosition: memoryState.intensity_wave_position,
+        }
+      : null,
   });
 
   const result = await callWithRetry(
-    () => callBedrock(config.modelId, systemPrompt, userMessage, config.maxTokens),
+    () =>
+      callBedrock(config.modelId, systemPrompt, userMessage, config.maxTokens),
     "date_plan"
   );
 
@@ -389,14 +482,23 @@ async function handleDatePlan(
     structuredData = { options: [], raw: result.text };
   }
 
-  // Store in punishments table
+  // Extract surprise element if present
+  const surpriseElement =
+    (structuredData as { surprise_element?: unknown }).surprise_element || null;
+
+  // Upsert punishment record
   await supabase.from("punishments").upsert(
     {
       sprint_id: sprintId,
-      loser_id: userId,
+      loser_id: isMutualFailure ? sprint.user_a : userId,
+      winner_id: winnerId,
       intensity: intensity as "gentle" | "moderate" | "spicy",
       budget_gbp: budget,
       date_plan: structuredData,
+      vetoes_granted: vetoesGranted,
+      surprise_element: surpriseElement,
+      is_mutual_failure: isMutualFailure,
+      is_both_win: isBothWin,
     },
     { onConflict: "sprint_id" }
   );
@@ -421,6 +523,334 @@ async function handleDatePlan(
       data: structuredData,
       intensity,
       budget,
+      vetoes_granted: vetoesGranted,
+      is_mutual_failure: isMutualFailure,
+      is_both_win: isBothWin,
+      fallback: result.isFallback,
+    }),
+    { status: 200, headers: corsHeaders }
+  );
+}
+
+// --- Date Rating Handler ---
+
+async function handleDateRate(
+  supabase: ReturnType<typeof import("jsr:@supabase/supabase-js@2").createClient>,
+  userId: string,
+  payload: Record<string, unknown>
+) {
+  const punishmentId = payload.punishment_id as string;
+  const rating = payload.rating as number;
+  const highlights = payload.highlights as string | undefined;
+  const improvements = payload.improvements as string | undefined;
+
+  if (!punishmentId || !rating || rating < 1 || rating > 5) {
+    return new Response(
+      JSON.stringify({ error: "punishment_id and rating (1-5) required" }),
+      { status: 400, headers: corsHeaders }
+    );
+  }
+
+  // Get the punishment to find linked date_history
+  const { data: punishment } = await supabase
+    .from("punishments")
+    .select("id, sprint_id")
+    .eq("id", punishmentId)
+    .single();
+
+  if (!punishment) {
+    return new Response(
+      JSON.stringify({ error: "Punishment not found" }),
+      { status: 404, headers: corsHeaders }
+    );
+  }
+
+  // Find or create date_history entry
+  let { data: dateHistory } = await supabase
+    .from("date_history")
+    .select("id")
+    .eq("punishment_id", punishmentId)
+    .maybeSingle();
+
+  if (!dateHistory) {
+    const { data: newEntry } = await supabase
+      .from("date_history")
+      .insert({ punishment_id: punishmentId, category: "dinner" })
+      .select("id")
+      .single();
+    dateHistory = newEntry;
+  }
+
+  if (!dateHistory) {
+    return new Response(
+      JSON.stringify({ error: "Failed to create date history entry" }),
+      { status: 500, headers: corsHeaders }
+    );
+  }
+
+  // Insert rating
+  await supabase.from("date_ratings").upsert(
+    {
+      date_history_id: dateHistory.id,
+      user_id: userId,
+      rating,
+      highlights: highlights || null,
+      improvements: improvements || null,
+    },
+    { onConflict: "date_history_id,user_id" }
+  );
+
+  // Check if both partners have rated
+  const { data: allRatings } = await supabase
+    .from("date_ratings")
+    .select("rating, user_id")
+    .eq("date_history_id", dateHistory.id);
+
+  const bothRated = (allRatings?.length ?? 0) >= 2;
+  const partnerRating = allRatings?.find((r) => r.user_id !== userId)?.rating;
+
+  // If both rated, update date_memory_state
+  if (bothRated && allRatings) {
+    const avgRating =
+      allRatings.reduce((sum, r) => sum + r.rating, 0) / allRatings.length;
+
+    // Update or create date_memory_state
+    const { data: memState } = await supabase
+      .from("date_memory_state")
+      .select("*")
+      .limit(1)
+      .maybeSingle();
+
+    if (memState) {
+      const newConsecutiveLow =
+        avgRating < 3 ? memState.consecutive_low_ratings + 1 : 0;
+      const newWavePos = (memState.intensity_wave_position + 1) % 3;
+
+      await supabase
+        .from("date_memory_state")
+        .update({
+          consecutive_low_ratings: newConsecutiveLow,
+          intensity_wave_position: newWavePos,
+          total_dates_completed: memState.total_dates_completed + 1,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", memState.id);
+    } else {
+      await supabase.from("date_memory_state").insert({
+        consecutive_low_ratings: avgRating < 3 ? 1 : 0,
+        intensity_wave_position: 1,
+        total_dates_completed: 1,
+      });
+    }
+
+    // Update date_history rating
+    await supabase
+      .from("date_history")
+      .update({ rating: Math.round(avgRating) })
+      .eq("id", dateHistory.id);
+  }
+
+  // Generate AI response
+  const userContext = await assembleUserContext(supabase, userId);
+  const now = new Date();
+  const mood = selectMood({
+    completionRate7d: userContext.completions.completionRate7d,
+    streakActive: userContext.streaks.bestIndividual > 0,
+    recentStreakBreak: userContext.streaks.recentBreaks > 0,
+    avgMoodScore: userContext.recentMood.avgMood7d,
+    hourOfDay: now.getUTCHours(),
+    dayOfWeek: now.getUTCDay(),
+  });
+
+  const config = getModelConfig("date_rate");
+  const systemPrompt = assembleSystemPrompt(mood, "date_rate");
+  const userMessage = buildUserMessage("date_rate", userContext, undefined, {
+    rating,
+    highlights,
+    improvements,
+    bothRated,
+    partnerRating: partnerRating || null,
+  });
+
+  const result = await callWithRetry(
+    () =>
+      callBedrock(config.modelId, systemPrompt, userMessage, config.maxTokens),
+    "date_rate"
+  );
+
+  let structuredData: Record<string, unknown>;
+  try {
+    structuredData = parseJsonResponse(result.text);
+  } catch {
+    structuredData = { response: result.text, quality_note: "" };
+  }
+
+  const responseId = await storeResponse(supabase, {
+    functionType: "date_rate",
+    responseText:
+      (structuredData as { response?: string }).response || result.text,
+    structuredData,
+    modelUsed: result.isFallback ? "fallback" : config.modelId,
+    personalityMode: mood,
+    tokensInput: result.tokensInput,
+    tokensOutput: result.tokensOutput,
+    userId,
+  });
+
+  return new Response(
+    JSON.stringify({
+      success: true,
+      response_id: responseId,
+      mood,
+      data: structuredData,
+      both_rated: bothRated,
+      fallback: result.isFallback,
+    }),
+    { status: 200, headers: corsHeaders }
+  );
+}
+
+// --- Rescue Task Handler ---
+
+async function handleRescueTask(
+  supabase: ReturnType<typeof import("jsr:@supabase/supabase-js@2").createClient>,
+  userId: string,
+  payload: Record<string, unknown>
+) {
+  const streakId = payload.streak_id as string;
+
+  if (!streakId) {
+    return new Response(
+      JSON.stringify({ error: "Missing 'streak_id' in payload" }),
+      { status: 400, headers: corsHeaders }
+    );
+  }
+
+  // Verify tier >= mighty_oak
+  const { data: tierUnlocks } = await supabase.rpc("get_tier_unlocks", {
+    p_user_id: userId,
+  });
+
+  if (!tierUnlocks?.unlocks?.couple_rescue) {
+    return new Response(
+      JSON.stringify({ error: "Couple rescue requires Mighty Oak tier or higher" }),
+      { status: 403, headers: corsHeaders }
+    );
+  }
+
+  // Verify partner has broken streak
+  const { data: streak } = await supabase
+    .from("streaks")
+    .select("id, user_id, current_days, task_id, couple_rescue_available")
+    .eq("id", streakId)
+    .single();
+
+  if (!streak || !streak.couple_rescue_available) {
+    return new Response(
+      JSON.stringify({ error: "Streak not eligible for rescue" }),
+      { status: 400, headers: corsHeaders }
+    );
+  }
+
+  // Verify this is the partner's streak, not the rescuer's own
+  if (streak.user_id === userId) {
+    return new Response(
+      JSON.stringify({ error: "Cannot rescue your own streak" }),
+      { status: 400, headers: corsHeaders }
+    );
+  }
+
+  // Check rescuer cooldown (7 days between rescues)
+  const { data: recentRescue } = await supabase
+    .from("couple_rescues")
+    .select("cooldown_until")
+    .eq("rescuer_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (recentRescue && new Date(recentRescue.cooldown_until) > new Date()) {
+    return new Response(
+      JSON.stringify({
+        error: "Rescue on cooldown",
+        cooldown_until: recentRescue.cooldown_until,
+      }),
+      { status: 429, headers: corsHeaders }
+    );
+  }
+
+  // Get task title for context
+  let streakTaskTitle = "Unknown habit";
+  if (streak.task_id) {
+    const { data: task } = await supabase
+      .from("tasks")
+      .select("title")
+      .eq("id", streak.task_id)
+      .single();
+    if (task) streakTaskTitle = task.title;
+  }
+
+  // Generate rescue task via AI
+  const userContext = await assembleUserContext(supabase, userId);
+  const mood = "empathetic" as const;
+  const config = getModelConfig("rescue_task");
+  const systemPrompt = assembleSystemPrompt(mood, "rescue_task");
+  const userMessage = buildUserMessage("rescue_task", userContext, undefined, {
+    streakTaskTitle,
+    streakDays: streak.current_days,
+    rescuerName: userContext.name,
+  });
+
+  const result = await callWithRetry(
+    () =>
+      callBedrock(config.modelId, systemPrompt, userMessage, config.maxTokens),
+    "rescue_task"
+  );
+
+  let structuredData: Record<string, unknown>;
+  try {
+    structuredData = parseJsonResponse(result.text);
+  } catch {
+    structuredData = {
+      task: "Write a short appreciation note",
+      description: "Write a quick note to your partner expressing support.",
+      timeEstimate: "10 mins",
+    };
+  }
+
+  const rescueTaskTitle =
+    (structuredData as { task?: string }).task || "Complete rescue task";
+
+  // Create couple_rescues row
+  const cooldownUntil = new Date(
+    Date.now() + 7 * 24 * 60 * 60 * 1000
+  ).toISOString();
+
+  await supabase.from("couple_rescues").insert({
+    streak_id: streakId,
+    rescuer_id: userId,
+    rescue_task_title: rescueTaskTitle,
+    cooldown_until: cooldownUntil,
+  });
+
+  const responseId = await storeResponse(supabase, {
+    functionType: "rescue_task",
+    responseText: result.text,
+    structuredData,
+    modelUsed: result.isFallback ? "fallback" : config.modelId,
+    personalityMode: mood,
+    tokensInput: result.tokensInput,
+    tokensOutput: result.tokensOutput,
+    userId,
+  });
+
+  return new Response(
+    JSON.stringify({
+      success: true,
+      response_id: responseId,
+      mood,
+      data: structuredData,
+      cooldown_until: cooldownUntil,
       fallback: result.isFallback,
     }),
     { status: 200, headers: corsHeaders }

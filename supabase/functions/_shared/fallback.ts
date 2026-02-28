@@ -73,6 +73,19 @@ const FALLBACK_RESPONSES: Record<KiraFunctionType, string> = {
     response:
       "I'll give you the benefit of the doubt this time. But let's make sure tomorrow is different, yeah?",
   }),
+
+  date_rate: JSON.stringify({
+    response:
+      "Thanks for rating the date! Your feedback helps me plan better ones in the future.",
+    quality_note: "Noted for next time.",
+  }),
+
+  rescue_task: JSON.stringify({
+    task: "Write a short appreciation note",
+    description:
+      "Write a quick note to your partner about something they did this week that you appreciated. Leave it somewhere they'll find it.",
+    timeEstimate: "10 mins",
+  }),
 };
 
 /**

@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { NavBar, BottomSheet } from '@/components/ui'
 import { usePairing } from '@/contexts/PairingContext'
+import { useTierUnlocks } from '@/hooks/useTierUnlocks'
 import { TodayScreen } from './TodayScreen'
 import { SprintScreen } from './SprintScreen'
 import { PartnerScreen } from './PartnerScreen'
 import { SettingsScreen } from './SettingsScreen'
 import { HabitSheet } from '@/components/habits/HabitSheet'
 import { InstallPrompt } from '@/components/ui/InstallPrompt'
+import { TierUnlockCelebration } from '@/components/tier/TierUnlockCelebration'
 import {
   Home03Icon,
   Award01Icon,
@@ -29,6 +31,7 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
   const [habitSheetOpen, setHabitSheetOpen] = useState(false)
   const [editingHabit, setEditingHabit] = useState<Task | null>(null)
   const { partnerProfile } = usePairing()
+  const { tierChanged, dismissTierChange } = useTierUnlocks()
 
   function handleFabClick() {
     setEditingHabit(null)
@@ -74,6 +77,13 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
 
   return (
     <div className="min-h-dvh bg-background">
+      {tierChanged && (
+        <TierUnlockCelebration
+          from={tierChanged.from}
+          to={tierChanged.to}
+          onDismiss={dismissTierChange}
+        />
+      )}
       {activeTab === 'today' && <InstallPrompt />}
       {activeTab === 'today' && (
         <TodayScreen

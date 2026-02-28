@@ -192,6 +192,64 @@ Deno.serve(async (req: Request) => {
       .update({ tier_points_earned: totalTpEarned })
       .eq("id", sprint.id);
 
+    // 8. Auto-create punishment record with calculated parameters
+    const isMutualFailure = scoreA < 30 && scoreB < 30;
+    const isBothWin = scoreA >= 85 && scoreB >= 85;
+    const rpiAbs = Math.abs(rpi);
+
+    let punishmentIntensity: string;
+    let punishmentBudget: number;
+    if (isMutualFailure) {
+      punishmentIntensity = "gentle";
+      punishmentBudget = 30;
+    } else if (isBothWin) {
+      punishmentIntensity = "moderate";
+      punishmentBudget = 60;
+    } else if (rpiAbs < 10) {
+      punishmentIntensity = "gentle";
+      punishmentBudget = 30;
+    } else if (rpiAbs < 25) {
+      punishmentIntensity = "moderate";
+      punishmentBudget = 60;
+    } else {
+      punishmentIntensity = "spicy";
+      punishmentBudget = 100;
+    }
+
+    // Calculate vetoes from winner's score
+    const winScore = Math.max(scoreA, scoreB);
+    let vetoesGranted = 1;
+    if (winScore >= 85) vetoesGranted = 3;
+    else if (winScore >= 70) vetoesGranted = 2;
+
+    // Check winner tier for bonus veto
+    if (winnerId) {
+      const { data: tierUnlocks } = await supabase.rpc("get_tier_unlocks", {
+        p_user_id: winnerId,
+      });
+      if (tierUnlocks?.unlocks?.bonus_veto) vetoesGranted += 1;
+    }
+
+    const loserId = winnerId
+      ? winnerId === userA.user_id
+        ? userB.user_id
+        : userA.user_id
+      : userA.user_id; // On tie, user_a plans by convention
+
+    await supabase.from("punishments").upsert(
+      {
+        sprint_id: sprint.id,
+        loser_id: loserId,
+        winner_id: winnerId,
+        intensity: punishmentIntensity,
+        budget_gbp: punishmentBudget,
+        vetoes_granted: vetoesGranted,
+        is_mutual_failure: isMutualFailure,
+        is_both_win: isBothWin,
+      },
+      { onConflict: "sprint_id" }
+    );
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -202,6 +260,13 @@ Deno.serve(async (req: Request) => {
         tp_a: tpEarnedA,
         tp_b: tpEarnedB,
         tier_points_earned: totalTpEarned,
+        punishment: {
+          intensity: punishmentIntensity,
+          budget: punishmentBudget,
+          vetoes_granted: vetoesGranted,
+          is_mutual_failure: isMutualFailure,
+          is_both_win: isBothWin,
+        },
       }),
       { status: 200, headers: corsHeaders }
     );

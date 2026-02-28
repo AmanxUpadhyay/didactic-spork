@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 
-type KiraFunctionType = 'task_suggest' | 'excuse_eval' | 'mood_response' | 'date_plan'
+type KiraFunctionType = 'task_suggest' | 'excuse_eval' | 'mood_response' | 'date_plan' | 'date_rate' | 'rescue_task'
 
 interface KiraResult {
   success: boolean
@@ -69,16 +69,31 @@ export function useKira() {
   )
 
   const planDate = useCallback(
-    (sprintId: string) => invoke('date_plan', { sprint_id: sprintId }),
+    (sprintId: string, extra?: Record<string, unknown>) =>
+      invoke('date_plan', { sprint_id: sprintId, ...extra }),
+    [invoke]
+  )
+
+  const rateDate = useCallback(
+    (punishmentId: string, rating: number, highlights?: string, improvements?: string) =>
+      invoke('date_rate', { punishment_id: punishmentId, rating, highlights, improvements }),
+    [invoke]
+  )
+
+  const requestRescueTask = useCallback(
+    (streakId: string) => invoke('rescue_task', { streak_id: streakId }),
     [invoke]
   )
 
   return {
     loading,
     error,
+    invoke,
     suggestTasks,
     evaluateExcuse,
     respondToMood,
     planDate,
+    rateDate,
+    requestRescueTask,
   }
 }

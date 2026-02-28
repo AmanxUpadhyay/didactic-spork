@@ -1,22 +1,11 @@
-import { useState, useEffect } from 'react'
-import { Card, Button, ThemeSwitcher, MochiAvatar } from '@/components/ui'
-import { supabase } from '@/lib/supabase'
-
-const TIER_THRESHOLDS: Record<string, { next: string | null; tp: number }> = {
-  seedling: { next: 'sprout', tp: 30 },
-  sprout: { next: 'bloom', tp: 120 },
-  bloom: { next: 'mighty_oak', tp: 300 },
-  mighty_oak: { next: 'unshakeable', tp: 600 },
-  unshakeable: { next: null, tp: 600 },
-}
-
-const TIER_LABELS: Record<string, string> = {
-  seedling: 'Seedling',
-  sprout: 'Sprout',
-  bloom: 'Bloom',
-  mighty_oak: 'Mighty Oak',
-  unshakeable: 'Unshakeable',
-}
+import { useState } from 'react'
+import { Card, Button, BottomSheet, ThemeSwitcher, MochiAvatar } from '@/components/ui'
+import { FeatureGate } from '@/components/ui/FeatureGate'
+import { TierProgressHub } from '@/components/tier/TierProgressHub'
+import { PrestigeBadge } from '@/components/tier/PrestigeBadge'
+import { DateHistoryList } from '@/components/punishment/DateHistoryList'
+import { useTierUnlocks } from '@/hooks/useTierUnlocks'
+import { getTierDisplayName, getNextTier, getTierThreshold } from '@/lib/tierGating'
 
 interface SettingsScreenProps {
   profile: { id: string; name: string; avatar_url: string | null; timezone: string }
@@ -25,42 +14,38 @@ interface SettingsScreenProps {
 }
 
 export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScreenProps) {
-  const [tier, setTier] = useState<{ current_tier: string; current_tp: number } | null>(null)
+  const { tier, tp, prestige } = useTierUnlocks()
+  const [tierHubOpen, setTierHubOpen] = useState(false)
+  const [dateHistoryOpen, setDateHistoryOpen] = useState(false)
 
-  useEffect(() => {
-    supabase
-      .from('tier_progress')
-      .select('current_tier, current_tp')
-      .eq('user_id', profile.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        setTier(data ?? { current_tier: 'seedling', current_tp: 0 })
-      })
-  }, [profile.id])
-
-  const tierName = tier?.current_tier ?? 'seedling'
-  const currentTp = tier?.current_tp ?? 0
-  const info = TIER_THRESHOLDS[tierName] ?? { next: 'sprout', tp: 30 }
-  const nextTierTp = info.tp
-  const progress = info.next ? Math.min(1, currentTp / nextTierTp) : 1
+  const nextTier = getNextTier(tier)
+  const nextTierTp = nextTier ? getTierThreshold(nextTier) : getTierThreshold(tier)
+  const progress = nextTier ? Math.min(1, tp / nextTierTp) : 1
 
   return (
     <div className="px-5 pt-6 pb-24 space-y-4">
       <h1 className="font-heading text-2xl font-semibold text-text-primary">Settings</h1>
 
-      <Card>
+      {/* Tier card — clickable to open TierProgressHub */}
+      <Card
+        className="cursor-pointer active:scale-[0.98] transition-transform"
+        onClick={() => setTierHubOpen(true)}
+      >
         <div className="flex items-center gap-4">
           <MochiAvatar size="sm" className="rounded-full bg-primary/10" />
           <div className="flex-1">
-            <p className="font-heading text-lg font-semibold text-text-primary">{profile.name}</p>
+            <div className="flex items-center gap-2">
+              <p className="font-heading text-lg font-semibold text-text-primary">{profile.name}</p>
+              {prestige > 0 && <PrestigeBadge level={prestige} />}
+            </div>
             <span className="inline-block px-2.5 py-0.5 rounded-[var(--radius-pill)] bg-primary/10 text-primary text-xs font-semibold">
-              {TIER_LABELS[tierName] ?? 'Seedling'}
+              {getTierDisplayName(tier)}
             </span>
-            {info.next && (
+            {nextTier && (
               <div className="mt-2">
                 <div className="flex justify-between text-xs text-text-secondary mb-1">
-                  <span>{currentTp} TP</span>
-                  <span>{nextTierTp} TP to {TIER_LABELS[info.next]}</span>
+                  <span>{tp} TP</span>
+                  <span>{nextTierTp} TP to {getTierDisplayName(nextTier)}</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-surface-secondary overflow-hidden">
                   <div
@@ -70,17 +55,38 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
                 </div>
               </div>
             )}
-            {!info.next && (
-              <p className="text-xs text-text-secondary mt-1">{currentTp} TP — Max tier reached!</p>
+            {!nextTier && (
+              <p className="text-xs text-text-secondary mt-1">{tp} TP — Max tier reached!</p>
             )}
           </div>
+          <span className="text-text-secondary text-sm">{'\u203A'}</span>
         </div>
       </Card>
 
       <Card>
         <div className="space-y-3">
           <h2 className="font-heading text-base font-semibold text-text-primary">Theme</h2>
-          <ThemeSwitcher />
+          <FeatureGate feature="custom_themes" fallback={
+            <div>
+              <ThemeSwitcher />
+              <p className="text-xs text-text-secondary mt-2 opacity-60">
+                More themes at Sprout tier
+              </p>
+            </div>
+          }>
+            <ThemeSwitcher />
+          </FeatureGate>
+        </div>
+      </Card>
+
+      {/* Date History link */}
+      <Card
+        className="cursor-pointer active:scale-[0.98] transition-transform"
+        onClick={() => setDateHistoryOpen(true)}
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading text-base font-semibold text-text-primary">Date History</h2>
+          <span className="text-text-secondary text-sm">{'\u203A'}</span>
         </div>
       </Card>
 
@@ -103,6 +109,20 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
       <Button variant="ghost" className="w-full" onClick={onSignOut}>
         Sign Out
       </Button>
+
+      {/* Tier Progress Hub bottom sheet */}
+      <BottomSheet open={tierHubOpen} onClose={() => setTierHubOpen(false)}>
+        <div className="px-5 py-4">
+          <TierProgressHub />
+        </div>
+      </BottomSheet>
+
+      {/* Date History bottom sheet */}
+      <BottomSheet open={dateHistoryOpen} onClose={() => setDateHistoryOpen(false)}>
+        <div className="px-5 py-4">
+          <DateHistoryList />
+        </div>
+      </BottomSheet>
     </div>
   )
 }

@@ -48,10 +48,17 @@ Rules:
 - Budget MUST stay within the provided limit (GBP)
 - Factor in Sheffield, UK locations and seasonal availability
 - Respect the loser's hard_nos and mild_discomforts
-- Don't repeat venues from recent date_history
+- For GENTLE intensity: respect mild_discomforts too
+- For MODERATE intensity: push on mild_discomforts if it makes a better date
+- For SPICY intensity: only hard_nos are off-limits
+- Don't repeat venues/categories/cuisines from the rotation memory
 - Vary the vibe: one chill, one adventurous, one creative
 - Include estimated costs for each component
-- Return JSON: { "options": [{ "title": "", "activity": "", "food": "", "extras": [], "estimatedCost": 0, "rationale": "" }] }`,
+- If mutual_failure is true: use collaborative "we" language, suggest a joint improvement activity, budget is £30
+- If both_win is true: generate a celebratory reward date, use excited tone
+- If surprise_eligible is true: add a surprise_element to the spiciest option (a fun twist or unexpected add-on)
+- If veto_regenerate is true: replace ONLY the vetoed option indices, keep others
+- Return JSON: { "options": [{ "title": "", "activity": "", "food": "", "extras": [], "estimatedCost": 0, "rationale": "" }], "surprise_element": { "description": "", "revealAt": "during_date" } | null }`,
 
   daily_notification: `TASK: Morning Briefing Notification
 Write a short push notification to start their day.
@@ -111,6 +118,28 @@ Rules:
 - PARTIAL: acknowledge + gentle push
 - NEEDS_PUSH: call it out with humor, motivate
 - Return JSON: { "classification": "LEGIT|PARTIAL|NEEDS_PUSH", "rationale": "", "response": "" }`,
+
+  date_rate: `TASK: Date Rating Response
+Respond to a user's rating of a completed punishment date.
+
+Rules:
+- Acknowledge their rating (1-5 stars)
+- If high rating (4-5): celebrate the date, note what made it special
+- If medium rating (3): balanced take, suggest how to improve next time
+- If low rating (1-2): empathize, commit to better planning next time
+- If both partners have rated: compare perspectives briefly
+- Keep under 100 words
+- Return JSON: { "response": "", "quality_note": "" }`,
+
+  rescue_task: `TASK: Couple Rescue Task
+Generate a quick rescue task for a partner saving their loved one's broken streak.
+
+Rules:
+- Task should be completable in 15-30 minutes
+- Related to the broken streak's theme if possible
+- Should feel like a gesture of love/support, not a chore
+- One task only, clear and specific
+- Return JSON: { "task": "", "description": "", "timeEstimate": "" }`,
 };
 
 /**
@@ -211,10 +240,48 @@ Depth: ${extra.depth || "quick"}`);
       parts.push(`\n## Date Planning Context
 Budget: £${extra.budget || 100}
 Intensity: ${extra.intensity || "moderate"}
-Recent dates to avoid repeating: ${JSON.stringify(extra.recentDates || [])}`);
+Recent dates to avoid repeating: ${JSON.stringify(extra.recentDates || [])}
+Mutual failure: ${extra.isMutualFailure || false}
+Both win: ${extra.isBothWin || false}
+Surprise eligible: ${extra.surpriseEligible || false}
+Veto regenerate: ${extra.vetoRegenerate || false}`);
+      if (extra.vetoRegenerate && extra.vetoedIndices) {
+        parts.push(`Replace option indices: ${JSON.stringify(extra.vetoedIndices)}`);
+        if (extra.existingOptions) {
+          parts.push(`Existing options to keep: ${JSON.stringify(extra.existingOptions)}`);
+        }
+      }
+      if (extra.memoryState) {
+        parts.push(`\n## Date Memory (avoid repeats)
+Recent categories: ${JSON.stringify((extra.memoryState as Record<string, unknown>).lastCategories || [])}
+Recent cuisines: ${JSON.stringify((extra.memoryState as Record<string, unknown>).lastCuisines || [])}
+Recent venues: ${JSON.stringify((extra.memoryState as Record<string, unknown>).lastVenues || [])}
+Wave position: ${(extra.memoryState as Record<string, unknown>).intensityWavePosition || 0}`);
+      }
       if (userContext?.hardNos) {
         parts.push(`Hard nos: ${JSON.stringify(userContext.hardNos)}`);
       }
+      if (userContext?.mildDiscomforts) {
+        parts.push(`Mild discomforts: ${JSON.stringify(userContext.mildDiscomforts)}`);
+      }
+    }
+
+    if (functionType === "date_rate") {
+      parts.push(`\n## Date Rating
+Rating: ${extra.rating}/5
+Highlights: ${extra.highlights || "(none)"}
+Improvements: ${extra.improvements || "(none)"}
+Both rated: ${extra.bothRated || false}`);
+      if (extra.partnerRating) {
+        parts.push(`Partner's rating: ${extra.partnerRating}/5`);
+      }
+    }
+
+    if (functionType === "rescue_task") {
+      parts.push(`\n## Rescue Context
+Partner's broken streak: ${extra.streakTaskTitle || "Unknown habit"}
+Streak was at: ${extra.streakDays || 0} days
+Rescuer name: ${extra.rescuerName || userContext?.name || "Partner"}`);
     }
 
     if (functionType === "task_suggest" && extra.currentTasks) {

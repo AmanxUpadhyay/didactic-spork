@@ -9,11 +9,13 @@ import { useToast } from '@/components/ui/ToastProvider'
 import { EmptyState, ConfirmDialog, BottomSheet } from '@/components/ui'
 import { ProgressRing } from '@/components/ui/ProgressRing'
 import { ConfettiCelebration } from '@/components/ui/ConfettiCelebration'
+import { FeatureGate } from '@/components/ui/FeatureGate'
 import { HabitList } from '@/components/habits/HabitList'
 import { HabitCardSkeleton } from '@/components/habits/HabitCardSkeleton'
 import { HabitActionMenu } from '@/components/habits/HabitActionMenu'
 import { CoupleStreakBanner } from '@/components/habits/CoupleStreakBanner'
 import { SprintStatusBanner } from '@/components/sprint/SprintStatusBanner'
+import { StreakRescuePrompt } from '@/components/rescue/StreakRescuePrompt'
 import { KiraMoodResponse } from '@/components/kira/KiraMoodResponse'
 import { KiraExcuseVerdict } from '@/components/kira/KiraExcuseVerdict'
 import { KiraAvatar } from '@/components/kira/KiraAvatar'
@@ -126,6 +128,11 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProp
           <ProgressRing progress={progress} />
         )}
       </div>
+
+      {/* Streak rescue prompt (if partner's streak is broken) */}
+      <FeatureGate feature="couple_rescue">
+        <StreakRescuePrompt className="mb-4" />
+      </FeatureGate>
 
       {/* Couple streak banner */}
       {bestCoupleStreak && (
