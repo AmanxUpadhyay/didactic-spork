@@ -3,6 +3,8 @@ import { Card } from '@/components/ui'
 import { SprintResultsReveal } from './SprintResultsReveal'
 import { ScoreBreakdown } from './ScoreBreakdown'
 import { SprintHistoryCard } from './SprintHistoryCard'
+import { KiraSprintVerdict } from '@/components/kira/KiraSprintVerdict'
+import { KiraDatePlan } from '@/components/kira/KiraDatePlan'
 import { supabase } from '@/lib/supabase'
 import type { ScoreBreakdown as ScoreBreakdownType } from '@/hooks/useSprint'
 import type { Database } from '@/types/database'
@@ -19,6 +21,7 @@ interface SprintHistoryItem {
 }
 
 interface SprintResultsViewProps {
+  sprintId: string
   myScore: number
   partnerScore: number
   myName: string
@@ -32,6 +35,7 @@ interface SprintResultsViewProps {
 }
 
 export function SprintResultsView({
+  sprintId,
   myScore,
   partnerScore,
   myName,
@@ -85,6 +89,14 @@ export function SprintResultsView({
         iWon={iWon}
         isTie={isTie}
       />
+
+      {/* Kira's sprint verdict */}
+      <KiraSprintVerdict sprintId={sprintId} />
+
+      {/* Date plan (only for losers) */}
+      {!iWon && !isTie && (
+        <KiraDatePlan sprintId={sprintId} />
+      )}
 
       {/* Score breakdowns side-by-side */}
       {myBreakdown && (

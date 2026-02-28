@@ -39,5 +39,14 @@ export function useStreaks(userId: string | undefined) {
     return streaks.find((s) => s.task_id === taskId && s.streak_type === 'individual') || null
   }
 
-  return { streaks, loading, getStreakForTask, refetch: fetchStreaks }
+  function getCoupleStreak(taskId: string): Streak | null {
+    return streaks.find((s) => s.task_id === taskId && s.streak_type === 'couple') || null
+  }
+
+  const coupleStreaks = streaks.filter((s) => s.streak_type === 'couple' && s.current_days > 0)
+  const bestCoupleStreak = coupleStreaks.length > 0
+    ? coupleStreaks.reduce((a, b) => (a.current_days > b.current_days ? a : b))
+    : null
+
+  return { streaks, loading, getStreakForTask, getCoupleStreak, bestCoupleStreak, refetch: fetchStreaks }
 }

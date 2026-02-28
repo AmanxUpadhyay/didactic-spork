@@ -51,6 +51,9 @@ export function SprintScreen() {
     return (
       <div className="px-5 pt-6 pb-24">
         <ActiveSprintView
+          sprintId={sprint.id}
+          userId={profile!.id}
+          partnerId={partnerId ?? null}
           weekStart={sprint.week_start}
           myName={myName}
           partnerName={partnerName}
@@ -83,6 +86,7 @@ export function SprintScreen() {
     return (
       <div className="px-5 pt-6 pb-24">
         <SprintResultsView
+          sprintId={sprint.id}
           myScore={sprint.my_score ?? 0}
           partnerScore={sprint.partner_score ?? 0}
           myName={myName}

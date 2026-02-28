@@ -115,7 +115,8 @@ Deno.serve(async (req: Request) => {
       winnerId = userB.user_id;
     }
 
-    // 5. Update sprint with final scores
+    // 5. Update sprint with final scores + RPI
+    const rpi = scoreA - scoreB;
     await supabase
       .from("sprints")
       .update({
@@ -125,6 +126,7 @@ Deno.serve(async (req: Request) => {
         score_breakdown_a: userA?.breakdown ?? null,
         score_breakdown_b: userB?.breakdown ?? null,
         winner_id: winnerId,
+        relative_performance_index: rpi,
         updated_at: new Date().toISOString(),
       })
       .eq("id", sprint.id);

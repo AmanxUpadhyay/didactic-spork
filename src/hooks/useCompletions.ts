@@ -43,7 +43,13 @@ export function useCompletions(userId: string | undefined, timezone: string) {
     return completions.some((c) => c.task_id === taskId)
   }
 
-  async function toggleCompletion(taskId: string): Promise<{ completed: boolean; streak?: number }> {
+  const MILESTONES = [3, 7, 14, 21, 30, 60, 90]
+
+  async function toggleCompletion(taskId: string): Promise<{
+    completed: boolean
+    streak?: number
+    milestone?: number | null
+  }> {
     if (!userId) return { completed: false }
 
     const existing = completions.find((c) => c.task_id === taskId)
@@ -59,7 +65,7 @@ export function useCompletions(userId: string | undefined, timezone: string) {
       // Complete
       const { data } = await supabase
         .from('habit_completions')
-        .insert({ user_id: userId, task_id: taskId, completed_date: today })
+        .insert({ user_id: userId, task_id: taskId, completed_date: today, completed_at: new Date().toISOString() })
         .select()
         .single()
       if (data) {
@@ -68,7 +74,9 @@ export function useCompletions(userId: string | undefined, timezone: string) {
       // Update streak and get result
       const { data: streakResult } = await supabase.rpc('update_streak_for_task', { p_task_id: taskId })
       const result = streakResult as { success: boolean; current_days?: number } | null
-      return { completed: true, streak: result?.current_days }
+      const days = result?.current_days ?? 0
+      const milestone = MILESTONES.includes(days) ? days : null
+      return { completed: true, streak: days, milestone }
     }
   }
 

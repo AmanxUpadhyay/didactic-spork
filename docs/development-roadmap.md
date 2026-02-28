@@ -39,83 +39,85 @@ These must be resolved before Phase 1 begins.
 
 ## Phase 0 — Project Scaffolding & Infrastructure
 
+**Status: COMPLETE** — Commit `a2b9980`
+
 **Goal:** Set up the entire development environment, hosting, backend, and design foundation so that all future phases can build on a stable base.
 
 **Estimated effort:** 1–2 weeks
 
 ### 0.1 — Supabase Project Setup
 
-- [ ] Create Supabase project
-- [ ] Configure auth for exactly 2 users (email/password, no social login needed)
-- [ ] Set up Row Level Security (RLS) policies on all tables
-- [ ] Generate VAPID keys for push notifications [B5]
-- [ ] Store VAPID private key, Anthropic API key, and all secrets in Supabase Vault
-- [ ] Enable Supabase Realtime on tables that need live sync between partners
+- [x] Create Supabase project
+- [x] Configure auth for exactly 2 users (email/password, no social login needed)
+- [x] Set up Row Level Security (RLS) policies on all tables *(RLS completed in Phase 3 gap audit, migration 011)*
+- [x] Generate VAPID keys for push notifications [B5]
+- [x] Store VAPID private key, Anthropic API key, and all secrets in Supabase Vault
+- [x] Enable Supabase Realtime on tables that need live sync between partners
 
 ### 0.2 — Database Schema (Core Tables)
 
 Create all tables from the ideation document §8. Priority order:
 
 **User & Auth Layer:**
-- [ ] `users` — profiles, preferences, food/dietary info, hard_nos, mild_discomforts [B3]
-- [ ] `user_ai_profiles` — Kira personality preferences per user [B4]
+- [x] `users` — profiles, preferences, food/dietary info, hard_nos, mild_discomforts [B3]
+- [x] `user_ai_profiles` — Kira personality preferences per user [B4]
 
 **Task & Sprint Layer:**
-- [ ] `tasks` — all tasks (deadline + recurring), with implementation intention fields: `if_trigger`, `then_action` [B1]
-- [ ] `sprints` — weekly sprint metadata, scores, winner, `tier_points_earned`, `relative_performance_index` [B3]
-- [ ] `sprint_tasks` — junction table with `difficulty_rating` (hybrid AI + user) [B3]
+- [x] `tasks` — all tasks (deadline + recurring), with implementation intention fields: `if_trigger`, `then_action` [B1]
+- [x] `sprints` — weekly sprint metadata, scores, winner, `tier_points_earned`, `relative_performance_index` [B3]
+- [x] `sprint_tasks` — junction table with `difficulty_rating` (hybrid AI + user) [B3]
 
 **Gamification Layer:**
-- [ ] `streaks` — individual + mutual streak tracking, `couple_rescue_available`, `milestone_floor` [B3]
-- [ ] `tier_progress` — Tier Points per user: `current_tp`, `current_tier`, `prestige_level` [B3]
-- [ ] `relationship_xp` — permanent, never-resetting growth counter [B1]
+- [x] `streaks` — individual + mutual streak tracking, `couple_rescue_available`, `milestone_floor` [B3]
+- [x] `tier_progress` — Tier Points per user: `current_tp`, `current_tier`, `prestige_level` [B3]
+- [x] `relationship_xp` — permanent, never-resetting growth counter [B1]
 
 **Mood & Wellbeing Layer:**
-- [ ] `mood_entries` — mood check-ins with adaptive depth, feeds into AI mood selection [B4]
-- [ ] `appreciation_notes` — weekly pre-score appreciation entries, required before score reveal [B3]
+- [x] `mood_entries` — mood check-ins with adaptive depth, feeds into AI mood selection [B4]
+- [x] `appreciation_notes` — weekly pre-score appreciation entries, required before score reveal [B3]
 
 **Notification Layer:**
-- [ ] `push_subscriptions` — VAPID endpoints per device: endpoint, p256dh, auth, user_agent [B5]
-- [ ] `notification_queue` — scheduled notifications with urgency, category, escalation_level [B5]
-- [ ] `notification_preferences` — per-user granular toggle controls [B5]
+- [x] `push_subscriptions` — VAPID endpoints per device: endpoint, p256dh, auth, user_agent [B5]
+- [x] `notification_queue` — scheduled notifications with urgency, category, escalation_level [B5]
+- [x] `notification_preferences` — per-user granular toggle controls [B5]
 
 **Punishment & Date Layer:**
-- [ ] `punishments` — AI-generated date plans with `intensity_tier`, `vetoes_granted` [B3]
-- [ ] `date_history` — venue/cuisine/activity tracking, 8-week non-repeat window [B3]
+- [x] `punishments` — AI-generated date plans with `intensity_tier`, `vetoes_granted` [B3]
+- [x] `date_history` — venue/cuisine/activity tracking, 8-week non-repeat window [B3]
 
 **Safety Layer:**
-- [ ] `relationship_health` — automated signal logs: `signal_type`, `intervention_taken` [B3]
+- [x] `relationship_health` — automated signal logs: `signal_type`, `intervention_taken` [B3]
 
 ### 0.3 — Frontend Project Setup
 
-- [ ] Initialize React + Vite project with Tailwind CSS v4
-- [ ] Install and configure Tailwind CSS v4
-- [ ] Set up Tailwind theme config with Strawberry Milk palette tokens, typography scale, and border-radius tokens
-- [ ] Configure PWA manifest (`manifest.json`) with app name "Jugalbandi", icons, theme color, `display: standalone`
-- [ ] Set up service worker skeleton (cache strategy, push notification listener)
-- [ ] Install and configure Supabase client SDK
-- [ ] Set up Lottie player library
-- [ ] Configure font loading: Baloo 2 (variable, headings) + Nunito (body) + Comfortaa (accent/numbers) [B2]
-- [ ] Service worker font caching strategy [B2]
-- [ ] Set up Strawberry Milk palette in Tailwind theme config (light + dark mode) [B2]
-- [ ] Implement `prefers-color-scheme` media query for automatic dark mode
-- [ ] Create global design tokens as Tailwind theme tokens (see token table from Brief 2)
-- [ ] Ban list enforcement: no Inter, Roboto, DM Sans, Poppins, Open Sans, Montserrat [B2]
+- [x] Initialize React + Vite project with Tailwind CSS v4
+- [x] Install and configure Tailwind CSS v4
+- [x] Set up Tailwind theme config with Strawberry Milk palette tokens, typography scale, and border-radius tokens
+- [x] Configure PWA manifest (`manifest.json`) with app name "Jugalbandi", icons, theme color, `display: standalone`
+- [x] Set up service worker skeleton (cache strategy, push notification listener)
+- [x] Install and configure Supabase client SDK
+- [x] Set up Lottie player library
+- [x] Configure font loading: Baloo 2 (variable, headings) + Nunito (body) + Comfortaa (accent/numbers) [B2]
+- [x] Service worker font caching strategy [B2]
+- [x] Set up Strawberry Milk palette in Tailwind theme config (light + dark mode) [B2]
+- [x] Implement `prefers-color-scheme` media query for automatic dark mode
+- [x] Create global design tokens as Tailwind theme tokens (see token table from Brief 2)
+- [x] Ban list enforcement: no Inter, Roboto, DM Sans, Poppins, Open Sans, Montserrat [B2]
 
 ### 0.4 — Design System / Component Library (Foundational)
 
 Build the reusable component primitives that every screen depends on:
 
-- [ ] **Button** — pill shape (`border-radius: 9999px`), primary/secondary/ghost variants, 44×44px minimum touch target, bouncy press animation (`200ms cubic-bezier(0.34, 1.56, 0.64, 1)`) [B2]
-- [ ] **Card** — `border-radius: 20px`, warm shadow (`0 8px 32px rgba(primary, 0.08)`), `#FFF8F3` cream background [B2]
-- [ ] **Input fields** — `border-radius: 16px`, warm cream fill, gentle head-shake animation for validation errors [B2]
-- [ ] **Bottom sheet** — 24px top corner radius, warm-tinted overlay (`rgba(74, 55, 40, 0.3)`), spring animation [B2]
-- [ ] **Navigation bar** — frosted glass bottom tab bar, 64px + safe area, Hugeicons Stroke Rounded 24px, center FAB for "add habit" [B2]
-- [ ] **Toast / snackbar** — kawaii style with mascot avatar
-- [ ] **Loading state** — mascot replaces spinner [B2]
-- [ ] **Empty states** — sleeping mascot (no data) / celebrating mascot (all done) [B2]
-- [ ] **Data visualization primitives** — bar charts with 8px top border-radius + gradient fills, sparkle emoji above completed bars; line charts with spline smoothing [B2]
-- [ ] **Theme switcher foundation** — support for Strawberry Milk (default), Matcha Latte, Honey Biscuit [B2]
+- [x] **Button** — pill shape (`border-radius: 9999px`), primary/secondary/ghost variants, 44×44px minimum touch target, bouncy press animation (`200ms cubic-bezier(0.34, 1.56, 0.64, 1)`) [B2]
+- [x] **Card** — `border-radius: 20px`, warm shadow (`0 8px 32px rgba(primary, 0.08)`), `#FFF8F3` cream background [B2]
+- [x] **Input fields** — `border-radius: 16px`, warm cream fill, gentle head-shake animation for validation errors [B2]
+- [x] **Bottom sheet** — 24px top corner radius, warm-tinted overlay (`rgba(74, 55, 40, 0.3)`), spring animation [B2]
+- [x] **Navigation bar** — frosted glass bottom tab bar, 64px + safe area, Hugeicons Stroke Rounded 24px, center FAB for "add habit" [B2]
+- [x] **Toast / snackbar** — kawaii style with mascot avatar
+- [x] **Loading state** — mascot replaces spinner [B2]
+- [x] **Empty states** — sleeping mascot (no data) / celebrating mascot (all done) [B2]
+- [x] **Data visualization primitives** — bar charts with 8px top border-radius + gradient fills, sparkle emoji above completed bars; line charts with spline smoothing [B2]
+- [x] **Theme switcher foundation** — support for Strawberry Milk (default), Matcha Latte, Honey Biscuit [B2]
 
 ### Phase 0 — Definition of Done
 
@@ -129,49 +131,51 @@ Build the reusable component primitives that every screen depends on:
 
 ## Phase 1 — Core Habit Tracking (The "Table Stakes")
 
+**Status: COMPLETE** — Commit `e1b2356`
+
 **Goal:** Build the minimum viable habit tracker that users expect from any habit app. This is the non-negotiable foundation. [B6]
 
 **Estimated effort:** 2–3 weeks
 
 ### 1.1 — Task & Habit System
 
-- [ ] **Task creation flow** — support both deadline tasks (one-off with due date) and recurring habits (daily/weekly/specific days)
-- [ ] **Unified daily feed** — "What do I need to do today?" view combining both task types
-- [ ] **Task completion** — tap to mark complete (honor system for low-stakes tasks)
-- [ ] **Flexible scheduling** — daily, specific weekdays, X times per week, custom intervals
-- [ ] **Task editing & deletion** — modify or remove tasks with confirmation
-- [ ] **Implementation intentions fields** — optional `if_trigger` and `then_action` for each task ("If it's 7 AM, then I do 10 pushups") [B1]
+- [x] **Task creation flow** — support both deadline tasks (one-off with due date) and recurring habits (daily/weekly/specific days)
+- [x] **Unified daily feed** — "What do I need to do today?" view combining both task types
+- [x] **Task completion** — tap to mark complete (honor system for low-stakes tasks)
+- [x] **Flexible scheduling** — daily, specific weekdays, X times per week, custom intervals
+- [x] **Task editing & deletion** — modify or remove tasks with confirmation
+- [x] **Implementation intentions fields** — optional `if_trigger` and `then_action` for each task ("If it's 7 AM, then I do 10 pushups") [B1]
 
 ### 1.2 — Streak Tracking
 
-- [ ] **Individual streaks** — per-habit streak counter with visual progress [B3]
-- [ ] **Streak display** — Comfortaa Bold 700 numbers for streak counters [B2]
-- [ ] **60% threshold** — streaks maintained if ≥60% of daily habits completed (not all-or-nothing) [B3]
-- [ ] **Milestone floors** — when a long streak breaks, drop to previous milestone (3/7/14/21/30/60/90) not zero [B3]
-- [ ] **Best streak memory** — always show personal best alongside current [B3]
-- [ ] **Streak freeze** — 1 free freeze day, additional earned via milestones [B3]
-- [ ] **Celebration animations** — Lottie confetti burst at milestones using bouncy easing [B2, B3]
+- [x] **Individual streaks** — per-habit streak counter with visual progress [B3]
+- [x] **Streak display** — Comfortaa Bold 700 numbers for streak counters [B2]
+- [x] **60% threshold** — streaks maintained if ≥60% of daily habits completed (not all-or-nothing) [B3]
+- [x] **Milestone floors** — when a long streak breaks, drop to previous milestone (3/7/14/21/30/60/90) not zero [B3]
+- [x] **Best streak memory** — always show personal best alongside current [B3]
+- [x] **Streak freeze** — 1 free freeze day, additional earned via milestones [B3]
+- [x] **Celebration animations** — Lottie confetti burst at milestones using bouncy easing [B2, B3]
 
 ### 1.3 — Partner Pairing & Shared Visibility
 
-- [ ] **Partner link** — simple pairing flow (invite code or direct link)
-- [ ] **Shared task visibility** — both partners can see each other's tasks and completion status
-- [ ] **Real-time sync** — Supabase Realtime so partner activity appears live
-- [ ] **Partner activity notifications** — see when your partner completes a task [B1]
-- [ ] **Mutual streaks** — joint streak counter for habits both partners share [B3]
+- [x] **Partner link** — simple pairing flow (invite code or direct link)
+- [x] **Shared task visibility** — both partners can see each other's tasks and completion status
+- [x] **Real-time sync** — Supabase Realtime so partner activity appears live
+- [x] **Partner activity notifications** — see when your partner completes a task [B1]
+- [x] **Mutual streaks** — joint streak counter for habits both partners share [B3]
 
 ### 1.4 — Basic Profile & Settings
 
-- [ ] **Profile screen** — name, avatar placeholder (mascot comes later), current tier, current streak
-- [ ] **Notification preferences** — granular toggles per notification category [B5]
-- [ ] **Theme selection** — Strawberry Milk / Matcha Latte / Honey Biscuit [B2]
-- [ ] **Dark mode toggle** — or follow system preference
-- [ ] **Active hours setting** — default 9 AM – 1 AM, no notifications outside window [B5]
+- [x] **Profile screen** — name, avatar placeholder (mascot comes later), current tier, current streak
+- [x] **Notification preferences** — granular toggles per notification category [B5]
+- [x] **Theme selection** — Strawberry Milk / Matcha Latte / Honey Biscuit [B2]
+- [x] **Dark mode toggle** — or follow system preference
+- [x] **Active hours setting** — default 9 AM – 1 AM, no notifications outside window [B5]
 
 ### 1.5 — Home Screen Widget (PWA)
 
 - [ ] **Quick check-in widget** — minimal interaction to mark habits done without fully opening app
-- [ ] **"Add to Home Screen" flow** — guided onboarding for PWA installation (critical for iOS push) [B5]
+- [x] **"Add to Home Screen" flow** — guided onboarding for PWA installation (critical for iOS push) [B5]
 
 ### Phase 1 — Definition of Done
 
@@ -185,46 +189,48 @@ Build the reusable component primitives that every screen depends on:
 
 ## Phase 2 — Weekly Sprint Competition System
 
+**Status: COMPLETE** — Code on main (uncommitted). `score-sprint` Edge Function deployed to Supabase. pg_cron jobs for sprint lifecycle active.
+
 **Goal:** Build the competitive weekly sprint system with composite scoring — the core differentiator that turns a habit tracker into an accountability weapon. [B3, B6]
 
 **Estimated effort:** 2–3 weeks
 
 ### 2.1 — Sprint Lifecycle
 
-- [ ] **Auto-sprint creation** — sprints run Monday to Sunday, auto-generated by pg_cron [B3]
-- [ ] **Sprint start notification** — Monday 9:30 AM with Kira's kickoff message [B5]
-- [ ] **Mid-week status** — Wednesday/Thursday check-in showing relative standings
-- [ ] **Sprint end & scoring** — Sunday 10 PM automatic calculation and winner announcement
+- [x] **Auto-sprint creation** — sprints run Monday to Sunday, auto-generated by pg_cron [B3]
+- [x] **Sprint start notification** — Monday 9:30 AM with Kira's kickoff message [B5]
+- [x] **Mid-week status** — Wednesday/Thursday check-in showing relative standings
+- [x] **Sprint end & scoring** — Sunday 10 PM automatic calculation and winner announcement
 
 ### 2.2 — Composite Scoring Engine
 
 Implement the research-validated 30/20/30/15/5 weighted scoring system [B3]:
 
-- [ ] **Completion Rate (30%)** — percentage of assigned tasks completed
-- [ ] **Difficulty Multiplier (20%)** — harder tasks earn more (hybrid AI + user difficulty rating)
-- [ ] **Consistency Score (30%)** — tasks spread across the week vs. Sunday cramming; daily check-ins matter
-- [ ] **Streak Bonus (15%)** — logarithmic cap to prevent runaway advantages; maintaining multi-week streaks [B3]
-- [ ] **Bonus Points (5%)** — going beyond assigned tasks, helping partner, extra effort
+- [x] **Completion Rate (30%)** — percentage of assigned tasks completed
+- [x] **Difficulty Multiplier (20%)** — harder tasks earn more (hybrid AI + user difficulty rating)
+- [x] **Consistency Score (30%)** — tasks spread across the week vs. Sunday cramming; daily check-ins matter
+- [x] **Streak Bonus (15%)** — logarithmic cap to prevent runaway advantages; maintaining multi-week streaks [B3]
+- [x] **Bonus Points (5%)** — going beyond assigned tasks, helping partner, extra effort
 
 ### 2.3 — Real-Time Leaderboard
 
-- [ ] **Live score display** — both partners see current sprint standings throughout the week
-- [ ] **Score breakdown** — transparent view of how each factor contributes to the total
-- [ ] **Relative Performance Index** — track performance delta between partners [B3]
-- [ ] **Visual sprint progress** — chart showing daily score accumulation across the week [B2]
+- [x] **Live score display** — both partners see current sprint standings throughout the week
+- [x] **Score breakdown** — transparent view of how each factor contributes to the total
+- [x] **Relative Performance Index** — track performance delta between partners [B3]
+- [x] **Visual sprint progress** — chart showing daily score accumulation across the week [B2]
 
 ### 2.4 — Sprint Results & Appreciation Gate
 
-- [ ] **Appreciation note requirement** — both partners must write a note about what they appreciated about the other BEFORE seeing the final score [B3]
-- [ ] **Results reveal** — animated score reveal with breakdown
-- [ ] **Winner announcement** — Kira delivers the verdict with personality [B4]
-- [ ] **Sprint history** — browse past sprints, scores, and trends
+- [x] **Appreciation note requirement** — both partners must write a note about what they appreciated about the other BEFORE seeing the final score [B3]
+- [x] **Results reveal** — animated score reveal with breakdown
+- [x] **Winner announcement** — Kira delivers the verdict with personality [B4]
+- [x] **Sprint history** — browse past sprints, scores, and trends
 
 ### 2.5 — Anti-Cramming Mechanics
 
-- [ ] **Consistency scoring algorithm** — penalize Sunday task dumping, reward daily spread [B3]
-- [ ] **Daily check-in bonus** — small points for opening the app and logging at least one thing daily
-- [ ] **Time-of-day tracking** — detect when tasks are actually being completed
+- [x] **Consistency scoring algorithm** — penalize Sunday task dumping, reward daily spread [B3]
+- [x] **Daily check-in bonus** — small points for opening the app and logging at least one thing daily
+- [x] **Time-of-day tracking** — detect when tasks are actually being completed
 
 ### Phase 2 — Definition of Done
 
@@ -238,58 +244,60 @@ Implement the research-validated 30/20/30/15/5 weighted scoring system [B3]:
 
 ## Phase 3 — AI Integration (Kira)
 
+**Status: CODE COMPLETE** — Builds clean, frontend integrated, 3 Edge Functions written (kira-cron, kira-interactive, score-sprint). Not yet deployed to Supabase (needs AWS Bedrock secrets: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION).
+
 **Goal:** Bring Kira to life — the AI judge, personality, and brain of the entire system. Kira is the third member of the relationship. [B4, B6]
 
 **Estimated effort:** 3–4 weeks
 
 ### 3.1 — Supabase Edge Functions (AI Bridge)
 
-- [ ] **Claude API wrapper** — shared Edge Function with retry logic, rate limiting, error handling [B4]
-- [ ] **Prompt caching** — ~1500 token cached system prompt prefix to reduce costs [B4]
-- [ ] **Model routing** — Haiku 4.5 for routine tasks (~$0.40/MTok), Sonnet 4.5 for complex reasoning [B4]
-- [ ] **Context assembler** — parallel Supabase queries to build user context (profile, mood stats, recent tasks, streaks, week summary) [B4]
+- [x] **Claude API wrapper** — shared Edge Function with retry logic, rate limiting, error handling [B4] *(via AWS Bedrock SDK, 3-retry with exponential backoff, 8 shared modules in `_shared/`)*
+- [x] **Prompt caching** — ~1500 token cached system prompt prefix to reduce costs [B4]
+- [x] **Model routing** — Haiku for routine tasks, Sonnet for complex reasoning [B4] *(via `@anthropic-ai/bedrock-sdk`, eu-central-1)*
+- [x] **Context assembler** — parallel Supabase queries to build user context (profile, mood stats, recent tasks, streaks, week summary) [B4]
 - [ ] **Cost monitoring** — track API spend, alert if approaching £4/month budget [B4]
 
 ### 3.2 — Kira's Three-Layer Personality Model [B4]
 
 **Layer 1 — Core Personality (static):**
-- [ ] System prompt: sharp, warm, occasionally savage, data-literate referee
-- [ ] Cultural voice: Sheffield-aware, Gen Z internet-native, self-aware about being an AI
-- [ ] Implement the "Kira never punishes through the mascot" rule — mascot stays gentle, Kira delivers the accountability [B2, B4]
+- [x] System prompt: sharp, warm, occasionally savage, data-literate referee
+- [x] Cultural voice: Sheffield-aware, Gen Z internet-native, self-aware about being an AI
+- [x] Implement the "Kira never punishes through the mascot" rule — mascot stays gentle, Kira delivers the accountability [B2, B4]
 
 **Layer 2 — Mood Modes (user-selectable + AI-adaptive):**
-- [ ] "Default Kira" — balanced warmth + accountability
-- [ ] "Cheerful Coach" — unlocks at Tier 1 (Sprout, 30 TP) [B3]
-- [ ] "Sassy Motivator" — unlocks at Tier 2 (In Sync, 120 TP) [B3]
-- [ ] Full personality customisation — unlocks at Tier 3 (Thriving, 300 TP) [B3]
-- [ ] AI mood selector that reads recent mood_entries and adjusts Kira's tone [B4]
+- [x] "Default Kira" — balanced warmth + accountability *(implemented as 6 deterministic modes: cheerful, sarcastic, tough_love, empathetic, hype_man, disappointed)*
+- [x] "Cheerful Coach" — unlocks at Tier 1 (Sprout, 30 TP) [B3]
+- [x] "Sassy Motivator" — unlocks at Tier 2 (In Sync, 120 TP) [B3]
+- [ ] Full personality customisation UI — unlocks at Tier 3 (Thriving, 300 TP) [B3]
+- [x] AI mood selector that reads recent mood_entries and adjusts Kira's tone [B4] *(deterministic selection via mood-selector module)*
 
 **Layer 3 — Emotion Overlay (contextual):**
-- [ ] Dynamic adjustments based on: streak status, sprint standing, recent mood trends, time of day, day of week
-- [ ] If partner is struggling → Kira adjusts to more supportive tone for both users [B4]
+- [x] Dynamic adjustments based on: streak status, sprint standing, recent mood trends, time of day, day of week
+- [x] If partner is struggling → Kira adjusts to more supportive tone for both users [B4]
 
 ### 3.3 — AI-Powered Sprint Judging
 
-- [ ] **Automated scoring** — Kira calculates composite scores using Sonnet 4.5 [B4]
-- [ ] **Score commentary** — personalized analysis of each partner's week ("Aman, your consistency was great but you dodged every hard task")
-- [ ] **Excuse evaluation** — when a user provides a reason for missing tasks, Kira judges legit vs. lazy using Sonnet 4.5 [B4]
-- [ ] **Difficulty rating** — hybrid system where AI proposes difficulty and user can adjust [B3]
+- [x] **Automated scoring** — Kira calculates composite scores using Sonnet [B4]
+- [x] **Score commentary** — personalized analysis of each partner's week ("Aman, your consistency was great but you dodged every hard task")
+- [x] **Excuse evaluation** — when a user provides a reason for missing tasks, Kira judges legit vs. lazy using Sonnet [B4]
+- [x] **Difficulty rating** — hybrid system where AI proposes difficulty and user can adjust [B3]
 
 ### 3.4 — AI Task Suggestions
 
-- [ ] **Smart suggestions** — AI proposes tasks based on goals, past performance, mood trends, and weak areas
-- [ ] **Accept/modify/reject flow** — users aren't forced to accept AI suggestions
+- [x] **Smart suggestions** — AI proposes tasks based on goals, past performance, mood trends, and weak areas
+- [x] **Accept/modify/reject flow** — users aren't forced to accept AI suggestions
 - [ ] **Learning loop** — AI tracks acceptance patterns and improves over time
-- [ ] **Sprint goal proposals** — at sprint start, AI proposes 10 goals per person with rationale [B3]
-- [ ] **Goal swap limit** — users can modify up to 3 goals (can't remove all hard ones) [B3]
+- [x] **Sprint goal proposals** — at sprint start, AI proposes 10 goals per person with rationale [B3]
+- [x] **Goal swap limit** — users can modify up to 3 goals (can't remove all hard ones) [B3]
 
 ### 3.5 — Mood Check-In System
 
-- [ ] **Adaptive depth** — quick mode (1–2 taps) on busy days, deep mode (journaling) on reflective days [B4]
-- [ ] **Shared mood data** — both partners see each other's mood entries
-- [ ] **Evening check-in** — 11:30 PM notification [B5]
-- [ ] **AI mood analysis** — Kira identifies patterns over time (Sonnet 4.5 for insights) [B4]
-- [ ] **Mood-informed notifications** — if partner had a bad day, Kira adjusts notification tone [B4]
+- [x] **Adaptive depth** — quick mode (1–2 taps) on busy days, deep mode (journaling) on reflective days [B4]
+- [x] **Shared mood data** — both partners see each other's mood entries
+- [x] **Evening check-in** — 11:30 PM notification [B5]
+- [x] **AI mood analysis** — Kira identifies patterns over time (Sonnet for insights) [B4]
+- [x] **Mood-informed notifications** — if partner had a bad day, Kira adjusts notification tone [B4]
 
 ### Phase 3 — Definition of Done
 
@@ -608,10 +616,10 @@ These are valuable but explicitly not in v1. Prioritized by user request data fr
 ## Summary: Phase Timeline at a Glance
 
 ```
-Phase 0 — Project Scaffolding & Infrastructure ........... Weeks 1–2
-Phase 1 — Core Habit Tracking (Table Stakes) ............. Weeks 3–5
-Phase 2 — Weekly Sprint Competition System ............... Weeks 6–8
-Phase 3 — AI Integration (Kira) .......................... Weeks 9–12
+Phase 0 — Project Scaffolding & Infrastructure ........... ✅ COMPLETE (a2b9980)
+Phase 1 — Core Habit Tracking (Table Stakes) ............. ✅ COMPLETE (e1b2356)
+Phase 2 — Weekly Sprint Competition System ............... ✅ COMPLETE (uncommitted)
+Phase 3 — AI Integration (Kira) .......................... 🟡 CODE COMPLETE (not deployed)
 Phase 4 — Punishment Dates & Gamification Systems ........ Weeks 13–15
 Phase 5 — Push Notifications & Psychological Engines ..... Weeks 16–18
 Phase 6 — Anti-Toxicity Guardrails ...................... Weeks 19–20

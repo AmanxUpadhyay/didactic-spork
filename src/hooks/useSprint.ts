@@ -18,6 +18,7 @@ export interface ScoreBreakdown {
   difficulty: number
   consistency: number
   streak: number
+  bonus?: number
   total: number
 }
 

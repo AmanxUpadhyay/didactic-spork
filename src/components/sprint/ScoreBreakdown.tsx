@@ -6,6 +6,7 @@ interface ScoreBreakdownProps {
   difficulty: number
   consistency: number
   streak: number
+  bonus?: number
   total: number
   className?: string
 }
@@ -15,6 +16,7 @@ const components = [
   { key: 'difficulty', label: 'Difficulty', weight: '20%' },
   { key: 'consistency', label: 'Consistency', weight: '30%' },
   { key: 'streak', label: 'Streak Bonus', weight: '15%' },
+  { key: 'bonus', label: 'Daily Bonus', weight: '5%' },
 ] as const
 
 export function ScoreBreakdown({
@@ -22,10 +24,11 @@ export function ScoreBreakdown({
   difficulty,
   consistency,
   streak,
+  bonus,
   total,
   className,
 }: ScoreBreakdownProps) {
-  const scores: Record<string, number> = { completion, difficulty, consistency, streak }
+  const scores: Record<string, number> = { completion, difficulty, consistency, streak, bonus: bonus ?? 0 }
 
   return (
     <Card className={cn('space-y-3', className)}>

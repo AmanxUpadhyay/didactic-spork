@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useHabits } from '@/hooks/useHabits'
 import { useCompletions } from '@/hooks/useCompletions'
@@ -6,12 +6,17 @@ import { useStreaks } from '@/hooks/useStreaks'
 import { useSprint } from '@/hooks/useSprint'
 import { useLiveScores } from '@/hooks/useLiveScores'
 import { useToast } from '@/components/ui/ToastProvider'
-import { EmptyState, ConfirmDialog } from '@/components/ui'
+import { EmptyState, ConfirmDialog, BottomSheet } from '@/components/ui'
 import { ProgressRing } from '@/components/ui/ProgressRing'
+import { ConfettiCelebration } from '@/components/ui/ConfettiCelebration'
 import { HabitList } from '@/components/habits/HabitList'
 import { HabitCardSkeleton } from '@/components/habits/HabitCardSkeleton'
 import { HabitActionMenu } from '@/components/habits/HabitActionMenu'
+import { CoupleStreakBanner } from '@/components/habits/CoupleStreakBanner'
 import { SprintStatusBanner } from '@/components/sprint/SprintStatusBanner'
+import { KiraMoodResponse } from '@/components/kira/KiraMoodResponse'
+import { KiraExcuseVerdict } from '@/components/kira/KiraExcuseVerdict'
+import { KiraAvatar } from '@/components/kira/KiraAvatar'
 import { getTodayInTimezone, formatDateDisplay, isHabitDueToday, getDaysRemainingInSprint } from '@/lib/dates'
 import type { Task } from '@/types/habits'
 
@@ -25,7 +30,7 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProp
   const tz = profile?.timezone || 'UTC'
   const { habits, loading: habitsLoading, archiveHabit } = useHabits(profile?.id)
   const { isCompletedToday, toggleCompletion } = useCompletions(profile?.id, tz)
-  const { getStreakForTask } = useStreaks(profile?.id)
+  const { getStreakForTask, bestCoupleStreak } = useStreaks(profile?.id)
   const { toast } = useToast()
 
   const { sprint } = useSprint(profile?.id)
@@ -36,6 +41,11 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProp
 
   const [actionHabit, setActionHabit] = useState<Task | null>(null)
   const [confirmArchive, setConfirmArchive] = useState(false)
+  const [showConfetti, setShowConfetti] = useState(false)
+  const [moodSheetOpen, setMoodSheetOpen] = useState(false)
+  const [excuseHabit, setExcuseHabit] = useState<Task | null>(null)
+
+  const dismissConfetti = useCallback(() => setShowConfetti(false), [])
 
   const today = getTodayInTimezone(tz)
   const dueHabits = habits.filter((h) => isHabitDueToday(h.recurrence, h.custom_days, tz))
@@ -49,10 +59,22 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProp
   async function handleToggle(taskId: string) {
     const result = await toggleCompletion(taskId)
     if (result.completed) {
-      const msg = result.streak && result.streak > 1
-        ? `Done! ${result.streak} day streak`
-        : 'Done!'
-      toast(msg, 'success')
+      if (result.milestone) {
+        toast(`${result.milestone}-day streak! Keep it up!`, 'success')
+        setShowConfetti(true)
+      } else {
+        const msg = result.streak && result.streak > 1
+          ? `Done! ${result.streak} day streak`
+          : 'Done!'
+        toast(msg, 'success')
+      }
+
+      // Check if all habits now complete (need +1 since state may not have updated yet)
+      const newCompleted = completedCount + 1
+      if (newCompleted === dueHabits.length && dueHabits.length > 1) {
+        setShowConfetti(true)
+        toast('All done for today!', 'success')
+      }
     }
   }
 
@@ -92,6 +114,8 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProp
 
   return (
     <div className="px-5 pt-6 pb-24">
+      <ConfettiCelebration show={showConfetti} onComplete={dismissConfetti} />
+
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -102,6 +126,11 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProp
           <ProgressRing progress={progress} />
         )}
       </div>
+
+      {/* Couple streak banner */}
+      {bestCoupleStreak && (
+        <CoupleStreakBanner streak={bestCoupleStreak} className="mb-4" />
+      )}
 
       {/* Sprint banner */}
       {sprint?.status === 'active' && (
@@ -144,12 +173,26 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProp
         </div>
       )}
 
+      {/* Mood check-in entry point */}
+      <button
+        onClick={() => setMoodSheetOpen(true)}
+        className="w-full flex items-center gap-3 mt-4 px-4 py-3 rounded-2xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors"
+      >
+        <KiraAvatar mood="empathetic" size="sm" />
+        <span className="text-sm font-medium text-primary">Mood check-in</span>
+      </button>
+
       <HabitActionMenu
         open={!!actionHabit && !confirmArchive}
         onClose={() => setActionHabit(null)}
         habitTitle={actionHabit?.title ?? ''}
+        isCompletedToday={actionHabit ? isCompletedToday(actionHabit.id) : false}
         onEdit={handleEdit}
         onArchive={handleArchiveRequest}
+        onExcuse={() => {
+          setExcuseHabit(actionHabit)
+          setActionHabit(null)
+        }}
       />
 
       <ConfirmDialog
@@ -165,6 +208,24 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProp
         onConfirm={handleArchiveConfirm}
         destructive
       />
+
+      <BottomSheet open={moodSheetOpen} onClose={() => setMoodSheetOpen(false)}>
+        <div className="px-5 py-4">
+          <KiraMoodResponse onComplete={() => setMoodSheetOpen(false)} />
+        </div>
+      </BottomSheet>
+
+      <BottomSheet open={!!excuseHabit} onClose={() => setExcuseHabit(null)}>
+        <div className="px-5 py-4">
+          {excuseHabit && (
+            <KiraExcuseVerdict
+              taskId={excuseHabit.id}
+              taskTitle={excuseHabit.title}
+              onClose={() => setExcuseHabit(null)}
+            />
+          )}
+        </div>
+      </BottomSheet>
     </div>
   )
 }

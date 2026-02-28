@@ -6,6 +6,7 @@ import { SprintScreen } from './SprintScreen'
 import { PartnerScreen } from './PartnerScreen'
 import { SettingsScreen } from './SettingsScreen'
 import { HabitSheet } from '@/components/habits/HabitSheet'
+import { InstallPrompt } from '@/components/ui/InstallPrompt'
 import {
   Home03Icon,
   Award01Icon,
@@ -73,6 +74,7 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
 
   return (
     <div className="min-h-dvh bg-background">
+      {activeTab === 'today' && <InstallPrompt />}
       {activeTab === 'today' && (
         <TodayScreen
           onEditHabit={handleEditHabit}

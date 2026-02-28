@@ -7,6 +7,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.1"
   }
@@ -55,6 +57,8 @@ export type Database = {
           model_used: string | null
           personality_mode: string | null
           response_text: string
+          sprint_id: string | null
+          structured_data: Json | null
           tokens_input: number | null
           tokens_output: number | null
           user_id: string | null
@@ -68,6 +72,8 @@ export type Database = {
           model_used?: string | null
           personality_mode?: string | null
           response_text: string
+          sprint_id?: string | null
+          structured_data?: Json | null
           tokens_input?: number | null
           tokens_output?: number | null
           user_id?: string | null
@@ -81,11 +87,21 @@ export type Database = {
           model_used?: string | null
           personality_mode?: string | null
           response_text?: string
+          sprint_id?: string | null
+          structured_data?: Json | null
           tokens_input?: number | null
           tokens_output?: number | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ai_responses_sprint_id_fkey"
+            columns: ["sprint_id"]
+            isOneToOne: false
+            referencedRelation: "sprints"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       appreciation_notes: {
         Row: {
@@ -112,7 +128,29 @@ export type Database = {
           recipient_id?: string
           sprint_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "appreciation_notes_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appreciation_notes_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appreciation_notes_sprint_id_fkey"
+            columns: ["sprint_id"]
+            isOneToOne: false
+            referencedRelation: "sprints"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       date_history: {
         Row: {
@@ -151,10 +189,19 @@ export type Database = {
           rating?: number | null
           venue_name?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "date_history_punishment_id_fkey"
+            columns: ["punishment_id"]
+            isOneToOne: false
+            referencedRelation: "punishments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       habit_completions: {
         Row: {
+          completed_at: string | null
           completed_date: string
           created_at: string
           id: string
@@ -163,6 +210,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          completed_at?: string | null
           completed_date: string
           created_at?: string
           id?: string
@@ -171,6 +219,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          completed_at?: string | null
           completed_date?: string
           created_at?: string
           id?: string
@@ -178,7 +227,15 @@ export type Database = {
           task_id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "habit_completions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invite_codes: {
         Row: {
@@ -238,7 +295,15 @@ export type Database = {
           tags?: string[] | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "mood_entries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_log: {
         Row: {
@@ -268,7 +333,22 @@ export type Database = {
           status?: string
           subscription_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notification_log_queue_id_fkey"
+            columns: ["queue_id"]
+            isOneToOne: false
+            referencedRelation: "notification_queue"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_log_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "push_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_preferences: {
         Row: {
@@ -364,7 +444,15 @@ export type Database = {
           urgency?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notification_queue_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "notification_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_templates: {
         Row: {
@@ -463,7 +551,22 @@ export type Database = {
           vetoes_granted?: number
           vetoes_used?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "punishments_loser_id_fkey"
+            columns: ["loser_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "punishments_sprint_id_fkey"
+            columns: ["sprint_id"]
+            isOneToOne: true
+            referencedRelation: "sprints"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       push_subscriptions: {
         Row: {
@@ -538,7 +641,15 @@ export type Database = {
           signal_type?: Database["public"]["Enums"]["health_signal_type"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "relationship_health_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       relationship_xp: {
         Row: {
@@ -598,13 +709,36 @@ export type Database = {
           task_id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "sprint_tasks_sprint_id_fkey"
+            columns: ["sprint_id"]
+            isOneToOne: false
+            referencedRelation: "sprints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sprint_tasks_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sprint_tasks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sprints: {
         Row: {
           appreciation_required: boolean
           created_at: string
           id: string
+          relative_performance_index: number | null
           score_a: number | null
           score_b: number | null
           score_breakdown_a: Json | null
@@ -619,6 +753,7 @@ export type Database = {
           appreciation_required?: boolean
           created_at?: string
           id?: string
+          relative_performance_index?: number | null
           score_a?: number | null
           score_b?: number | null
           score_breakdown_a?: Json | null
@@ -633,6 +768,7 @@ export type Database = {
           appreciation_required?: boolean
           created_at?: string
           id?: string
+          relative_performance_index?: number | null
           score_a?: number | null
           score_b?: number | null
           score_breakdown_a?: Json | null
@@ -643,7 +779,15 @@ export type Database = {
           week_start?: string
           winner_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "sprints_winner_id_fkey"
+            columns: ["winner_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       streaks: {
         Row: {
@@ -694,7 +838,22 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "streaks_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "streaks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tasks: {
         Row: {
@@ -745,7 +904,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tasks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tier_progress: {
         Row: {
@@ -772,7 +939,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tier_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_ai_profiles: {
         Row: {
@@ -853,19 +1028,27 @@ export type Database = {
           user_id: string | null
           volatility_30d: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "mood_entries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
       calculate_live_scores: { Args: { p_sprint_id?: string }; Returns: Json }
       check_appreciation_gate: { Args: { p_sprint_id: string }; Returns: Json }
       claim_invite_code: { Args: { p_code: string }; Returns: Json }
-      generate_invite_code: { Args: Record<string, never>; Returns: Json }
-      get_partner_id: { Args: Record<string, never>; Returns: string }
+      generate_invite_code: { Args: never; Returns: Json }
+      get_partner_id: { Args: never; Returns: string }
       get_sprint_history: { Args: { p_limit?: number }; Returns: Json }
       update_streak_for_task: { Args: { p_task_id: string }; Returns: Json }
       update_tier_points: {
-        Args: { p_user_id: string; p_score: number }
+        Args: { p_score: number; p_user_id: string }
         Returns: Json
       }
     }
@@ -879,7 +1062,14 @@ export type Database = {
         | "mood_response"
         | "nudge"
         | "context_assembly"
-      date_category: "restaurant" | "activity" | "adventure" | "home" | "surprise"
+        | "task_suggest"
+        | "excuse_eval"
+      date_category:
+        | "restaurant"
+        | "activity"
+        | "adventure"
+        | "home"
+        | "surprise"
       difficulty_level: "easy" | "medium" | "hard" | "legendary"
       health_signal_type:
         | "mood_dip"
@@ -1023,3 +1213,87 @@ export type Enums<
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      ai_function_type: [
+        "sprint_judge",
+        "date_plan",
+        "daily_notification",
+        "weekly_summary",
+        "monthly_review",
+        "mood_response",
+        "nudge",
+        "context_assembly",
+        "task_suggest",
+        "excuse_eval",
+      ],
+      date_category: [
+        "restaurant",
+        "activity",
+        "adventure",
+        "home",
+        "surprise",
+      ],
+      difficulty_level: ["easy", "medium", "hard", "legendary"],
+      health_signal_type: [
+        "mood_dip",
+        "streak_break",
+        "avoidance",
+        "conflict_pattern",
+        "disengagement",
+      ],
+      intervention_severity: [
+        "gentle_nudge",
+        "check_in",
+        "cool_down",
+        "pause_suggestion",
+      ],
+      mood_depth: ["quick", "standard", "deep"],
+      notif_category: [
+        "morning_briefing",
+        "task_deadline",
+        "partner_activity",
+        "mood_checkin",
+        "sprint_results",
+        "streak_warning",
+        "sprint_start",
+        "nudge",
+        "celebration",
+      ],
+      notif_status: [
+        "scheduled",
+        "pending",
+        "processing",
+        "delivered",
+        "failed",
+        "cancelled",
+      ],
+      punishment_intensity: ["gentle", "moderate", "spicy", "extreme"],
+      recurrence_pattern: ["daily", "weekdays", "weekends", "custom"],
+      sprint_status: ["upcoming", "active", "scoring", "completed"],
+      streak_type: ["individual", "couple"],
+      summary_period_type: ["daily", "weekly", "monthly"],
+      task_type: ["habit", "one_time", "challenge"],
+      tier_name: ["seedling", "sprout", "bloom", "mighty_oak", "unshakeable"],
+    },
+  },
+} as const

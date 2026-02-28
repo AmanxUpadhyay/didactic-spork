@@ -4,16 +4,20 @@ interface HabitActionMenuProps {
   open: boolean
   onClose: () => void
   habitTitle: string
+  isCompletedToday: boolean
   onEdit: () => void
   onArchive: () => void
+  onExcuse?: () => void
 }
 
 export function HabitActionMenu({
   open,
   onClose,
   habitTitle,
+  isCompletedToday,
   onEdit,
   onArchive,
+  onExcuse,
 }: HabitActionMenuProps) {
   function handleEdit() {
     onEdit()
@@ -22,6 +26,11 @@ export function HabitActionMenu({
 
   function handleArchive() {
     onArchive()
+  }
+
+  function handleExcuse() {
+    onExcuse?.()
+    onClose()
   }
 
   return (
@@ -46,6 +55,24 @@ export function HabitActionMenu({
           </svg>
           Edit
         </button>
+        {!isCompletedToday && onExcuse && (
+          <button
+            type="button"
+            onClick={handleExcuse}
+            className="w-full text-left px-4 py-3 rounded-[var(--radius-card)] hover:bg-primary/5 flex items-center gap-3 text-primary font-medium"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="flex-shrink-0">
+              <path
+                d="M10 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16ZM10 6v5M10 13.5v.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Explain to Kira
+          </button>
+        )}
         <button
           type="button"
           onClick={handleArchive}
