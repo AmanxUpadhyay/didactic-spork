@@ -53,3 +53,29 @@ export function getWeekDates(tz: string): string[] {
   }
   return dates
 }
+
+export function getSprintWeekEnd(weekStart: string): string {
+  const d = new Date(weekStart + 'T12:00:00')
+  d.setDate(d.getDate() + 6)
+  return d.toISOString().slice(0, 10)
+}
+
+export function getDaysRemainingInSprint(weekStart: string, tz: string): number {
+  const today = getTodayInTimezone(tz)
+  const end = getSprintWeekEnd(weekStart)
+  const todayDate = new Date(today + 'T12:00:00')
+  const endDate = new Date(end + 'T12:00:00')
+  const diff = Math.ceil((endDate.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24))
+  return Math.max(diff, 0)
+}
+
+export function formatWeekRange(weekStart: string): string {
+  const start = new Date(weekStart + 'T12:00:00')
+  const end = new Date(weekStart + 'T12:00:00')
+  end.setDate(end.getDate() + 6)
+
+  const fmtDay = (d: Date) =>
+    d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+
+  return `${fmtDay(start)} - ${fmtDay(end)}`
+}

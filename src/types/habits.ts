@@ -7,6 +7,9 @@ export type TaskType = Database['public']['Enums']['task_type']
 export type Task = Database['public']['Tables']['tasks']['Row']
 export type HabitCompletion = Database['public']['Tables']['habit_completions']['Row']
 export type Streak = Database['public']['Tables']['streaks']['Row']
+export type Sprint = Database['public']['Tables']['sprints']['Row']
+export type SprintTask = Database['public']['Tables']['sprint_tasks']['Row']
+export type AppreciationNote = Database['public']['Tables']['appreciation_notes']['Row']
 
 export interface HabitInput {
   title: string

@@ -3,26 +3,36 @@ import { useAuth } from '@/hooks/useAuth'
 import { useHabits } from '@/hooks/useHabits'
 import { useCompletions } from '@/hooks/useCompletions'
 import { useStreaks } from '@/hooks/useStreaks'
+import { useSprint } from '@/hooks/useSprint'
+import { useLiveScores } from '@/hooks/useLiveScores'
 import { useToast } from '@/components/ui/ToastProvider'
 import { EmptyState, ConfirmDialog } from '@/components/ui'
 import { ProgressRing } from '@/components/ui/ProgressRing'
 import { HabitList } from '@/components/habits/HabitList'
 import { HabitCardSkeleton } from '@/components/habits/HabitCardSkeleton'
 import { HabitActionMenu } from '@/components/habits/HabitActionMenu'
-import { getTodayInTimezone, formatDateDisplay, isHabitDueToday } from '@/lib/dates'
+import { SprintStatusBanner } from '@/components/sprint/SprintStatusBanner'
+import { getTodayInTimezone, formatDateDisplay, isHabitDueToday, getDaysRemainingInSprint } from '@/lib/dates'
 import type { Task } from '@/types/habits'
 
 interface TodayScreenProps {
   onEditHabit?: (habit: Task) => void
+  onNavigateToSprint?: () => void
 }
 
-export function TodayScreen({ onEditHabit }: TodayScreenProps) {
+export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProps) {
   const { profile } = useAuth()
   const tz = profile?.timezone || 'UTC'
   const { habits, loading: habitsLoading, archiveHabit } = useHabits(profile?.id)
   const { isCompletedToday, toggleCompletion } = useCompletions(profile?.id, tz)
   const { getStreakForTask } = useStreaks(profile?.id)
   const { toast } = useToast()
+
+  const { sprint } = useSprint(profile?.id)
+  const { myBreakdown, partnerBreakdown } = useLiveScores(
+    profile?.id,
+    sprint?.status === 'active' ? sprint?.id : undefined,
+  )
 
   const [actionHabit, setActionHabit] = useState<Task | null>(null)
   const [confirmArchive, setConfirmArchive] = useState(false)
@@ -83,7 +93,7 @@ export function TodayScreen({ onEditHabit }: TodayScreenProps) {
   return (
     <div className="px-5 pt-6 pb-24">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="font-heading text-2xl font-semibold text-text-primary">Today</h1>
           <p className="text-sm text-text-secondary">{formatDateDisplay(today)}</p>
@@ -92,6 +102,17 @@ export function TodayScreen({ onEditHabit }: TodayScreenProps) {
           <ProgressRing progress={progress} />
         )}
       </div>
+
+      {/* Sprint banner */}
+      {sprint?.status === 'active' && (
+        <SprintStatusBanner
+          myScore={myBreakdown?.total ?? 0}
+          partnerScore={partnerBreakdown?.total ?? 0}
+          daysRemaining={getDaysRemainingInSprint(sprint.week_start, tz)}
+          onTap={onNavigateToSprint}
+          className="mb-4"
+        />
+      )}
 
       {habits.length === 0 ? (
         <EmptyState

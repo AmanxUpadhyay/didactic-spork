@@ -607,6 +607,8 @@ export type Database = {
           id: string
           score_a: number | null
           score_b: number | null
+          score_breakdown_a: Json | null
+          score_breakdown_b: Json | null
           status: Database["public"]["Enums"]["sprint_status"]
           tier_points_earned: number | null
           updated_at: string
@@ -619,6 +621,8 @@ export type Database = {
           id?: string
           score_a?: number | null
           score_b?: number | null
+          score_breakdown_a?: Json | null
+          score_breakdown_b?: Json | null
           status?: Database["public"]["Enums"]["sprint_status"]
           tier_points_earned?: number | null
           updated_at?: string
@@ -631,6 +635,8 @@ export type Database = {
           id?: string
           score_a?: number | null
           score_b?: number | null
+          score_breakdown_a?: Json | null
+          score_breakdown_b?: Json | null
           status?: Database["public"]["Enums"]["sprint_status"]
           tier_points_earned?: number | null
           updated_at?: string
@@ -851,10 +857,17 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_live_scores: { Args: { p_sprint_id?: string }; Returns: Json }
+      check_appreciation_gate: { Args: { p_sprint_id: string }; Returns: Json }
       claim_invite_code: { Args: { p_code: string }; Returns: Json }
       generate_invite_code: { Args: Record<string, never>; Returns: Json }
       get_partner_id: { Args: Record<string, never>; Returns: string }
+      get_sprint_history: { Args: { p_limit?: number }; Returns: Json }
       update_streak_for_task: { Args: { p_task_id: string }; Returns: Json }
+      update_tier_points: {
+        Args: { p_user_id: string; p_score: number }
+        Returns: Json
+      }
     }
     Enums: {
       ai_function_type:

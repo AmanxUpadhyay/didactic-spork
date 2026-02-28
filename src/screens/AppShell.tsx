@@ -2,13 +2,13 @@ import { useState } from 'react'
 import { NavBar, BottomSheet } from '@/components/ui'
 import { usePairing } from '@/contexts/PairingContext'
 import { TodayScreen } from './TodayScreen'
-import { ProgressScreen } from './ProgressScreen'
+import { SprintScreen } from './SprintScreen'
 import { PartnerScreen } from './PartnerScreen'
 import { SettingsScreen } from './SettingsScreen'
 import { HabitSheet } from '@/components/habits/HabitSheet'
 import {
   Home03Icon,
-  ChartBarLineIcon,
+  Award01Icon,
   UserIcon,
   Settings02Icon,
   Add01Icon,
@@ -16,7 +16,7 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import type { Task } from '@/types/habits'
 
-type Tab = 'today' | 'progress' | 'partner' | 'settings'
+type Tab = 'today' | 'sprint' | 'partner' | 'settings'
 
 interface AppShellProps {
   profile: { id: string; name: string; avatar_url: string | null; timezone: string }
@@ -52,10 +52,10 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
       onClick: () => setActiveTab('today'),
     },
     {
-      icon: <HugeiconsIcon icon={ChartBarLineIcon} size={22} />,
-      label: 'Progress',
-      active: activeTab === 'progress',
-      onClick: () => setActiveTab('progress'),
+      icon: <HugeiconsIcon icon={Award01Icon} size={22} />,
+      label: 'Sprint',
+      active: activeTab === 'sprint',
+      onClick: () => setActiveTab('sprint'),
     },
     {
       icon: <HugeiconsIcon icon={UserIcon} size={22} />,
@@ -73,8 +73,13 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
 
   return (
     <div className="min-h-dvh bg-background">
-      {activeTab === 'today' && <TodayScreen onEditHabit={handleEditHabit} />}
-      {activeTab === 'progress' && <ProgressScreen />}
+      {activeTab === 'today' && (
+        <TodayScreen
+          onEditHabit={handleEditHabit}
+          onNavigateToSprint={() => setActiveTab('sprint')}
+        />
+      )}
+      {activeTab === 'sprint' && <SprintScreen />}
       {activeTab === 'partner' && <PartnerScreen />}
       {activeTab === 'settings' && (
         <SettingsScreen
