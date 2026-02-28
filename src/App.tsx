@@ -1,4 +1,5 @@
 import { useAuth } from '@/hooks/useAuth'
+import { useTheme } from '@/hooks/useTheme'
 import { ToastProvider } from '@/components/ui/ToastProvider'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { Login } from '@/pages/Login'
@@ -6,6 +7,7 @@ import { Home } from '@/pages/Home'
 
 function AppContent() {
   const { profile, loading, signIn, signOut } = useAuth()
+  useTheme()
 
   if (loading) {
     return (
