@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import { Button } from './Button'
+import { MochiAvatar } from './MochiAvatar'
 
 type EmptyStateVariant = 'no-data' | 'all-done'
 
@@ -28,11 +29,10 @@ export function EmptyState({
         className,
       )}
     >
-      <img
-        src="/image/mochi.png"
+      <MochiAvatar
+        size="xl"
         alt={variant === 'all-done' ? 'Mochi celebrating' : 'Mochi sleeping'}
         className={cn(
-          'w-32 h-32 object-contain',
           variant === 'all-done'
             ? 'animate-[bouncy_600ms_var(--ease-bouncy)]'
             : 'opacity-60 grayscale-[30%]',

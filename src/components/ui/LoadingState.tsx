@@ -1,4 +1,5 @@
 import { cn } from '@/lib/cn'
+import { MochiAvatar } from './MochiAvatar'
 
 interface LoadingStateProps {
   message?: string
@@ -13,11 +14,7 @@ export function LoadingState({ message = 'Loading...', className }: LoadingState
         className,
       )}
     >
-      <img
-        src="/image/mochi.png"
-        alt="Mochi loading"
-        className="w-24 h-24 object-contain animate-[float_3s_ease-in-out_infinite]"
-      />
+      <MochiAvatar size="lg" className="animate-[float_3s_ease-in-out_infinite]" alt="Mochi loading" />
       <p className="text-sm text-text-secondary font-medium animate-pulse">
         {message}
       </p>

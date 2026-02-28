@@ -153,6 +153,60 @@ export type Database = {
         }
         Relationships: []
       }
+      habit_completions: {
+        Row: {
+          completed_date: string
+          created_at: string
+          id: string
+          notes: string | null
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_date: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          completed_date?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      invite_codes: {
+        Row: {
+          claimed_by: string | null
+          code: string
+          created_at: string
+          creator_id: string
+          expires_at: string
+          id: string
+        }
+        Insert: {
+          claimed_by?: string | null
+          code: string
+          created_at?: string
+          creator_id: string
+          expires_at?: string
+          id?: string
+        }
+        Update: {
+          claimed_by?: string | null
+          code?: string
+          created_at?: string
+          creator_id?: string
+          expires_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       mood_entries: {
         Row: {
           context: Json | null
@@ -342,6 +396,30 @@ export type Database = {
           tag?: string
           title_template?: string
           urgency?: string | null
+        }
+        Relationships: []
+      }
+      partner_pairs: {
+        Row: {
+          active: boolean
+          id: string
+          paired_at: string
+          user_a: string
+          user_b: string
+        }
+        Insert: {
+          active?: boolean
+          id?: string
+          paired_at?: string
+          user_a: string
+          user_b: string
+        }
+        Update: {
+          active?: boolean
+          id?: string
+          paired_at?: string
+          user_a?: string
+          user_b?: string
         }
         Relationships: []
       }
@@ -568,6 +646,8 @@ export type Database = {
           couple_rescue_available: boolean
           created_at: string
           current_days: number
+          freeze_available: number
+          freeze_used_at: string[] | null
           id: string
           last_completed_at: string | null
           milestone_floor: number
@@ -582,6 +662,8 @@ export type Database = {
           couple_rescue_available?: boolean
           created_at?: string
           current_days?: number
+          freeze_available?: number
+          freeze_used_at?: string[] | null
           id?: string
           last_completed_at?: string | null
           milestone_floor?: number
@@ -596,6 +678,8 @@ export type Database = {
           couple_rescue_available?: boolean
           created_at?: string
           current_days?: number
+          freeze_available?: number
+          freeze_used_at?: string[] | null
           id?: string
           last_completed_at?: string | null
           milestone_floor?: number
@@ -767,7 +851,10 @@ export type Database = {
       }
     }
     Functions: {
+      claim_invite_code: { Args: { p_code: string }; Returns: Json }
+      generate_invite_code: { Args: Record<string, never>; Returns: Json }
       get_partner_id: { Args: Record<string, never>; Returns: string }
+      update_streak_for_task: { Args: { p_task_id: string }; Returns: Json }
     }
     Enums: {
       ai_function_type:
@@ -823,3 +910,103 @@ export type Database = {
     }
   }
 }
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
