@@ -7,6 +7,7 @@ import { useSprint } from '@/hooks/useSprint'
 import { useLiveScores } from '@/hooks/useLiveScores'
 import { useToast } from '@/components/ui/ToastProvider'
 import { EmptyState, ConfirmDialog, BottomSheet } from '@/components/ui'
+import { PullToRefresh } from '@/components/ui/PullToRefresh'
 import { ProgressRing } from '@/components/ui/ProgressRing'
 import { ConfettiCelebration } from '@/components/ui/ConfettiCelebration'
 import { FeatureGate } from '@/components/ui/FeatureGate'
@@ -37,7 +38,7 @@ interface TodayScreenProps {
 export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }: TodayScreenProps) {
   const { profile } = useAuth()
   const tz = profile?.timezone || 'UTC'
-  const { habits, loading: habitsLoading, archiveHabit, reorderHabits } = useHabits(profile?.id)
+  const { habits, loading: habitsLoading, archiveHabit, reorderHabits, refetch: refetchHabits } = useHabits(profile?.id)
   const { isCompletedToday, toggleCompletion } = useCompletions(profile?.id, tz)
   const { getStreakForTask, bestCoupleStreak } = useStreaks(profile?.id)
   const { toast } = useToast()
@@ -205,16 +206,18 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
           description="Enjoy your day off!"
         />
       ) : (
-        <HabitList
-          habits={habits}
-          isCompletedToday={isCompletedToday}
-          isDueToday={isDue}
-          getStreak={getStreakForTask}
-          onToggle={handleToggle}
-          onLongPress={handleLongPress}
-          onComplete={onHabitComplete}
-          onReorder={reorderHabits}
-        />
+        <PullToRefresh onRefresh={async () => { await refetchHabits() }}>
+          <HabitList
+            habits={habits}
+            isCompletedToday={isCompletedToday}
+            isDueToday={isDue}
+            getStreak={getStreakForTask}
+            onToggle={handleToggle}
+            onLongPress={handleLongPress}
+            onComplete={onHabitComplete}
+            onReorder={reorderHabits}
+          />
+        </PullToRefresh>
       )}
 
       {dueHabits.length > 0 && completedCount === dueHabits.length && (
