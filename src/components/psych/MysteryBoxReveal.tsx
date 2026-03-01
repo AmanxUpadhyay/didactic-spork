@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { SparklesIcon, DiamondIcon, SnowIcon, EyeIcon, GiftIcon } from '@hugeicons/core-free-icons'
 
-const REWARD_DISPLAY: Record<string, { emoji: string; label: string; color: string }> = {
-  '2x_points': { emoji: '✨', label: '2x Points!', color: 'text-yellow-500' },
-  '3x_points': { emoji: '💎', label: '3x Points!', color: 'text-purple-500' },
-  'streak_freeze': { emoji: '🧊', label: 'Streak Freeze!', color: 'text-blue-500' },
-  'spy_peek': { emoji: '👀', label: 'Spy Peek!', color: 'text-green-500' },
+const REWARD_DISPLAY: Record<string, { icon: ReactNode; label: string; color: string }> = {
+  '2x_points':     { icon: <HugeiconsIcon icon={SparklesIcon} size={64} />, label: '2x Points!', color: 'text-yellow-500' },
+  '3x_points':     { icon: <HugeiconsIcon icon={DiamondIcon} size={64} />, label: '3x Points!', color: 'text-purple-500' },
+  'streak_freeze': { icon: <HugeiconsIcon icon={SnowIcon} size={64} />, label: 'Streak Freeze!', color: 'text-blue-500' },
+  'spy_peek':      { icon: <HugeiconsIcon icon={EyeIcon} size={64} />, label: 'Spy Peek!', color: 'text-green-500' },
 }
 
 interface MysteryBoxRevealProps {
@@ -25,13 +27,13 @@ export function MysteryBoxReveal({ reward, onDismiss }: MysteryBoxRevealProps) {
 
   if (!reward) return null
 
-  const display = REWARD_DISPLAY[reward.type] || { emoji: '🎁', label: reward.type, color: 'text-primary' }
+  const display = REWARD_DISPLAY[reward.type] || { icon: <HugeiconsIcon icon={GiftIcon} size={64} />, label: reward.type, color: 'text-primary' }
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onDismiss}>
       <div className={`text-center transition-all duration-500 ${phase === 'shake' ? 'animate-bounce' : 'scale-110'}`}>
-        <div className="text-7xl mb-4">
-          {phase === 'shake' ? '🎁' : display.emoji}
+        <div className="flex justify-center mb-4 text-white">
+          {phase === 'shake' ? <HugeiconsIcon icon={GiftIcon} size={64} /> : display.icon}
         </div>
         {phase !== 'shake' && (
           <div className="animate-[slideUp_300ms_var(--ease-bouncy)]">

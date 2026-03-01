@@ -1,6 +1,7 @@
 import { type InputHTMLAttributes, forwardRef, useState, useId, useRef, useEffect } from 'react'
 import { m, useAnimation } from 'motion/react'
 import { cn } from '@/lib/cn'
+import { kawaiiSpring } from '@/lib/animations/config'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
@@ -12,9 +13,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const generatedId = useId()
     const id = idProp ?? generatedId
     const [focused, setFocused] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
+    const [hasAutofill, setHasAutofill] = useState(false)
     const hasValue = props.value !== undefined && props.value !== ''
     const shakeControls = useAnimation()
     const prevError = useRef(error)
+    const isPassword = type === 'password'
 
     // Shake when error first appears
     useEffect(() => {
@@ -30,18 +34,18 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <m.div className="relative w-full" animate={shakeControls}>
         {label && (
-          <label
+          <m.label
             htmlFor={id}
-            className={cn(
-              'absolute left-4 transition-all duration-200 ease-out pointer-events-none',
-              'text-text-secondary',
-              focused || hasValue
-                ? 'top-1.5 text-xs text-primary font-medium'
-                : 'top-3.5 text-base',
-            )}
+            className="absolute left-4 pointer-events-none"
+            animate={
+              focused || hasValue || hasAutofill
+                ? { top: '6px', fontSize: '12px', color: 'var(--color-primary)', fontWeight: '500' }
+                : { top: '14px', fontSize: '16px', color: 'var(--color-text-secondary)', fontWeight: '400' }
+            }
+            transition={kawaiiSpring}
           >
             {label}
-          </label>
+          </m.label>
         )}
         <m.div
           animate={{
@@ -50,17 +54,18 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               : '0 0 0 0px transparent',
           }}
           transition={{ duration: 0.2 }}
-          className="rounded-[var(--radius-input)]"
+          className="rounded-[var(--radius-input)] relative"
         >
           <input
             ref={ref}
             id={id}
-            type={type}
+            type={isPassword ? (showPassword ? 'text' : 'password') : type}
             className={cn(
               'w-full rounded-[var(--radius-input)]',
               'border-2 bg-surface',
               'text-text-primary text-base',
               label ? 'px-4 pt-5 pb-2' : 'px-4 py-3.5',
+              isPassword && 'pr-10',
               'transition-[border-color] duration-200 ease-out',
               'outline-none',
               'placeholder:text-text-secondary/50',
@@ -75,8 +80,37 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               setFocused(false)
               props.onBlur?.(e)
             }}
+            onAnimationStart={(e) => {
+              if (e.animationName === 'onAutoFillStart') setHasAutofill(true)
+              if (e.animationName === 'onAutoFillCancel') setHasAutofill(false)
+              props.onAnimationStart?.(e)
+            }}
             {...props}
           />
+          {isPassword && (
+            <button
+              type="button"
+              aria-label="Toggle password visibility"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-primary transition-colors"
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                // Eye-off icon
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+                  <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              ) : (
+                // Eye icon
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
+            </button>
+          )}
         </m.div>
         {error && (
           <p className="mt-1.5 ml-1 text-sm text-error">{error}</p>

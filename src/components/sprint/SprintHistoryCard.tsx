@@ -1,3 +1,5 @@
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Exchange01Icon, Award01Icon, BodyPartMuscleIcon } from '@hugeicons/core-free-icons'
 import { cn } from '@/lib/cn'
 import { Card } from '@/components/ui'
 import { formatWeekRange } from '@/lib/dates'
@@ -17,11 +19,15 @@ interface SprintHistoryCardProps {
 }
 
 export function SprintHistoryCard({ sprint, className }: SprintHistoryCardProps) {
-  const emoji = sprint.is_tie ? '🤝' : sprint.i_won ? '🏆' : '💪'
+  const outcomeIcon = sprint.is_tie
+    ? <HugeiconsIcon icon={Exchange01Icon} size={20} />
+    : sprint.i_won
+      ? <HugeiconsIcon icon={Award01Icon} size={20} />
+      : <HugeiconsIcon icon={BodyPartMuscleIcon} size={20} />
 
   return (
     <Card className={cn('flex items-center gap-3 !p-3', className)}>
-      <span className="text-xl">{emoji}</span>
+      <span className="flex items-center">{outcomeIcon}</span>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-text-primary">
           {formatWeekRange(sprint.week_start)}

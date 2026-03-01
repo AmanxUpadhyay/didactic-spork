@@ -3,6 +3,19 @@
 @import "@fontsource-variable/comfortaa";
 @import "tailwindcss";
 
+/* Autofill detection animations */
+@keyframes onAutoFillStart { from {} to {} }
+@keyframes onAutoFillCancel { from {} to {} }
+
+input:-webkit-autofill {
+  animation-name: onAutoFillStart;
+  animation-duration: 1ms;
+}
+input:not(:-webkit-autofill) {
+  animation-name: onAutoFillCancel;
+  animation-duration: 1ms;
+}
+
 /* ============================================================
    Jugalbandi Design System — Tailwind v4 Theme
    Default palette: Strawberry Milk (light)
@@ -320,6 +333,15 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--color-border);
   border-radius: var(--radius-pill);
+}
+
+/* Override Chrome's blue autofill background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--color-surface) inset !important;
+  -webkit-text-fill-color: var(--color-text-primary) !important;
+  caret-color: var(--color-text-primary);
 }
 
 /* ---------- Skeleton Shimmer (warm, palette-aware) ---------- */

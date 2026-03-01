@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { m } from 'motion/react'
 import { Card, Button, BottomSheet, ThemeSwitcher, MochiAvatar } from '@/components/ui'
+import { useToast } from '@/components/ui/ToastProvider'
 import { staggerContainer, staggerItem } from '@/lib/animations'
 import { FeatureGate } from '@/components/ui/FeatureGate'
 import { TierProgressHub } from '@/components/tier/TierProgressHub'
@@ -24,6 +25,7 @@ interface SettingsScreenProps {
 
 export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScreenProps) {
   const { tier, tp, prestige } = useTierUnlocks()
+  const { toast } = useToast()
   const [tierHubOpen, setTierHubOpen] = useState(false)
   const [dateHistoryOpen, setDateHistoryOpen] = useState(false)
   const [commitCeremonyOpen, setCommitCeremonyOpen] = useState(false)
@@ -168,7 +170,14 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
         </Card>
       )}
 
-      <Button variant="ghost" className="w-full" onClick={onSignOut}>
+      <Button
+        variant="ghost"
+        className="w-full"
+        onClick={() => {
+          toast('See you soon! 👋', 'info')
+          setTimeout(onSignOut, 300)
+        }}
+      >
         Sign Out
       </Button>
 

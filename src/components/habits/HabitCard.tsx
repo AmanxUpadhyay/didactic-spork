@@ -150,7 +150,7 @@ export function HabitCard({
             <AnimatedCheckbox
               checked={completed}
               onChange={() => {}}
-              size={28}
+              size={40}
               disabled={!isDueToday}
             />
           </div>

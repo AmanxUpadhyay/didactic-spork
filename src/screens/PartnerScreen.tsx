@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { m } from 'motion/react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Plant01Icon, PartyIcon, FireIcon, SleepingIcon, MailLove01Icon } from '@hugeicons/core-free-icons'
 import { useAuth } from '@/hooks/useAuth'
 import { usePairing } from '@/contexts/PairingContext'
 import { usePartnerHabits } from '@/hooks/usePartnerHabits'
@@ -52,11 +54,11 @@ export function PartnerScreen() {
   const partnerName = partnerProfile?.name || 'Your partner'
   const isAllDone = total > 0 && doneCount === total
 
-  function getMochiConfig() {
-    if (!partnerId) return { src: '/image/mochi-curious.png', message: 'No partner linked yet 🌱' }
-    if (isAllDone) return { src: '/image/mochi-celebrate.png', message: `${partnerName} crushed it today! 🎉` }
-    if (doneCount > 0) return { src: '/image/mochi-happy-bounce.png', message: `${partnerName} did ${doneCount}/${total} 🔥` }
-    return { src: '/image/mochi-sleep.png', message: `${partnerName}'s taking it slow today... 💤` }
+  function getMochiConfig(): { src: string; message: ReactNode } {
+    if (!partnerId) return { src: '/image/mochi-curious.png', message: <span>No partner linked yet <HugeiconsIcon icon={Plant01Icon} size={14} className="inline-block align-text-bottom" /></span> }
+    if (isAllDone) return { src: '/image/mochi-celebrate.png', message: <span>{partnerName} crushed it today! <HugeiconsIcon icon={PartyIcon} size={14} className="inline-block align-text-bottom" /></span> }
+    if (doneCount > 0) return { src: '/image/mochi-happy-bounce.png', message: <span>{partnerName} did {doneCount}/{total} <HugeiconsIcon icon={FireIcon} size={14} className="inline-block align-text-bottom" /></span> }
+    return { src: '/image/mochi-sleep.png', message: <span>{partnerName}'s taking it slow today... <HugeiconsIcon icon={SleepingIcon} size={14} className="inline-block align-text-bottom" /></span> }
   }
 
   async function handleBoost() {
@@ -147,7 +149,7 @@ export function PartnerScreen() {
       {/* Stats strip — asymmetric: streak wide, last active narrow */}
       <div className="flex gap-3 mb-4">
         <div className="flex-[2] bg-surface rounded-[var(--radius-card)] p-3 text-center border border-border">
-          <p className="font-accent font-bold text-2xl text-primary">🔥 {coupleStreak}</p>
+          <p className="font-accent font-bold text-2xl text-primary flex items-center justify-center gap-1"><HugeiconsIcon icon={FireIcon} size={20} /> {coupleStreak}</p>
           <p className="text-xs font-heading text-text-secondary tracking-wide">couple streak</p>
         </div>
         <div className="flex-[1] bg-surface rounded-[var(--radius-card)] p-3 text-center border border-border">
@@ -163,7 +165,10 @@ export function PartnerScreen() {
         whileTap={!boostSentToday ? { scale: 0.96 } : {}}
         className="w-full bg-primary text-white rounded-full font-semibold py-3 mb-4 disabled:opacity-50 transition-opacity"
       >
-        {boostSentToday ? 'Boost sent! 💌' : '💪 Send a boost'}
+        {boostSentToday
+          ? <span className="flex items-center justify-center gap-2"><HugeiconsIcon icon={MailLove01Icon} size={18} /> Boost sent!</span>
+          : <span className="flex items-center justify-center gap-2"><HugeiconsIcon icon={MailLove01Icon} size={18} /> Send a boost</span>
+        }
       </m.button>
 
       {/* Habit list */}

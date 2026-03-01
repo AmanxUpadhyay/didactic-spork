@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { CheckmarkCircle01Icon, AlertCircleIcon, BodyPartMuscleIcon } from '@hugeicons/core-free-icons'
 import { Card } from '@/components/ui'
 import { KiraAvatar } from './KiraAvatar'
 import { useKira } from '@/hooks/useKira'
@@ -10,10 +12,10 @@ interface KiraExcuseVerdictProps {
   className?: string
 }
 
-const VERDICT_STYLES: Record<string, { bg: string; label: string; icon: string }> = {
-  LEGIT: { bg: 'bg-emerald-50 border-emerald-200', label: 'Legit', icon: '✅' },
-  PARTIAL: { bg: 'bg-amber-50 border-amber-200', label: 'Partial', icon: '⚠️' },
-  NEEDS_PUSH: { bg: 'bg-rose-50 border-rose-200', label: 'Needs Push', icon: '💪' },
+const VERDICT_STYLES: Record<string, { bg: string; label: string; icon: ReactNode }> = {
+  LEGIT: { bg: 'bg-emerald-50 border-emerald-200', label: 'Legit', icon: <HugeiconsIcon icon={CheckmarkCircle01Icon} size={20} className="text-emerald-600" /> },
+  PARTIAL: { bg: 'bg-amber-50 border-amber-200', label: 'Partial', icon: <HugeiconsIcon icon={AlertCircleIcon} size={20} className="text-amber-600" /> },
+  NEEDS_PUSH: { bg: 'bg-rose-50 border-rose-200', label: 'Needs Push', icon: <HugeiconsIcon icon={BodyPartMuscleIcon} size={20} className="text-rose-600" /> },
 }
 
 /**
@@ -44,13 +46,13 @@ export function KiraExcuseVerdict({
   }
 
   if (verdict) {
-    const style = VERDICT_STYLES[verdict.classification] ?? { bg: 'bg-amber-50 border-amber-200', label: 'Partial', icon: '⚠️' }
+    const style = VERDICT_STYLES[verdict.classification] ?? { bg: 'bg-amber-50 border-amber-200', label: 'Partial', icon: <HugeiconsIcon icon={AlertCircleIcon} size={20} className="text-amber-600" /> }
 
     return (
       <div className={`space-y-3 ${className}`}>
         <Card className={`border ${style.bg}`}>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-lg">{style.icon}</span>
+            {style.icon}
             <span className="text-sm font-semibold text-text-primary">{style.label}</span>
           </div>
           <p className="text-xs text-text-secondary mb-2">{verdict.rationale}</p>

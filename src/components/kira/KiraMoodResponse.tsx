@@ -1,20 +1,25 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
+import { m } from 'motion/react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Sad01Icon, SadDizzyIcon, NeutralIcon, SmileIcon, HappyIcon } from '@hugeicons/core-free-icons'
 import { Card } from '@/components/ui'
 import { KiraAvatar } from './KiraAvatar'
 import { KiraCommentary } from './KiraCommentary'
 import { useKira } from '@/hooks/useKira'
+import { cn } from '@/lib/cn'
+import { kawaiiSpring, haptics } from '@/lib/animations'
 
 interface KiraMoodResponseProps {
   onComplete?: () => void
   className?: string
 }
 
-const MOOD_LABELS = [
-  { score: 1, emoji: '😢', label: 'Rough' },
-  { score: 2, emoji: '😕', label: 'Meh' },
-  { score: 3, emoji: '😐', label: 'Okay' },
-  { score: 4, emoji: '🙂', label: 'Good' },
-  { score: 5, emoji: '😊', label: 'Great' },
+const MOOD_LABELS: Array<{ score: number; icon: ReactNode; label: string }> = [
+  { score: 1, icon: <HugeiconsIcon icon={Sad01Icon} size={24} />, label: 'Rough' },
+  { score: 2, icon: <HugeiconsIcon icon={SadDizzyIcon} size={24} />, label: 'Meh' },
+  { score: 3, icon: <HugeiconsIcon icon={NeutralIcon} size={24} />, label: 'Okay' },
+  { score: 4, icon: <HugeiconsIcon icon={SmileIcon} size={24} />, label: 'Good' },
+  { score: 5, icon: <HugeiconsIcon icon={HappyIcon} size={24} />, label: 'Great' },
 ]
 
 /**
@@ -48,7 +53,7 @@ export function KiraMoodResponse({ onComplete, className = '' }: KiraMoodRespons
       <div className={`space-y-4 ${className}`}>
         {/* Show what the user submitted */}
         <div className="text-center">
-          <span className="text-3xl">{MOOD_LABELS[selectedMood! - 1]?.emoji}</span>
+          <span className="flex justify-center">{MOOD_LABELS[selectedMood! - 1]?.icon}</span>
           <p className="text-sm text-text-secondary mt-1">
             You're feeling {MOOD_LABELS[selectedMood! - 1]?.label.toLowerCase()}
           </p>
@@ -61,18 +66,21 @@ export function KiraMoodResponse({ onComplete, className = '' }: KiraMoodRespons
         />
 
         {response.followUp && (
-          <Card className="!bg-violet-50 border border-violet-100">
+          <Card className="bg-primary/5 border border-primary/15">
             <p className="text-sm text-text-primary italic">{response.followUp}</p>
           </Card>
         )}
 
         {onComplete && (
-          <button
+          <m.button
+            type="button"
             onClick={onComplete}
+            onPointerDown={() => haptics.light()}
+            whileTap={{ scale: 0.94, transition: kawaiiSpring }}
             className="w-full py-2.5 rounded-full bg-primary text-white text-sm font-medium"
           >
             Done
-          </button>
+          </m.button>
         )}
       </div>
     )
@@ -92,19 +100,29 @@ export function KiraMoodResponse({ onComplete, className = '' }: KiraMoodRespons
 
       {/* Mood selector */}
       <div className="flex justify-center gap-3">
-        {MOOD_LABELS.map(({ score, emoji, label }) => (
-          <button
+        {MOOD_LABELS.map(({ score, icon, label }) => (
+          <m.button
             key={score}
+            type="button"
             onClick={() => setSelectedMood(score)}
-            className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${
+            onPointerDown={() => haptics.light()}
+            whileTap={{ scale: 0.88, transition: kawaiiSpring }}
+            className={cn(
+              'flex flex-col items-center gap-1 p-2 rounded-2xl transition-colors',
               selectedMood === score
-                ? 'bg-primary/10 scale-110'
-                : 'hover:bg-surface-secondary'
-            }`}
+                ? 'bg-primary/10'
+                : 'hover:bg-primary/8',
+            )}
           >
-            <span className="text-2xl">{emoji}</span>
+            <m.span
+              className="flex items-center"
+              animate={selectedMood === score ? { scale: 1.1 } : { scale: 1 }}
+              transition={kawaiiSpring}
+            >
+              {icon}
+            </m.span>
             <span className="text-xs text-text-secondary">{label}</span>
-          </button>
+          </m.button>
         ))}
       </div>
 
@@ -121,13 +139,16 @@ export function KiraMoodResponse({ onComplete, className = '' }: KiraMoodRespons
 
       {error && <p className="text-xs text-rose-500 text-center">{error}</p>}
 
-      <button
+      <m.button
+        type="button"
         onClick={handleSubmit}
         disabled={loading || selectedMood === null}
+        onPointerDown={() => { if (!loading && selectedMood !== null) haptics.light() }}
+        whileTap={loading || selectedMood === null ? undefined : { scale: 0.94, transition: kawaiiSpring }}
         className="w-full py-2.5 rounded-full bg-primary text-white text-sm font-medium disabled:opacity-50 transition-opacity"
       >
         {loading ? 'Kira is thinking...' : 'Check in'}
-      </button>
+      </m.button>
     </div>
   )
 }

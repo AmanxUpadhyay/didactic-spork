@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { m } from 'motion/react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { SparklesIcon, BodyPartMuscleIcon, HeartCheckIcon } from '@hugeicons/core-free-icons'
 import { Button } from '@/components/ui/Button'
 import { kawaiiSpring, staggerContainer, staggerItem, haptics } from '@/lib/animations'
 
@@ -12,13 +14,13 @@ type PersonalityMode = 'cheerful' | 'tough_love' | 'empathetic'
 
 const PERSONALITIES: Array<{
   id: PersonalityMode
-  emoji: string
+  icon: ReactNode
   label: string
   subtitle: string
 }> = [
-  { id: 'cheerful', emoji: '✨', label: 'Cheerful', subtitle: 'Hype-driven, celebrates every win' },
-  { id: 'tough_love', emoji: '💪', label: 'Tough Love', subtitle: 'Brutally honest, no excuses' },
-  { id: 'empathetic', emoji: '💜', label: 'Empathetic', subtitle: 'Supportive, reads your feelings' },
+  { id: 'cheerful', icon: <HugeiconsIcon icon={SparklesIcon} size={24} />, label: 'Cheerful', subtitle: 'Hype-driven, celebrates every win' },
+  { id: 'tough_love', icon: <HugeiconsIcon icon={BodyPartMuscleIcon} size={24} />, label: 'Tough Love', subtitle: 'Brutally honest, no excuses' },
+  { id: 'empathetic', icon: <HugeiconsIcon icon={HeartCheckIcon} size={24} className="text-violet-500" />, label: 'Empathetic', subtitle: 'Supportive, reads your feelings' },
 ]
 
 export function KiraIntroScreen({ onNext, onSkip }: KiraIntroScreenProps) {
@@ -81,7 +83,7 @@ export function KiraIntroScreen({ onNext, onSkip }: KiraIntroScreenProps) {
               ].join(' ')}
             >
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{p.emoji}</span>
+                <span className="flex items-center">{p.icon}</span>
                 <div>
                   <p className="font-semibold text-text-primary text-sm">{p.label}</p>
                   <p className="text-xs text-text-secondary">{p.subtitle}</p>

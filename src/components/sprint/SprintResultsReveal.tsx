@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { m, useAnimate, stagger } from 'motion/react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Exchange01Icon, Award01Icon, BodyPartMuscleIcon } from '@hugeicons/core-free-icons'
 import { cn } from '@/lib/cn'
 import { kawaiiSpring, useCelebration } from '@/lib/animations'
 
@@ -35,7 +37,11 @@ export function SprintResultsReveal({
       ? 'You won this week!'
       : `${partnerName} won this week!`
 
-  const winnerEmoji = isTie ? '🤝' : iWon ? '🏆' : '💪'
+  const winnerIcon = isTie
+    ? <HugeiconsIcon icon={Exchange01Icon} size={40} />
+    : iWon
+      ? <HugeiconsIcon icon={Award01Icon} size={40} />
+      : <HugeiconsIcon icon={BodyPartMuscleIcon} size={40} />
   const maxScore = Math.max(myScore, partnerScore, 1)
 
   // Score count-up animation
@@ -184,7 +190,7 @@ export function SprintResultsReveal({
         className="text-center py-3"
         initial={{ opacity: 0, scale: 0 }}
       >
-        <span className="text-3xl">{winnerEmoji}</span>
+        <span className="flex justify-center text-primary">{winnerIcon}</span>
         <p className="font-heading text-lg font-bold text-primary mt-1">
           {winnerText}
         </p>

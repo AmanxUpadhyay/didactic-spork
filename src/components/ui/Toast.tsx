@@ -1,4 +1,7 @@
+import { type ReactNode } from 'react'
 import { m } from 'motion/react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { CheckmarkCircle01Icon, AlertCircleIcon, InformationCircleIcon } from '@hugeicons/core-free-icons'
 import { cn } from '@/lib/cn'
 import { fadeUp } from '@/lib/animations'
 
@@ -21,10 +24,10 @@ const variantStyles: Record<ToastVariant, string> = {
   info: 'border-primary bg-primary/10',
 }
 
-const variantEmoji: Record<ToastVariant, string> = {
-  success: '✨',
-  error: '😖',
-  info: '💬',
+const variantIcon: Record<ToastVariant, ReactNode> = {
+  success: <HugeiconsIcon icon={CheckmarkCircle01Icon} size={18} />,
+  error:   <HugeiconsIcon icon={AlertCircleIcon} size={18} />,
+  info:    <HugeiconsIcon icon={InformationCircleIcon} size={18} />,
 }
 
 export function Toast({ toast, onDismiss }: ToastProps) {
@@ -52,8 +55,8 @@ export function Toast({ toast, onDismiss }: ToastProps) {
         variantStyles[toast.variant],
       )}
     >
-      <span className="text-xl flex-shrink-0" role="img">
-        {variantEmoji[toast.variant]}
+      <span className="flex-shrink-0">
+        {variantIcon[toast.variant]}
       </span>
       <p className="text-sm font-medium text-text-primary flex-1">
         {toast.message}

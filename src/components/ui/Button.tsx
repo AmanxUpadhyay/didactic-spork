@@ -14,7 +14,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const variantStyles: Record<ButtonVariant, string> = {
   primary: [
     'bg-primary text-white font-semibold',
-    'shadow-[var(--shadow-button)]',
+    'shadow-[var(--shadow-button)] active:shadow-[var(--shadow-button-active)]',
   ].join(' '),
   secondary: [
     'bg-surface text-text-primary font-medium',
@@ -37,7 +37,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <m.button
         ref={ref}
-        whileTap={disabled ? undefined : { scale: 0.85, y: 2 }}
+        whileTap={disabled ? undefined : (variant === 'primary' ? { scale: 0.97, y: 4 } : { scale: 0.97 })}
         whileHover={disabled ? undefined : { scale: 1.03 }}
         transition={kawaiiSpring}
         onPointerDown={(e) => {

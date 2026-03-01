@@ -1,3 +1,10 @@
+import { type ReactNode } from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import {
+  Exchange01Icon, FireIcon, Award01Icon, PartyIcon,
+  BubbleChatNotificationIcon, Sun01Icon, Notification01Icon,
+  AlarmClockIcon, Rocket01Icon,
+} from '@hugeicons/core-free-icons'
 import { Card } from '@/components/ui'
 
 interface Notification {
@@ -13,16 +20,16 @@ interface NotificationCenterProps {
   onMarkAllRead: () => void
 }
 
-const CATEGORY_ICONS: Record<string, string> = {
-  partner_activity: '🤝',
-  streak_warning: '🔥',
-  sprint_results: '🏆',
-  celebration: '🎉',
-  mood_checkin: '💭',
-  morning_briefing: '☀️',
-  nudge: '👋',
-  task_deadline: '⏰',
-  sprint_start: '🚀',
+const CATEGORY_ICONS: Record<string, ReactNode> = {
+  partner_activity: <HugeiconsIcon icon={Exchange01Icon} size={18} />,
+  streak_warning:   <HugeiconsIcon icon={FireIcon} size={18} />,
+  sprint_results:   <HugeiconsIcon icon={Award01Icon} size={18} />,
+  celebration:      <HugeiconsIcon icon={PartyIcon} size={18} />,
+  mood_checkin:     <HugeiconsIcon icon={BubbleChatNotificationIcon} size={18} />,
+  morning_briefing: <HugeiconsIcon icon={Sun01Icon} size={18} />,
+  nudge:            <HugeiconsIcon icon={Notification01Icon} size={18} />,
+  task_deadline:    <HugeiconsIcon icon={AlarmClockIcon} size={18} />,
+  sprint_start:     <HugeiconsIcon icon={Rocket01Icon} size={18} />,
 }
 
 function timeAgo(dateStr: string): string {
@@ -58,7 +65,7 @@ export function NotificationCenter({ notifications, onMarkAllRead }: Notificatio
           {notifications.map((n) => (
             <Card key={n.id} className="!py-3">
               <div className="flex items-start gap-3">
-                <span className="text-lg shrink-0">{CATEGORY_ICONS[n.category] || '🔔'}</span>
+                <span className="shrink-0 mt-0.5">{CATEGORY_ICONS[n.category] ?? <HugeiconsIcon icon={Notification01Icon} size={18} />}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-text-primary">{n.title}</p>
                   <p className="text-xs text-text-secondary line-clamp-2">{n.body}</p>

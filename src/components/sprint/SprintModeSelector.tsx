@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Sword01Icon, Exchange01Icon, RefreshIcon } from '@hugeicons/core-free-icons'
 import { Card, ConfirmDialog } from '@/components/ui'
 import { useSprintMode } from '@/hooks/useSprintMode'
 
-const MODES = [
-  { key: 'competitive' as const, icon: '⚔️', label: 'Competitive', desc: 'Head-to-head scoring. Loser plans a date.' },
-  { key: 'cooperative' as const, icon: '🤝', label: 'Cooperative', desc: 'Shared goal. Win together or lose together.' },
-  { key: 'swap' as const, icon: '🔄', label: 'Swap', desc: "Try each other's habits for the week." },
+const MODES: Array<{ key: 'competitive' | 'cooperative' | 'swap'; icon: ReactNode; label: string; desc: string }> = [
+  { key: 'competitive', icon: <HugeiconsIcon icon={Sword01Icon} size={20} />, label: 'Competitive', desc: 'Head-to-head scoring. Loser plans a date.' },
+  { key: 'cooperative', icon: <HugeiconsIcon icon={Exchange01Icon} size={20} />, label: 'Cooperative', desc: 'Shared goal. Win together or lose together.' },
+  { key: 'swap', icon: <HugeiconsIcon icon={RefreshIcon} size={20} />, label: 'Swap', desc: "Try each other's habits for the week." },
 ]
 
 export function SprintModeSelector() {
@@ -40,7 +42,7 @@ export function SprintModeSelector() {
             onClick={() => m.key !== mode && setPendingMode(m.key)}
             disabled={loading || switching}
           >
-            <span className="text-xl">{m.icon}</span>
+            <span className="flex items-center">{m.icon}</span>
             <div className="flex-1">
               <p className={`text-sm font-medium ${mode === m.key ? 'text-primary' : 'text-text-primary'}`}>
                 {m.label}

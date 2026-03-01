@@ -1,4 +1,6 @@
 import { m } from 'motion/react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { CrownIcon } from '@hugeicons/core-free-icons'
 import { cn } from '@/lib/cn'
 import { kawaiiSpring } from '@/lib/animations'
 
@@ -29,11 +31,11 @@ export function ScoreComparison({
       <div className="space-y-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
-            {iAmAhead && <span className="text-sm">👑</span>}
+            {iAmAhead && <HugeiconsIcon icon={CrownIcon} size={16} className="text-warning" />}
             <span className="text-sm font-medium text-text-primary truncate">{myName}</span>
           </div>
           <span className={cn(
-            'font-accent text-2xl font-bold tabular-nums',
+            'font-accent text-4xl font-bold tabular-nums',
             iAmAhead || isTied ? 'text-primary' : 'text-text-secondary',
           )}>
             {myScore.toFixed(1)}
@@ -58,11 +60,11 @@ export function ScoreComparison({
       <div className="space-y-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
-            {!iAmAhead && !isTied && <span className="text-sm">👑</span>}
+            {!iAmAhead && !isTied && <HugeiconsIcon icon={CrownIcon} size={16} className="text-warning" />}
             <span className="text-sm font-medium text-text-primary truncate">{partnerName}</span>
           </div>
           <span className={cn(
-            'font-accent text-2xl font-bold tabular-nums',
+            'font-accent text-4xl font-bold tabular-nums',
             !iAmAhead || isTied ? 'text-primary' : 'text-text-secondary',
           )}>
             {partnerScore.toFixed(1)}
