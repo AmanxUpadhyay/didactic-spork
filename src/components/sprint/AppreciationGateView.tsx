@@ -34,7 +34,7 @@ export function AppreciationGateView({
       <MochiAvatar
         size="xl"
         alt="Mochi waiting"
-        className="animate-[float_3s_ease-in-out_infinite]"
+        className="motion-safe:animate-[float_3s_ease-in-out_infinite]"
       />
       <div className="text-center space-y-1.5">
         <h3 className="font-heading text-lg font-semibold text-text-primary">

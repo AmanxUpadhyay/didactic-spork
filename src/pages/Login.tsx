@@ -26,7 +26,7 @@ export function Login({ onLogin, onSwitchToSignup }: LoginProps) {
       <div className="w-full max-w-sm space-y-8">
         {/* Logo / mascot */}
         <div className="flex flex-col items-center gap-3">
-          <MochiAvatar size="lg" className="animate-[float_3s_ease-in-out_infinite]" />
+          <MochiAvatar size="lg" className="motion-safe:animate-[float_3s_ease-in-out_infinite]" />
           <h1 className="font-heading text-3xl font-semibold tracking-[var(--tracking-display)] text-text-primary">
             Jugalbandi
           </h1>

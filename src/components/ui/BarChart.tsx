@@ -1,4 +1,5 @@
 import { cn } from '@/lib/cn'
+import { useReducedMotion } from '@/lib/animations'
 
 interface BarChartBar {
   label: string
@@ -15,6 +16,7 @@ interface BarChartProps {
 
 export function BarChart({ bars, maxValue: maxProp, height = 160, className }: BarChartProps) {
   const maxValue = maxProp ?? Math.max(...bars.map((b) => b.value), 1)
+  const reducedMotion = useReducedMotion()
 
   return (
     <div className={cn('flex items-end gap-2', className)} style={{ height }}>
@@ -32,8 +34,10 @@ export function BarChart({ bars, maxValue: maxProp, height = 160, className }: B
               style={{
                 height: `${pct}%`,
                 background: `linear-gradient(to top, var(--color-chart-a), var(--color-chart-b))`,
-                animation: `bar-grow 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both`,
-                animationDelay: `${i * 60}ms`,
+                animation: reducedMotion
+                  ? 'none'
+                  : `bar-grow 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both`,
+                animationDelay: reducedMotion ? undefined : `${i * 60}ms`,
               }}
             />
             <span className="text-xs text-text-secondary font-medium truncate max-w-full">

@@ -3,7 +3,7 @@ import { MochiAvatar } from '@/components/ui'
 export function WaitingForPartner() {
   return (
     <div className="flex flex-col items-center gap-4 py-8">
-      <MochiAvatar size="lg" className="animate-[float_3s_ease-in-out_infinite]" alt="Mochi waiting" />
+      <MochiAvatar size="lg" className="motion-safe:animate-[float_3s_ease-in-out_infinite]" alt="Mochi waiting" />
       <div className="text-center space-y-1">
         <p className="font-heading text-lg font-semibold text-text-primary">
           Waiting for your partner...
