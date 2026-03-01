@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
+import { m } from 'motion/react'
 import { Card } from '@/components/ui'
+import { staggerContainer, staggerItem } from '@/lib/animations'
 import { useToast } from '@/components/ui/ToastProvider'
 import { ScoreComparison } from './ScoreComparison'
 import { ScoreBreakdown } from './ScoreBreakdown'
@@ -114,9 +116,14 @@ export function ActiveSprintView({
   }
 
   return (
-    <div className="space-y-4">
+    <m.div
+      className="space-y-4"
+      variants={staggerContainer(0.08)}
+      initial="hidden"
+      animate="visible"
+    >
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <m.div variants={staggerItem} className="flex items-center justify-between">
         <div>
           <h1 className="font-heading text-2xl font-semibold text-text-primary">Sprint</h1>
           <p className="text-sm text-text-secondary">{formatWeekRange(weekStart)}</p>
@@ -129,25 +136,29 @@ export function ActiveSprintView({
             {daysRemaining === 1 ? 'day left' : 'days left'}
           </p>
         </div>
-      </div>
+      </m.div>
 
       {/* Score comparison */}
-      <Card>
-        <ScoreComparison
-          myScore={myBreakdown?.total ?? 0}
-          partnerScore={partnerBreakdown?.total ?? 0}
-          myName={myName}
-          partnerName={partnerName}
-        />
-      </Card>
+      <m.div variants={staggerItem}>
+        <Card>
+          <ScoreComparison
+            myScore={myBreakdown?.total ?? 0}
+            partnerScore={partnerBreakdown?.total ?? 0}
+            myName={myName}
+            partnerName={partnerName}
+          />
+        </Card>
+      </m.div>
 
       {/* Daily progress chart */}
-      <DailyProgressChart
-        sprintId={sprintId}
-        weekStart={weekStart}
-        userId={userId}
-        partnerId={partnerId}
-      />
+      <m.div variants={staggerItem}>
+        <DailyProgressChart
+          sprintId={sprintId}
+          weekStart={weekStart}
+          userId={userId}
+          partnerId={partnerId}
+        />
+      </m.div>
 
       {/* My breakdown (expandable) */}
       {myBreakdown && (
@@ -197,7 +208,9 @@ export function ActiveSprintView({
       )}
 
       {/* Kira task suggestions */}
-      <KiraTaskSuggestions onAccept={handleAcceptSuggestion} />
-    </div>
+      <m.div variants={staggerItem}>
+        <KiraTaskSuggestions onAccept={handleAcceptSuggestion} />
+      </m.div>
+    </m.div>
   )
 }

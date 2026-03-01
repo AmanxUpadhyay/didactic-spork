@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { m } from 'motion/react'
 import { Card, Button, BottomSheet, ThemeSwitcher, MochiAvatar } from '@/components/ui'
+import { staggerContainer, staggerItem } from '@/lib/animations'
 import { FeatureGate } from '@/components/ui/FeatureGate'
 import { TierProgressHub } from '@/components/tier/TierProgressHub'
 import { PrestigeBadge } from '@/components/tier/PrestigeBadge'
@@ -30,8 +32,13 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
   const progress = nextTier ? Math.min(1, tp / nextTierTp) : 1
 
   return (
-    <div className="px-5 pt-6 pb-24 space-y-4">
-      <h1 className="font-heading text-2xl font-semibold text-text-primary">Settings</h1>
+    <m.div
+      className="px-5 pt-6 pb-24 space-y-4"
+      variants={staggerContainer(0.07)}
+      initial="hidden"
+      animate="visible"
+    >
+      <m.h1 variants={staggerItem} className="font-heading text-2xl font-semibold text-text-primary">Settings</m.h1>
 
       {/* Tier card — clickable to open TierProgressHub */}
       <Card
@@ -163,6 +170,6 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
           <CommitmentCeremony />
         </div>
       </BottomSheet>
-    </div>
+    </m.div>
   )
 }

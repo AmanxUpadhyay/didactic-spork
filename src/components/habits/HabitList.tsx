@@ -1,4 +1,6 @@
+import { m } from 'motion/react'
 import { HabitCard } from './HabitCard'
+import { staggerContainer, staggerItem } from '@/lib/animations'
 import type { Task, Streak } from '@/types/habits'
 
 interface HabitListProps {
@@ -27,22 +29,28 @@ export function HabitList({ habits, isCompletedToday, isDueToday, getStreak, onT
   })
 
   return (
-    <div className="space-y-3">
+    <m.div
+      className="space-y-3"
+      variants={staggerContainer(0.07)}
+      initial="hidden"
+      animate="visible"
+    >
       {sorted.map((habit) => (
-        <HabitCard
-          key={habit.id}
-          title={habit.title}
-          difficulty={habit.difficulty}
-          completed={isCompletedToday(habit.id)}
-          streak={getStreak(habit.id)}
-          isDueToday={isDueToday(habit)}
-          onToggle={() => onToggle(habit.id)}
-          onComplete={onComplete ? () => onComplete(habit.id) : undefined}
-          onLongPress={onLongPress ? () => onLongPress(habit) : undefined}
-          ifTrigger={habit.if_trigger ?? undefined}
-          thenAction={habit.then_action ?? undefined}
-        />
+        <m.div key={habit.id} variants={staggerItem}>
+          <HabitCard
+            title={habit.title}
+            difficulty={habit.difficulty}
+            completed={isCompletedToday(habit.id)}
+            streak={getStreak(habit.id)}
+            isDueToday={isDueToday(habit)}
+            onToggle={() => onToggle(habit.id)}
+            onComplete={onComplete ? () => onComplete(habit.id) : undefined}
+            onLongPress={onLongPress ? () => onLongPress(habit) : undefined}
+            ifTrigger={habit.if_trigger ?? undefined}
+            thenAction={habit.then_action ?? undefined}
+          />
+        </m.div>
       ))}
-    </div>
+    </m.div>
   )
 }
