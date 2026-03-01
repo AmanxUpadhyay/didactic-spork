@@ -1,5 +1,7 @@
 import { type ButtonHTMLAttributes, forwardRef } from 'react'
+import { m } from 'motion/react'
 import { cn } from '@/lib/cn'
+import { kawaiiSpring, haptics } from '@/lib/animations'
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost'
 type ButtonSize = 'sm' | 'md' | 'lg'
@@ -13,19 +15,14 @@ const variantStyles: Record<ButtonVariant, string> = {
   primary: [
     'bg-primary text-white font-semibold',
     'shadow-[var(--shadow-button)]',
-    'active:translate-y-1 active:scale-95',
-    'active:shadow-[var(--shadow-button-active)]',
-    'active:transition-all active:duration-100 active:ease-out',
   ].join(' '),
   secondary: [
     'bg-surface text-text-primary font-medium',
     'border-2 border-primary',
-    'active:translate-y-0.5 active:scale-[0.97]',
   ].join(' '),
   ghost: [
     'bg-transparent text-primary font-medium',
     'hover:bg-primary/10',
-    'active:scale-95',
   ].join(' '),
 }
 
@@ -36,25 +33,31 @@ const sizeStyles: Record<ButtonSize, string> = {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', disabled, children, ...props }, ref) => {
+  ({ className, variant = 'primary', size = 'md', disabled, children, onPointerDown, ...props }, ref) => {
     return (
-      <button
+      <m.button
         ref={ref}
+        whileTap={disabled ? undefined : { scale: 0.85, y: 2 }}
+        whileHover={disabled ? undefined : { scale: 1.03 }}
+        transition={kawaiiSpring}
+        onPointerDown={(e) => {
+          if (!disabled) haptics.light()
+          onPointerDown?.(e as React.PointerEvent<HTMLButtonElement>)
+        }}
         className={cn(
           'inline-flex items-center justify-center gap-2',
           'rounded-[var(--radius-pill)]',
-          'transition-all duration-200 ease-[var(--ease-bouncy)]',
           'select-none cursor-pointer',
-          'disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0 disabled:active:scale-100',
+          'disabled:opacity-50 disabled:cursor-not-allowed',
           variantStyles[variant],
           sizeStyles[size],
           className,
         )}
         disabled={disabled}
-        {...props}
+        {...(props as object)}
       >
         {children}
-      </button>
+      </m.button>
     )
   },
 )

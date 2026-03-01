@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { cn } from '@/lib/cn'
 import { StreakCounter } from '@/components/ui/StreakCounter'
+import { AnimatedCheckbox } from '@/components/ui/AnimatedCheckbox'
 import type { DifficultyLevel, Streak } from '@/types/habits'
 
 const DIFFICULTY_COLORS: Record<DifficultyLevel, string> = {
@@ -108,21 +109,14 @@ export function HabitCard({
       )}
     >
       <div className="flex items-center gap-3">
-        {/* Checkbox circle */}
-        <div
-          className={cn(
-            'w-7 h-7 rounded-full border-2 flex items-center justify-center flex-shrink-0',
-            'transition-all duration-200 ease-[var(--ease-bouncy)]',
-            completed
-              ? 'bg-primary border-primary scale-110'
-              : 'border-border',
-          )}
-        >
-          {completed && (
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M3 7L6 10L11 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          )}
+        {/* Animated checkbox — visual only, outer button drives toggle */}
+        <div className="pointer-events-none">
+          <AnimatedCheckbox
+            checked={completed}
+            onChange={() => {}}
+            size={28}
+            disabled={!isDueToday}
+          />
         </div>
 
         {/* Content */}
