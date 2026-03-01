@@ -1,4 +1,6 @@
+import { m } from 'motion/react'
 import { cn } from '@/lib/cn'
+import { fadeUp } from '@/lib/animations'
 
 export type ToastVariant = 'success' | 'error' | 'info'
 
@@ -20,24 +22,35 @@ const variantStyles: Record<ToastVariant, string> = {
 }
 
 const variantEmoji: Record<ToastVariant, string> = {
-  success: '\u2728',
-  error: '\uD83D\uDE16',
-  info: '\uD83D\uDCAC',
+  success: '✨',
+  error: '😖',
+  info: '💬',
 }
 
 export function Toast({ toast, onDismiss }: ToastProps) {
   return (
-    <div
+    <m.div
       role="alert"
+      variants={fadeUp}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      drag="x"
+      dragConstraints={{ left: 0, right: 200 }}
+      dragElastic={{ left: 0.05, right: 0.3 }}
+      onDragEnd={(_, info) => {
+        if (info.offset.x > 80 || info.velocity.x > 300) {
+          onDismiss(toast.id)
+        }
+      }}
+      onClick={() => onDismiss(toast.id)}
       className={cn(
         'flex items-center gap-3',
         'px-4 py-3 rounded-[var(--radius-card)]',
         'border-2 shadow-[var(--shadow-elevated)]',
-        'animate-[slide-up_300ms_var(--ease-enter)]',
         'cursor-pointer select-none',
         variantStyles[toast.variant],
       )}
-      onClick={() => onDismiss(toast.id)}
     >
       <span className="text-xl flex-shrink-0" role="img">
         {variantEmoji[toast.variant]}
@@ -45,6 +58,6 @@ export function Toast({ toast, onDismiss }: ToastProps) {
       <p className="text-sm font-medium text-text-primary flex-1">
         {toast.message}
       </p>
-    </div>
+    </m.div>
   )
 }

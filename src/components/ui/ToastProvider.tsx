@@ -1,5 +1,6 @@
 import { createContext, useContext, useCallback, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { AnimatePresence } from 'motion/react'
 import { Toast, type ToastData, type ToastVariant } from './Toast'
 
 interface ToastContextValue {
@@ -37,11 +38,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       {createPortal(
         <div className="fixed bottom-20 left-4 right-4 z-[60] flex flex-col gap-2 pointer-events-none">
-          {toasts.map((t) => (
-            <div key={t.id} className="pointer-events-auto">
-              <Toast toast={t} onDismiss={dismiss} />
-            </div>
-          ))}
+          <AnimatePresence mode="popLayout">
+            {toasts.map((t) => (
+              <div key={t.id} className="pointer-events-auto">
+                <Toast toast={t} onDismiss={dismiss} />
+              </div>
+            ))}
+          </AnimatePresence>
         </div>,
         document.body,
       )}
