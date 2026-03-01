@@ -41,6 +41,7 @@ export function NavBar({ items, fabIcon, onFabClick, className }: NavBarProps) {
         {fabIcon && (
           <m.button
             onClick={onFabClick}
+            aria-label="Add new habit"
             whileTap={{ scale: 0.85, rotate: 45 }}
             whileHover={{ scale: 1.08 }}
             transition={kawaiiSpring}
@@ -48,8 +49,8 @@ export function NavBar({ items, fabIcon, onFabClick, className }: NavBarProps) {
             className={cn(
               'flex items-center justify-center',
               'w-14 h-14 -mt-7',
-              'rounded-full bg-primary text-white',
-              'shadow-[var(--shadow-button)]',
+              'rounded-full bg-gradient-to-b from-[color-mix(in_srgb,white_15%,var(--color-primary))] to-primary text-white',
+              'shadow-[var(--shadow-button),0_8px_24px_-4px_color-mix(in_srgb,var(--color-primary)_45%,transparent)]',
             )}
           >
             {fabIcon}
@@ -66,8 +67,11 @@ export function NavBar({ items, fabIcon, onFabClick, className }: NavBarProps) {
 
 function NavBarItem({ icon, label, active, onClick }: NavItem) {
   return (
-    <button
+    <m.button
       onClick={onClick}
+      onPointerDown={() => haptics.light()}
+      whileTap={{ scale: 0.88 }}
+      transition={kawaiiSpring}
       className={cn(
         'flex flex-col items-center justify-center gap-0.5',
         'w-16 h-full',
@@ -96,6 +100,6 @@ function NavBarItem({ icon, label, active, onClick }: NavItem) {
         </m.span>
       </span>
       <span className="text-[10px] font-medium leading-none">{label}</span>
-    </button>
+    </m.button>
   )
 }

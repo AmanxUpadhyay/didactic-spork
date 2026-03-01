@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 
-type KiraFunctionType = 'task_suggest' | 'excuse_eval' | 'mood_response' | 'date_plan' | 'date_rate' | 'rescue_task'
+type KiraFunctionType = 'task_suggest' | 'excuse_eval' | 'mood_response' | 'date_plan' | 'date_rate' | 'rescue_task' | 'health_check' | 'health_check_response' | 'activate_grace' | 'switch_sprint_mode' | 'positive_injection'
 
 interface KiraResult {
   success: boolean

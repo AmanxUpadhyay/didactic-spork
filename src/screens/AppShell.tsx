@@ -15,6 +15,10 @@ import { TierUnlockCelebration } from '@/components/tier/TierUnlockCelebration'
 import { MysteryBoxReveal } from '@/components/psych/MysteryBoxReveal'
 import { ScoreGapCircuitBreaker } from '@/components/guardrails/ScoreGapCircuitBreaker'
 import { ContemplDetectionPrompt } from '@/components/guardrails/ContemplDetectionPrompt'
+import { RelationshipHealthMonitor } from '@/components/guardrails/RelationshipHealthMonitor'
+import { ProactiveKiraMessage } from '@/components/guardrails/ProactiveKiraMessage'
+import { TrainingWheelsBanner } from '@/components/guardrails/TrainingWheelsBanner'
+import { useTrainingWheels } from '@/hooks/useTrainingWheels'
 import { NotificationOptIn } from '@/components/notifications/NotificationOptIn'
 import { NotificationBadge } from '@/components/notifications/NotificationBadge'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
@@ -49,6 +53,7 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
   const { tierChanged, dismissTierChange } = useTierUnlocks()
   const { result: mysteryResult, clearResult: clearMystery, rollMysteryBox } = useMysteryBox()
   const { notifications, unreadCount, latestNotification, clearLatest, markAllRead } = useRealtimeNotifications()
+  const { isTraining } = useTrainingWheels()
 
   // Track direction for slide animation
   const direction = TAB_ORDER.indexOf(activeTab) > TAB_ORDER.indexOf(prevTabRef.current)
@@ -118,9 +123,12 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
       {mysteryResult?.triggered && mysteryResult.reward && (
         <MysteryBoxReveal reward={mysteryResult.reward} onDismiss={clearMystery} />
       )}
+      <RelationshipHealthMonitor />
+      <ProactiveKiraMessage />
       <ScoreGapCircuitBreaker />
       <ContemplDetectionPrompt />
       <InAppNotificationToast notification={latestNotification} onDismiss={clearLatest} />
+      {isTraining && <TrainingWheelsBanner className="mx-5 mt-2" />}
       {activeTab === 'today' && <InstallPrompt />}
       {activeTab === 'today' && <NotificationOptIn />}
 

@@ -3,21 +3,21 @@ import { m, useMotionValue, useTransform } from 'motion/react'
 import { cn } from '@/lib/cn'
 import { StreakCounter } from '@/components/ui/StreakCounter'
 import { AnimatedCheckbox } from '@/components/ui/AnimatedCheckbox'
-import { haptics } from '@/lib/animations'
+import { kawaiiSpring, haptics } from '@/lib/animations'
 import type { DifficultyLevel, Streak } from '@/types/habits'
 
-const DIFFICULTY_COLORS: Record<DifficultyLevel, string> = {
-  easy: 'bg-success/15 text-success',
-  medium: 'bg-warning/15 text-warning',
-  hard: 'bg-secondary/15 text-secondary',
-  legendary: 'bg-error/15 text-error',
+const DIFFICULTY_STYLES: Record<DifficultyLevel, string> = {
+  easy: 'border border-text-tertiary/25 text-text-tertiary text-xs px-2 py-0.5',
+  medium: 'bg-secondary/15 text-secondary text-xs font-medium px-2 py-0.5',
+  hard: 'bg-primary/20 text-primary text-sm font-semibold px-2.5 py-1',
+  legendary: 'bg-gradient-to-r from-amber-400 to-orange-400 text-white ring-2 ring-amber-300/50 shadow-md text-sm font-bold px-3 py-1.5',
 }
 
 const DIFFICULTY_LABELS: Record<DifficultyLevel, string> = {
   easy: 'Easy',
   medium: 'Medium',
   hard: 'Hard',
-  legendary: 'Legendary',
+  legendary: '★ Legendary',
 }
 
 interface HabitCardProps {
@@ -55,6 +55,7 @@ export function HabitCard({
   const successOpacity = useTransform(x, [0, 100, 200], [0, 0.3, 0.85])
 
   function handlePointerDown() {
+    haptics.light()
     didLongPress.current = false
     didDrag.current = false
     longPressTimer.current = setTimeout(() => {
@@ -93,6 +94,8 @@ export function HabitCard({
       drag={isDueToday && !completed ? 'x' : false}
       dragConstraints={{ left: -60, right: 220 }}
       dragElastic={{ left: 0.1, right: 0.25 }}
+      whileTap={isDueToday && !completed ? { scale: 0.98 } : undefined}
+      transition={kawaiiSpring}
       onDragStart={() => { didDrag.current = true }}
       onDragEnd={(_, info) => {
         if (info.offset.x > 200 || info.velocity.x > 500) {
@@ -170,8 +173,8 @@ export function HabitCard({
             <div className="flex items-center gap-2 mt-0.5">
               <span
                 className={cn(
-                  'text-xs font-semibold px-2 py-0.5 rounded-[var(--radius-pill)]',
-                  DIFFICULTY_COLORS[difficulty],
+                  'rounded-[var(--radius-pill)]',
+                  DIFFICULTY_STYLES[difficulty],
                 )}
               >
                 {DIFFICULTY_LABELS[difficulty]}

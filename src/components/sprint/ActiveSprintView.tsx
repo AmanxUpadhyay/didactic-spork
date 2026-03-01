@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { m } from 'motion/react'
 import { Card } from '@/components/ui'
-import { staggerContainer, staggerItem } from '@/lib/animations'
+import { staggerContainer, staggerItem, kawaiiSpring, haptics } from '@/lib/animations'
 import { useToast } from '@/components/ui/ToastProvider'
 import { ScoreComparison } from './ScoreComparison'
 import { ScoreBreakdown } from './ScoreBreakdown'
@@ -125,7 +125,7 @@ export function ActiveSprintView({
       {/* Header */}
       <m.div variants={staggerItem} className="flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-2xl font-semibold text-text-primary">Sprint</h1>
+          <h1 className="font-heading text-4xl font-extrabold tracking-tight text-text-primary">Sprint</h1>
           <p className="text-sm text-text-secondary">{formatWeekRange(weekStart)}</p>
         </div>
         <div className="text-right">
@@ -163,12 +163,15 @@ export function ActiveSprintView({
       {/* My breakdown (expandable) */}
       {myBreakdown && (
         <div>
-          <button
+          <m.button
             onClick={() => setExpanded(!expanded)}
-            className="text-sm font-medium text-primary mb-2 active:scale-[0.98]"
+            onPointerDown={() => haptics.light()}
+            whileTap={{ scale: 0.95 }}
+            transition={kawaiiSpring}
+            className="text-sm font-medium text-primary mb-2"
           >
             {expanded ? 'Hide' : 'Show'} my breakdown
-          </button>
+          </m.button>
           {expanded && (
             <ScoreBreakdown
               completion={myBreakdown.breakdown.completion}
@@ -186,7 +189,7 @@ export function ActiveSprintView({
       {tasks.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-text-secondary">My Tasks</h3>
+            <h3 className="font-heading text-sm font-semibold text-text-secondary">My Tasks</h3>
             {myBreakdown && (
               <span className="font-accent text-sm font-bold text-text-primary tabular-nums">
                 {myBreakdown.tasks_completed}/{myBreakdown.tasks_due}

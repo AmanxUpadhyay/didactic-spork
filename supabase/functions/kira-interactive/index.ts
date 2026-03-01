@@ -9,6 +9,7 @@ import { callWithRetry } from "../_shared/fallback.ts";
 import { getModelConfig } from "../_shared/types.ts";
 import type { KiraFunctionType, InteractiveRequestBody } from "../_shared/types.ts";
 import { rollMysteryBox } from "../_shared/psych-engines.ts";
+import { recordInteraction } from "../_shared/health-monitor.ts";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -56,6 +57,12 @@ Deno.serve(async (req: Request) => {
         return await handleRescueTask(supabase, userId, payload);
       case "mystery_box_roll":
         return await handleMysteryBoxRoll(supabase, userId, payload);
+      case "health_check_response":
+        return await handleHealthCheckResponse(supabase, userId, payload);
+      case "activate_grace":
+        return await handleActivateGrace(supabase, userId, payload);
+      case "switch_sprint_mode":
+        return await handleSwitchSprintMode(supabase, userId, payload);
       default:
         return new Response(
           JSON.stringify({ error: `Unknown function_type: ${functionType}` }),
@@ -901,6 +908,279 @@ async function handleMysteryBoxRoll(
     JSON.stringify({
       success: true,
       ...result,
+    }),
+    { status: 200, headers: corsHeaders }
+  );
+}
+
+// --- Health Check Response Handler ---
+
+async function handleHealthCheckResponse(
+  supabase: ReturnType<typeof import("jsr:@supabase/supabase-js@2").createClient>,
+  userId: string,
+  payload: Record<string, unknown>
+) {
+  const chosenAction = payload.action as string;
+  const signalId = payload.signal_id as string | undefined;
+
+  if (!chosenAction || !["cooperative", "grace", "fine"].includes(chosenAction)) {
+    return new Response(
+      JSON.stringify({ error: "action must be 'cooperative', 'grace', or 'fine'" }),
+      { status: 400, headers: corsHeaders }
+    );
+  }
+
+  // Resolve the health signal if provided
+  if (signalId) {
+    await supabase
+      .from("relationship_health_signals")
+      .update({
+        resolved: true,
+        resolved_at: new Date().toISOString(),
+        intervention_type: chosenAction,
+      })
+      .eq("id", signalId);
+  }
+
+  // Apply the chosen action
+  if (chosenAction === "cooperative") {
+    // Store pending mode for next sprint
+    const { data: nextSprint } = await supabase
+      .from("sprints")
+      .select("id")
+      .eq("status", "active")
+      .limit(1)
+      .maybeSingle();
+
+    if (nextSprint) {
+      // Mark current sprint to switch mode next week
+      await supabase.from("sprints").update({
+        sprint_mode: "cooperative",
+      }).eq("id", nextSprint.id);
+    }
+  } else if (chosenAction === "grace") {
+    await supabase.rpc("activate_monthly_free_grace", { p_user_id: userId });
+  }
+
+  // Generate Kira response
+  const userContext = await assembleUserContext(supabase, userId);
+  const mood = "empathetic" as const;
+  const config = getModelConfig("health_check_response");
+  const systemPrompt = assembleSystemPrompt(mood, "health_check_response");
+  const userMessage = buildUserMessage("health_check_response", userContext, undefined, {
+    chosenAction,
+    signalType: payload.signal_type || "unknown",
+    context: payload.context || "",
+  });
+
+  const result = await callWithRetry(
+    () => callBedrock(config.modelId, systemPrompt, userMessage, config.maxTokens),
+    "health_check_response"
+  );
+
+  let structuredData: Record<string, unknown>;
+  try {
+    structuredData = parseJsonResponse(result.text);
+  } catch {
+    structuredData = { response: "Got it. I'll keep an eye on things.", action_confirmed: true };
+  }
+
+  await recordInteraction(supabase, userId, "health_check_response", "positive", "in_app", {
+    action: chosenAction,
+  });
+
+  const responseId = await storeResponse(supabase, {
+    functionType: "health_check_response",
+    responseText: (structuredData as { response?: string }).response || result.text,
+    structuredData,
+    modelUsed: result.isFallback ? "fallback" : config.modelId,
+    personalityMode: mood,
+    tokensInput: result.tokensInput,
+    tokensOutput: result.tokensOutput,
+    userId,
+  });
+
+  return new Response(
+    JSON.stringify({
+      success: true,
+      response_id: responseId,
+      mood,
+      data: structuredData,
+      action: chosenAction,
+      fallback: result.isFallback,
+    }),
+    { status: 200, headers: corsHeaders }
+  );
+}
+
+// --- Activate Grace Period Handler ---
+
+async function handleActivateGrace(
+  supabase: ReturnType<typeof import("jsr:@supabase/supabase-js@2").createClient>,
+  userId: string,
+  payload: Record<string, unknown>
+) {
+  const reason = (payload.reason as string) || "manual";
+  const days = (payload.days as number) || 7;
+
+  let graceResult;
+
+  if (reason === "monthly_free") {
+    const { data } = await supabase.rpc("activate_monthly_free_grace", {
+      p_user_id: userId,
+    });
+    graceResult = data;
+  } else {
+    // Manual grace period
+    const endsAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+
+    const { data, error } = await supabase.from("grace_periods").insert({
+      user_id: userId,
+      reason,
+      starts_at: new Date().toISOString().slice(0, 10),
+      ends_at: endsAt,
+      auto_triggered: false,
+    }).select().single();
+
+    if (error) {
+      return new Response(
+        JSON.stringify({ error: "Failed to activate grace period", detail: error.message }),
+        { status: 500, headers: corsHeaders }
+      );
+    }
+
+    graceResult = { success: true, grace_id: data.id, starts_at: data.starts_at, ends_at: data.ends_at, days };
+  }
+
+  if (graceResult && !graceResult.success) {
+    return new Response(
+      JSON.stringify({ success: false, reason: graceResult.reason }),
+      { status: 400, headers: corsHeaders }
+    );
+  }
+
+  // Generate Kira acknowledgment
+  const userContext = await assembleUserContext(supabase, userId);
+  const config = getModelConfig("activate_grace");
+  const systemPrompt = assembleSystemPrompt("empathetic", "activate_grace");
+  const userMessage = buildUserMessage("activate_grace", userContext, undefined, {
+    graceReason: reason,
+    graceDays: days,
+  });
+
+  const result = await callWithRetry(
+    () => callBedrock(config.modelId, systemPrompt, userMessage, config.maxTokens),
+    "activate_grace"
+  );
+
+  let message: string;
+  try {
+    const parsed = parseJsonResponse(result.text);
+    message = (parsed as { message?: string }).message || "Take the time you need. Your streaks are safe.";
+  } catch {
+    message = "Take the time you need. Your streaks are safe.";
+  }
+
+  await recordInteraction(supabase, userId, "grace_activated", "positive", "in_app", {
+    reason,
+    days,
+  });
+
+  return new Response(
+    JSON.stringify({
+      success: true,
+      grace: graceResult,
+      kira_message: message,
+    }),
+    { status: 200, headers: corsHeaders }
+  );
+}
+
+// --- Switch Sprint Mode Handler ---
+
+async function handleSwitchSprintMode(
+  supabase: ReturnType<typeof import("jsr:@supabase/supabase-js@2").createClient>,
+  userId: string,
+  payload: Record<string, unknown>
+) {
+  const newMode = payload.mode as string;
+
+  if (!newMode || !["competitive", "cooperative", "swap"].includes(newMode)) {
+    return new Response(
+      JSON.stringify({ error: "mode must be 'competitive', 'cooperative', or 'swap'" }),
+      { status: 400, headers: corsHeaders }
+    );
+  }
+
+  // Get the current active sprint to determine its mode
+  const { data: activeSprint } = await supabase
+    .from("sprints")
+    .select("id, sprint_mode")
+    .eq("status", "active")
+    .limit(1)
+    .maybeSingle();
+
+  const currentMode = activeSprint?.sprint_mode || "competitive";
+
+  // Mode change applies to the NEXT sprint, not current
+  // Store it as metadata on the pair for the weekly sprint creation to pick up
+  const { data: pair } = await supabase
+    .from("partner_pairs")
+    .select("id")
+    .eq("active", true)
+    .limit(1)
+    .maybeSingle();
+
+  if (!pair) {
+    return new Response(
+      JSON.stringify({ error: "No active pair found" }),
+      { status: 404, headers: corsHeaders }
+    );
+  }
+
+  // If there's an active sprint, update it (mode changes take effect immediately
+  // for next sprint, but we store the pending mode on the current sprint)
+  if (activeSprint) {
+    await supabase.from("sprints").update({
+      sprint_mode: newMode,
+    }).eq("id", activeSprint.id);
+  }
+
+  // Generate Kira response
+  const userContext = await assembleUserContext(supabase, userId);
+  const config = getModelConfig("switch_sprint_mode");
+  const systemPrompt = assembleSystemPrompt("cheerful", "switch_sprint_mode");
+  const userMessage = buildUserMessage("switch_sprint_mode", userContext, undefined, {
+    currentMode,
+    newMode,
+  });
+
+  const result = await callWithRetry(
+    () => callBedrock(config.modelId, systemPrompt, userMessage, config.maxTokens),
+    "switch_sprint_mode"
+  );
+
+  let message: string;
+  try {
+    const parsed = parseJsonResponse(result.text);
+    message = (parsed as { message?: string }).message || `Switched to ${newMode} mode.`;
+  } catch {
+    message = `Switched to ${newMode} mode.`;
+  }
+
+  await recordInteraction(supabase, userId, "mode_switch", "neutral", "in_app", {
+    from: currentMode,
+    to: newMode,
+  });
+
+  return new Response(
+    JSON.stringify({
+      success: true,
+      previous_mode: currentMode,
+      new_mode: newMode,
+      kira_message: message,
     }),
     { status: 200, headers: corsHeaders }
   );

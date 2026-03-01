@@ -7,6 +7,7 @@ import {
 } from "jsr:@negrel/webpush@0.5.0";
 import { verifyServiceRole, corsHeaders } from "../_shared/auth.ts";
 import type { SupabaseClient } from "jsr:@supabase/supabase-js@2";
+import { shouldSuppressNegative, recordInteraction } from "../_shared/health-monitor.ts";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -237,6 +238,28 @@ async function processNotification(
     .from("notification_queue")
     .update({ status: "processing" })
     .eq("id", notification.id);
+
+  // 5:1 ratio guard: suppress negative-valence notifications if ratio is unhealthy
+  const negativeCategories = ["streak_warning", "nudge", "task_deadline"];
+  if (negativeCategories.includes(notification.category)) {
+    const suppress = await shouldSuppressNegative(supabase, notification.user_id);
+    if (suppress) {
+      await supabase
+        .from("notification_queue")
+        .update({
+          status: "cancelled",
+          error_message: "Suppressed: 5:1 ratio unhealthy",
+        })
+        .eq("id", notification.id);
+
+      await logAttempt(
+        supabase, notification.id, null, "cancelled",
+        "Suppressed by 5:1 ratio enforcement", 0,
+      );
+      summary.failed++;
+      return;
+    }
+  }
 
   const { data: subscriptions } = await supabase
     .from("push_subscriptions")

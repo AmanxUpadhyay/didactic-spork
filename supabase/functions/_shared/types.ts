@@ -15,7 +15,12 @@ export type KiraFunctionType =
   | "deadline_escalation"
   | "point_bank_decay"
   | "fresh_start_calc"
-  | "mystery_box_roll";
+  | "mystery_box_roll"
+  | "health_check"
+  | "health_check_response"
+  | "activate_grace"
+  | "switch_sprint_mode"
+  | "positive_injection";
 
 export type PersonalityMode =
   | "cheerful"
@@ -53,6 +58,11 @@ export const FUNCTION_MODEL_CONFIG: Record<KiraFunctionType, ModelConfig> = {
   point_bank_decay: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
   fresh_start_calc: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
   mystery_box_roll: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
+  health_check: { modelId: MODEL_IDS.haiku, maxTokens: 512 },
+  health_check_response: { modelId: MODEL_IDS.sonnet, maxTokens: 1024 },
+  activate_grace: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
+  switch_sprint_mode: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
+  positive_injection: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
 };
 
 // Override mood_response to Sonnet for deep mode

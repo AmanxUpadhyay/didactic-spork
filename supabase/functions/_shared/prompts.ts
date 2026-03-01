@@ -140,6 +140,59 @@ Rules:
 - Should feel like a gesture of love/support, not a chore
 - One task only, clear and specific
 - Return JSON: { "task": "", "description": "", "timeEstimate": "" }`,
+
+  health_check: `TASK: Relationship Health Check
+You've detected concerning patterns in how this couple is using the app. Write a gentle, proactive check-in message.
+
+Rules:
+- Reference the specific signals detected (sustained losing, disengagement, score gap, etc.)
+- NEVER blame either partner
+- Frame it as "the app noticing patterns", not "you're doing something wrong"
+- Suggest 1-2 concrete actions (switch to cooperative mode, take a grace week, talk to each other)
+- Keep under 150 words
+- Be warm but honest — don't minimize real issues
+- Return JSON: { "message": "", "suggested_action": "cooperative|grace|none", "severity": "gentle|moderate|urgent" }`,
+
+  health_check_response: `TASK: Respond to Health Check Decision
+The user has responded to a relationship health check prompt. They chose an action. Acknowledge their choice and provide guidance.
+
+Rules:
+- Validate their decision without being patronizing
+- If switching to cooperative: explain how cooperative sprints work, frame it positively
+- If taking a grace week: reassure them, explain what happens during grace (streaks protected, no TP loss)
+- If "we're fine": respect it, but gently note you'll keep watching
+- Keep under 100 words
+- Return JSON: { "response": "", "action_confirmed": true }`,
+
+  activate_grace: `TASK: Grace Period Activation
+The user is activating a grace period. Acknowledge and frame it positively.
+
+Rules:
+- Frame as self-care, not quitting
+- Explain what's protected (streaks, TP, notifications paused)
+- Keep it brief — 2-3 sentences max
+- Return JSON: { "message": "" }`,
+
+  switch_sprint_mode: `TASK: Sprint Mode Change
+The user is switching their sprint mode for next week. Acknowledge and explain.
+
+Rules:
+- Explain what the new mode means in practical terms
+- If switching TO cooperative: "You'll work together toward a shared goal instead of competing"
+- If switching TO swap: "You'll try each other's habits — walk in their shoes"
+- If switching TO competitive: "Game on — back to the classic format"
+- Keep under 80 words
+- Return JSON: { "message": "" }`,
+
+  positive_injection: `TASK: Positive Celebration
+Generate a brief, genuine celebration message about recent progress. This is being sent proactively to boost the positive interaction ratio.
+
+Rules:
+- Reference specific achievements if provided (streak, completion rate, etc.)
+- Feel natural, not forced — like a friend noticing something good
+- No generic "great job" — be specific
+- Max 2 sentences
+- Return JSON: { "message": "" }`,
 };
 
 /**
@@ -287,6 +340,45 @@ Rescuer name: ${extra.rescuerName || userContext?.name || "Partner"}`);
     if (functionType === "task_suggest" && extra.currentTasks) {
       parts.push(`\n## Current Active Tasks
 ${JSON.stringify(extra.currentTasks)}`);
+    }
+
+    if (functionType === "health_check" && extra.signals) {
+      parts.push(`\n## Detected Health Signals
+${JSON.stringify(extra.signals)}
+Active signal count: ${extra.activeCount || 0}`);
+      if (extra.catchUpTier !== undefined) {
+        parts.push(`Catch-up tier: ${extra.catchUpTier}`);
+      }
+      if (extra.interactionRatio !== undefined) {
+        parts.push(`Interaction ratio (pos/neg): ${JSON.stringify(extra.interactionRatio)}`);
+      }
+    }
+
+    if (functionType === "health_check_response" && extra.chosenAction) {
+      parts.push(`\n## User's Choice
+Action: ${extra.chosenAction}
+Signal type: ${extra.signalType || "unknown"}
+Context: ${extra.context || "none"}`);
+    }
+
+    if (functionType === "activate_grace" && extra.graceReason) {
+      parts.push(`\n## Grace Period
+Reason: ${extra.graceReason}
+Duration: ${extra.graceDays || 7} days`);
+    }
+
+    if (functionType === "switch_sprint_mode" && extra.newMode) {
+      parts.push(`\n## Mode Switch
+From: ${extra.currentMode || "competitive"}
+To: ${extra.newMode}`);
+    }
+
+    if (functionType === "positive_injection") {
+      parts.push(`\n## Context for Celebration`);
+      if (extra.recentAchievement) parts.push(`Recent achievement: ${extra.recentAchievement}`);
+      if (extra.streakDays) parts.push(`Current streak: ${extra.streakDays} days`);
+      if (extra.completionRate) parts.push(`Completion rate: ${Math.round((extra.completionRate as number) * 100)}%`);
+      if (extra.gracePeriod) parts.push(`Grace period active: ${JSON.stringify(extra.gracePeriod)}`);
     }
   }
 

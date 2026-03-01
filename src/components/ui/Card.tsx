@@ -16,7 +16,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         whileHover={hoverable ? { scale: 1.01, y: -2 } : undefined}
         transition={gentleSpring}
         className={cn(
-          'rounded-[var(--radius-card)] bg-surface',
+          'card rounded-[var(--radius-card)] bg-surface',
           'border-2 border-border p-5',
           'shadow-[var(--shadow-elevated)]',
           className,

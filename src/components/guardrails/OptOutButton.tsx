@@ -1,34 +1,29 @@
-import { useState } from 'react'
-import { Button } from '@/components/ui'
-
 interface OptOutButtonProps {
   feature: string
   label: string
-  onOptOut: (feature: string) => void
+  enabled: boolean
+  onToggle: (feature: string) => void
 }
 
-export function OptOutButton({ feature, label, onOptOut }: OptOutButtonProps) {
-  const [confirmed, setConfirmed] = useState(false)
-
-  if (confirmed) {
-    return (
-      <p className="text-xs text-text-secondary text-center py-2">
-        Got it! You can re-enable this anytime in Settings.
-      </p>
-    )
-  }
-
+export function OptOutButton({ feature, label, enabled, onToggle }: OptOutButtonProps) {
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      className="w-full text-text-secondary"
-      onClick={() => {
-        setConfirmed(true)
-        onOptOut(feature)
-      }}
-    >
-      {label}
-    </Button>
+    <label className="flex items-center justify-between cursor-pointer py-2">
+      <span className="text-sm text-text-primary">{label}</span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={enabled}
+        onClick={() => onToggle(feature)}
+        className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors ${
+          enabled ? 'bg-primary' : 'bg-surface-secondary'
+        }`}
+      >
+        <span
+          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform mt-0.5 ${
+            enabled ? 'translate-x-[22px]' : 'translate-x-0.5'
+          }`}
+        />
+      </button>
+    </label>
   )
 }

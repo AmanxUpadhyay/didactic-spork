@@ -29,6 +29,9 @@ export function BarChart({ bars, maxValue: maxProp, height = 160, className }: B
                 ✨
               </span>
             )}
+            {bar.value > 0 && (
+              <span className="font-accent text-xs font-bold text-text-secondary">{bar.value}</span>
+            )}
             <div
               className="relative w-full min-w-[28px] rounded-t-[var(--radius-small)] origin-bottom"
               style={{

@@ -27,7 +27,15 @@ export function useCelebration() {
 
     switch (intensity) {
       case 'micro':
-        // handled by AnimatedCheckbox locally
+        haptics.light()
+        confetti({
+          particleCount: 12,
+          spread: 50,
+          colors,
+          origin: { y: 0.55 },
+          scalar: 0.7,
+          gravity: 0.8,
+        })
         break
       case 'small':
         haptics.success()

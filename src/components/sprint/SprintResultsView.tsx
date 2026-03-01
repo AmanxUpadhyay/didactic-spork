@@ -107,14 +107,14 @@ export function SprintResultsView({
       {/* Score breakdowns side-by-side */}
       {myBreakdown && (
         <div>
-          <h3 className="text-sm font-medium text-text-secondary mb-2">Your breakdown</h3>
+          <h3 className="font-heading text-sm font-semibold text-text-secondary mb-2">Your breakdown</h3>
           <ScoreBreakdown {...myBreakdown} />
         </div>
       )}
 
       {partnerBreakdown && (
         <div>
-          <h3 className="text-sm font-medium text-text-secondary mb-2">{partnerName}'s breakdown</h3>
+          <h3 className="font-heading text-sm font-semibold text-text-secondary mb-2">{partnerName}'s breakdown</h3>
           <ScoreBreakdown {...partnerBreakdown} />
         </div>
       )}

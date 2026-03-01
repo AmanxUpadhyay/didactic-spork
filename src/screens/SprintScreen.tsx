@@ -2,12 +2,16 @@ import { useAuth } from '@/hooks/useAuth'
 import { useSprint } from '@/hooks/useSprint'
 import { useLiveScores } from '@/hooks/useLiveScores'
 import { useAppreciation } from '@/hooks/useAppreciation'
+import { useSprintMode } from '@/hooks/useSprintMode'
 import { usePairing } from '@/contexts/PairingContext'
 import { EmptyState } from '@/components/ui'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { ActiveSprintView } from '@/components/sprint/ActiveSprintView'
+import { CooperativeSprintView } from '@/components/sprint/CooperativeSprintView'
+import { SwapSprintView } from '@/components/sprint/SwapSprintView'
 import { AppreciationGateView } from '@/components/sprint/AppreciationGateView'
 import { SprintResultsView } from '@/components/sprint/SprintResultsView'
+import { MercyRulePrompt } from '@/components/sprint/MercyRulePrompt'
 import { CompetitiveScoreGap } from '@/components/psych/CompetitiveScoreGap'
 import { SunkCostTimeline } from '@/components/psych/SunkCostTimeline'
 
@@ -19,6 +23,7 @@ export function SprintScreen() {
   const partnerName = partnerProfile?.name || 'Partner'
 
   const { sprint, loading: sprintLoading } = useSprint(profile?.id)
+  const { mode } = useSprintMode()
   const { myBreakdown, partnerBreakdown } = useLiveScores(
     profile?.id,
     sprint?.status === 'active' ? sprint?.id : undefined,
@@ -48,8 +53,49 @@ export function SprintScreen() {
     )
   }
 
-  // Active sprint — show live scores
+  // Active sprint — render based on sprint_mode
   if (sprint.status === 'active' || sprint.status === 'scoring') {
+    if (mode === 'cooperative') {
+      return (
+        <div className="px-5 pt-6 pb-24">
+          <CooperativeSprintView
+            sprintId={sprint.id}
+            userId={profile!.id}
+            partnerId={partnerId ?? null}
+            weekStart={sprint.week_start}
+            myName={myName}
+            partnerName={partnerName}
+            myBreakdown={myBreakdown}
+            partnerBreakdown={partnerBreakdown}
+            timezone={tz}
+          />
+          <div className="mt-4">
+            <SunkCostTimeline />
+          </div>
+        </div>
+      )
+    }
+
+    if (mode === 'swap') {
+      return (
+        <div className="px-5 pt-6 pb-24">
+          <SwapSprintView
+            sprintId={sprint.id}
+            userId={profile!.id}
+            partnerId={partnerId ?? null}
+            weekStart={sprint.week_start}
+            myName={myName}
+            partnerName={partnerName}
+            timezone={tz}
+          />
+          <div className="mt-4">
+            <SunkCostTimeline />
+          </div>
+        </div>
+      )
+    }
+
+    // Default: competitive mode
     return (
       <div className="px-5 pt-6 pb-24">
         <ActiveSprintView
@@ -95,7 +141,7 @@ export function SprintScreen() {
       )
     }
 
-    // Gate passed — show results
+    // Gate passed — show results + mercy rule prompt if applicable
     return (
       <div className="px-5 pt-6 pb-24">
         <SprintResultsView
@@ -111,6 +157,9 @@ export function SprintScreen() {
           myNote={myNote}
           partnerNote={partnerNote}
         />
+        {!sprint.i_won && !sprint.is_tie && (
+          <MercyRulePrompt className="mt-4" />
+        )}
       </div>
     )
   }

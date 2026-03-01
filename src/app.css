@@ -46,7 +46,7 @@
   --color-secondary: #F2B8A2;
   --color-accent: #C4706E;
   --color-bg: #FFF8F3;
-  --color-surface: #FFFFFF;
+  --color-surface: #FFF3EE;
   --color-text-primary: #3D2C2E;
   --color-text-secondary: #7A5C5E;
   --color-error: #D4645A;
@@ -84,8 +84,9 @@
 /* ---------- Keyframes ---------- */
 
 @keyframes bouncy {
-  0% { transform: scale(1); }
-  40% { transform: scale(0.95); }
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.95); }
+  70%  { transform: scale(1.06); }
   100% { transform: scale(1); }
 }
 
@@ -124,6 +125,18 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
+/* Smooth theme transitions */
+*, *::before, *::after {
+  transition-property: background-color, color, border-color, box-shadow;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}
+
+/* Exclude animated elements from blanket transitions */
+[data-motion], .motion-safe\:animate-none {
+  transition: none !important;
+}
+
 /* ---------- Palette Variants ---------- */
 
 /* Strawberry Milk Dark */
@@ -155,7 +168,7 @@
   --color-secondary: #F2A896;
   --color-accent: #5A9E82;
   --color-bg: #FBF7F0;
-  --color-surface: #FFFFFF;
+  --color-surface: #F5FAF2;
   --color-text-primary: #2D3B30;
   --color-text-secondary: #6B7C6E;
   --color-error: #D4716A;
@@ -205,7 +218,7 @@
   --color-secondary: #E8A8A0;
   --color-accent: #C4883A;
   --color-bg: #FFF9EE;
-  --color-surface: #FFFFFE;
+  --color-surface: #FFFBF0;
   --color-text-primary: #3A2D20;
   --color-text-secondary: #7A6B58;
   --color-error: #C9605A;
@@ -284,6 +297,7 @@ body {
   line-height: var(--leading-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: none;
 }
 
 /* Safe area padding for PWA */
@@ -322,4 +336,18 @@ body {
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ---------- Dark mode card glow ---------- */
+
+[data-theme="strawberry-milk-dark"] .card,
+[data-theme="matcha-latte-dark"] .card,
+[data-theme="honey-biscuit-dark"] .card {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 18%, transparent), var(--shadow-elevated);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .card {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 18%, transparent), var(--shadow-elevated);
+  }
 }

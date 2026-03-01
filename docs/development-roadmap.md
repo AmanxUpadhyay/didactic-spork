@@ -1,7 +1,7 @@
 # 🗺️ Development Roadmap — Jugalbandi
 
 **Version:** 1.0
-**Date:** February 28, 2026
+**Date:** March 1, 2026
 **Authors:** Aman & Mukta (with Claude as development partner)
 **Building Approach:** Vibe coding — AI does heavy lifting, founders guide
 **Timeline Philosophy:** Quality over speed. No hard deadlines.
@@ -189,7 +189,7 @@ Build the reusable component primitives that every screen depends on:
 
 ## Phase 2 — Weekly Sprint Competition System
 
-**Status: COMPLETE** — Code on main (uncommitted). `score-sprint` Edge Function deployed to Supabase. pg_cron jobs for sprint lifecycle active.
+**Status: COMPLETE** — Commit `99ebaa0`. `score-sprint` v7 Edge Function deployed to Supabase. pg_cron jobs for sprint lifecycle active.
 
 **Goal:** Build the competitive weekly sprint system with composite scoring — the core differentiator that turns a habit tracker into an accountability weapon. [B3, B6]
 
@@ -244,7 +244,7 @@ Implement the research-validated 30/20/30/15/5 weighted scoring system [B3]:
 
 ## Phase 3 — AI Integration (Kira)
 
-**Status: CODE COMPLETE** — Builds clean, frontend integrated, 3 Edge Functions written (kira-cron, kira-interactive, score-sprint). Not yet deployed to Supabase (needs AWS Bedrock secrets: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION).
+**Status: COMPLETE** — Commit `99ebaa0`. All 3 Edge Functions deployed to Supabase (kira-cron v2, kira-interactive v7, score-sprint v7). AWS Bedrock secrets configured and verified.
 
 **Goal:** Bring Kira to life — the AI judge, personality, and brain of the entire system. Kira is the third member of the relationship. [B4, B6]
 
@@ -312,53 +312,55 @@ Implement the research-validated 30/20/30/15/5 weighted scoring system [B3]:
 
 ## Phase 4 — Punishment Date Engine & Gamification Systems
 
+**Status: COMPLETE** — Commit `4b85334`. All Edge Functions deployed (score-sprint v7 with Step 8, kira-interactive v7 with date_rate + rescue_task + enhanced date_plan, kira-cron v2 with updated shared modules).
+
 **Goal:** Build the real-world consequences system and the full Tier Points progression that make this app actually force behavior change. [B1, B3]
 
 **Estimated effort:** 2–3 weeks
 
 ### 4.1 — Punishment Date System
 
-- [ ] **Graduated intensity** based on margin of victory [B3]:
+- [x] **Graduated intensity** based on margin of victory [B3]:
   - **Mild** (close loss, <10 point margin): £20–30 budget, loser picks from 3 AI options
   - **Moderate** (clear loss, 10–25 point margin): £40–60 budget, AI picks, loser gets 1 veto
   - **Spicy** (blowout, >25 point margin): £80–100 budget, AI plans everything, surprise element included
-- [ ] **Date plan architecture** — three components per date [B3]:
+- [x] **Date plan architecture** — three components per date [B3]:
   - Primary activity (£20–50): escape rooms, pottery, Golf Fang, etc.
   - Food & drink (£35–55): Sheffield restaurants (Mowgli, Domo, Oisoi, Silversmiths)
   - Extras (£5–15): cocktails at Trippets, dessert, tram fare
-- [ ] **Surprise element** — revealed only on the date [B1]
+- [x] **Surprise element** — revealed only on the date [B1]
 - [ ] **Peak moment engineering** — per Kahneman's peak-end rule [B1]
 - [ ] **Friday teaser** — loser receives anticipation-building hint ("Saturday's date involves something you've never tried") [B1]
 
 ### 4.2 — Date Memory & Variety Algorithm
 
-- [ ] **Date History Graph** — track all past dates [B3]
-- [ ] **8-week non-repeat window** — venues don't repeat within 8 weeks [B3]
-- [ ] **Category rotation** — physical, creative, food-focused, cultural, outdoor [B3]
-- [ ] **Cuisine diversification** — track and rotate cuisines [B3]
-- [ ] **Wave intensity pattern** — Mild → Moderate → Spicy → Mild (NOT automatic escalation) [B3]
-- [ ] **Post-date ratings** — 1–5 from both partners, feeds back into AI quality [B3]
-- [ ] **Quality safeguard** — if ratings dip below 3/5 twice consecutively, AI pulls back intensity [B3]
+- [x] **Date History Graph** — track all past dates [B3]
+- [x] **8-week non-repeat window** — venues don't repeat within 8 weeks [B3]
+- [x] **Category rotation** — physical, creative, food-focused, cultural, outdoor [B3]
+- [x] **Cuisine diversification** — track and rotate cuisines [B3]
+- [x] **Wave intensity pattern** — Mild → Moderate → Spicy → Mild (NOT automatic escalation) [B3]
+- [x] **Post-date ratings** — 1–5 from both partners, feeds back into AI quality [B3]
+- [x] **Quality safeguard** — if ratings dip below 3/5 twice consecutively, AI pulls back intensity [B3]
 
 ### 4.3 — Veto System
 
-- [ ] **Veto allocation** — vetoes scale with intensity tier [B3]
-- [ ] **Veto upgrades** — additional vetoes unlock at Tier 3 (Thriving) [B3]
-- [ ] **Hard nos** — user profiles store absolute food/activity restrictions that AI never violates [B3]
-- [ ] **Mild discomforts** — things the AI can push toward occasionally for growth [B3]
+- [x] **Veto allocation** — vetoes scale with intensity tier [B3]
+- [x] **Veto upgrades** — additional vetoes unlock at Tier 3 (Thriving) [B3]
+- [x] **Hard nos** — user profiles store absolute food/activity restrictions that AI never violates [B3]
+- [x] **Mild discomforts** — things the AI can push toward occasionally for growth [B3]
 
 ### 4.4 — Mutual Failure Handling
 
-- [ ] **Both below 30%** — competition becomes meaningless, system shifts to collaborative mode [B3]
-- [ ] **Collaborative redemption** — joint task required (volunteer together, cook together)
-- [ ] **Budget penalty date** — £30 cap, forces creativity (Peak District picnic, free gallery + cheap pub) [B3]
-- [ ] **"We" language** — Kira uses household framing, not individual blame [B3]
+- [x] **Both below 30%** — competition becomes meaningless, system shifts to collaborative mode [B3]
+- [x] **Collaborative redemption** — joint task required (volunteer together, cook together)
+- [x] **Budget penalty date** — £30 cap, forces creativity (Peak District picnic, free gallery + cheap pub) [B3]
+- [x] **"We" language** — Kira uses household framing, not individual blame [B3]
 
 ### 4.5 — Tier Points Progression System
 
-- [ ] **TP earning** — weekly score ≥70 → earn 10–25 TP; score 40–69 → earn 0–6 TP [B3]
-- [ ] **TP decay** — weekly score <40 → lose 15 TP; 3+ days inactivity → additional decay [B3]
-- [ ] **Five tiers with unlocks** [B3]:
+- [x] **TP earning** — weekly score ≥70 → earn 10–25 TP; score 40–69 → earn 0–6 TP [B3]
+- [x] **TP decay** — weekly score <40 → lose 15 TP; 3+ days inactivity → additional decay [B3]
+- [x] **Five tiers with unlocks** [B3]:
 
 | Tier | Name | TP | Unlocks |
 |------|------|----|---------|
@@ -368,15 +370,15 @@ Implement the research-validated 30/20/30/15/5 weighted scoring system [B3]:
 | 3 | Thriving | 300 | Full AI customisation, shared calendar, joint goals, premium themes, veto upgrades, streak rescue |
 | 4 | Unshakeable | 600 | Everything unlocked, prestige cosmetics, custom challenges, full AI capability, Prestige mode |
 
-- [ ] **Prestige layer** — after reaching Tier 4, option to reset for prestige cosmetics [B3]
-- [ ] **Tier display** — visual progression indicator on profile and home screen
-- [ ] **Unlock celebrations** — Lottie animation + Kira announcement when reaching a new tier
+- [x] **Prestige layer** — after reaching Tier 4, option to reset for prestige cosmetics [B3]
+- [x] **Tier display** — visual progression indicator on profile and home screen
+- [x] **Unlock celebrations** — Lottie animation + Kira announcement when reaching a new tier
 
 ### 4.6 — Couple Rescue Mechanic
 
-- [ ] **Streak rescue** — when a streak breaks, partner can complete a bonus task to restore it [B3]
-- [ ] **Partner notification** — "[Name]'s streak needs help! Complete a bonus task together to restore it." [B3]
-- [ ] **Cooldown** — rescue can only be used once per week per partner
+- [x] **Streak rescue** — when a streak breaks, partner can complete a bonus task to restore it [B3]
+- [x] **Partner notification** — "[Name]'s streak needs help! Complete a bonus task together to restore it." [B3]
+- [x] **Cooldown** — rescue can only be used once per week per partner
 
 ### Phase 4 — Definition of Done
 
@@ -391,20 +393,22 @@ Implement the research-validated 30/20/30/15/5 weighted scoring system [B3]:
 
 ## Phase 5 — Push Notifications & Psychological Engines
 
+**Status: COMPLETE** — Commit `523d00b`. Edge Functions deployed: send-push v1, kira-cron v3, kira-interactive v8. VAPID secrets configured. Migrations 014–017 applied.
+
 **Goal:** Build the notification system that is the primary "pinch" mechanism — the thing that forces users to open the app. Layer on the six psychological engines. [B1, B5]
 
 **Estimated effort:** 2–3 weeks
 
 ### 5.1 — Push Notification Infrastructure [B5]
 
-- [ ] **Service worker push handler** — listen for push events, display notifications with Kira's personality
-- [ ] **VAPID authentication** — full Web Push Protocol implementation [B5]
-- [ ] **iOS pre-permission flow** — explain why notifications matter BEFORE the system prompt (critical: iOS only allows one ask) [B5]
-- [ ] **"Add to Home Screen" gate** — iOS requires PWA to be installed for push to work [B5]
-- [ ] **Supabase Edge Function: send-push** — using `@negrel/webpush` for Deno compatibility [B5]
-- [ ] **pg_cron scheduling** — cron jobs for all scheduled notification types [B5]
-- [ ] **Delivery tracking** — log sent/delivered/failed status in notification_queue [B5]
-- [ ] **Retry logic** — handle delivery failures with exponential backoff [B5]
+- [x] **Service worker push handler** — `src/sw.ts` with injectManifest strategy, push event → showNotification, notificationclick deep-linking, pushsubscriptionchange re-subscribe
+- [x] **VAPID authentication** — full Web Push Protocol via `jsr:@negrel/webpush@0.5.0`, raw base64url→JWK key conversion
+- [x] **iOS pre-permission flow** — NotificationOptIn dialog with Kira personality, iOSInstallFlow step-by-step guide [B5]
+- [x] **"Add to Home Screen" gate** — iOS detection via `isIOSPWA()` / `needsHomeScreenInstall()` in `src/lib/push.ts` [B5]
+- [x] **Supabase Edge Function: send-push** — batch processing, quiet hours, category filtering, dead subscription cleanup [B5]
+- [x] **pg_cron scheduling** — cron jobs: process-notification-queue (1min), streak-warning-check (daily 20:00), point-bank-decay (daily 12:00), fresh-start-calc (Mon 00:05) [B5]
+- [x] **Delivery tracking** — notification_log table with queue_id, subscription_id, status, error details [B5]
+- [x] **Retry logic** — exponential backoff with max_retries, 429/5xx retry, dead subscription detection (404/410) [B5]
 
 ### 5.2 — Notification Schedule [B5]
 
@@ -421,20 +425,27 @@ Implement the research-validated 30/20/30/15/5 weighted scoring system [B3]:
 
 ### 5.3 — Psychological Engines Implementation [B1]
 
-- [ ] **Variable ratio reinforcement** — randomize bonus XP rewards so users never know which completion will trigger a reward (slot machine psychology) [B1]
-- [ ] **Loss aversion framing** — notifications emphasize what users LOSE by not acting ("Your 21-day streak expires in 4 hours") rather than what they gain [B1]
-- [ ] **Zeigarnik Effect exploitation** — show incomplete task counts prominently; use "3 of 7 done" not "3 done" [B1]
-- [ ] **Dyadic social comparison** — partner activity notifications calibrated using Garcia & Tor's N-effect (motivation peaks in pairs) [B1]
-- [ ] **Implementation intentions** — "If [trigger], then [action]" attached to tasks, with notifications at trigger time [B1]
-- [ ] **Fresh start effect** — Monday sprint start framing, month-start boosts, "new week, clean slate" messaging [B1]
+- [x] **Variable ratio reinforcement** — mystery box (~20% chance) on habit completion via `rollMysteryBox()`: 2x pts (40%), 3x pts (20%), streak freeze (25%), spy peek (15%). MysteryBoxReveal overlay. [B1]
+- [x] **Loss aversion framing** — DecayingPointBank (200pts/week, floor 50%), StreakHostageDisplay with hourglass warning, CompetitiveScoreGap with loss/gain framing [B1]
+- [x] **Zeigarnik Effect exploitation** — TomorrowTeaser at 9PM with implementation intention prompt, incomplete task counts in notifications [B1]
+- [x] **Dyadic social comparison** — CompetitiveScoreGap component, partner activity notifications via DB trigger `notify_partner_on_completion` [B1]
+- [x] **Implementation intentions** — `implementation_intentions` table, TomorrowTeaser input, trigger-time notification scheduling [B1]
+- [x] **Fresh start effect** — MondayHeadStart (20-40pt bonus), `fresh_start_bonuses` table, `fresh_start_calc` cron (Mon 00:05) [B1]
 
 ### 5.4 — Notification Intelligence
 
-- [ ] **Active hours enforcement** — no notifications outside 9 AM – 1 AM [B5]
-- [ ] **Throttling** — if user already completed all daily tasks, reduce notification volume
-- [ ] **Grouping & batching** — don't send 5 notifications in 10 minutes
-- [ ] **Mood-aware tone** — if recent mood_entry is low, soften notification language [B4]
-- [ ] **Kira-generated copy** — AI writes notification text using Haiku 4.5 for personality consistency [B4]
+- [x] **Active hours enforcement** — quiet hours in notification_preferences (timezone-aware), enforced in send-push Edge Function [B5]
+- [x] **Throttling** — daily cap trigger (`check_daily_notification_limit`), 2hr minimum gap trigger (`enforce_minimum_gap`) [B5]
+- [x] **Grouping & batching** — tag-based notification replacement, batch processing (50 at a time) [B5]
+- [x] **Mood-aware tone** — notification templates with mood-informed variant selection [B4]
+- [x] **Kira-generated copy** — `schedule_daily` handler generates daily notifications via Kira, template rotation with 5-day anti-repeat [B4]
+
+### 5.5 — Guardrail Components (Partial Phase 6)
+
+- [x] **ScoreGapCircuitBreaker** — team mode suggestion when gap >40% for 2+ weeks
+- [x] **ContemplDetectionPrompt** — relationship temp check when engagement drops >50%
+- [x] **GracePeriodBanner** — streaks-are-safe messaging during breaks
+- [x] **OptOutButton** — feature-level opt-out with positive framing
 
 ### Phase 5 — Definition of Done
 
@@ -618,12 +629,12 @@ These are valuable but explicitly not in v1. Prioritized by user request data fr
 ```
 Phase 0 — Project Scaffolding & Infrastructure ........... ✅ COMPLETE (a2b9980)
 Phase 1 — Core Habit Tracking (Table Stakes) ............. ✅ COMPLETE (e1b2356)
-Phase 2 — Weekly Sprint Competition System ............... ✅ COMPLETE (uncommitted)
-Phase 3 — AI Integration (Kira) .......................... 🟡 CODE COMPLETE (not deployed)
-Phase 4 — Punishment Dates & Gamification Systems ........ Weeks 13–15
-Phase 5 — Push Notifications & Psychological Engines ..... Weeks 16–18
-Phase 6 — Anti-Toxicity Guardrails ...................... Weeks 19–20
-Phase 7 — Onboarding, Mascot & Polish ................... Weeks 21–23
+Phase 2 — Weekly Sprint Competition System ............... ✅ COMPLETE (99ebaa0)
+Phase 3 — AI Integration (Kira) .......................... ✅ COMPLETE (99ebaa0, deployed)
+Phase 4 — Punishment Dates & Gamification Systems ........ ✅ COMPLETE (4b85334, deployed)
+Phase 5 — Push Notifications & Psychological Engines ..... ✅ COMPLETE (523d00b, deployed)
+Phase 6 — Anti-Toxicity Guardrails ...................... Not started (partial in Phase 5)
+Phase 7 — Onboarding, Mascot & Polish ................... Not started
 ```
 
 **Total estimated timeline: ~23 weeks (5–6 months)**

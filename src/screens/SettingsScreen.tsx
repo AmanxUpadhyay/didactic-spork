@@ -8,7 +8,10 @@ import { PrestigeBadge } from '@/components/tier/PrestigeBadge'
 import { DateHistoryList } from '@/components/punishment/DateHistoryList'
 import { NotificationSettings } from '@/components/notifications/NotificationSettings'
 import { CommitmentCeremony } from '@/components/psych/CommitmentCeremony'
-import { OptOutButton } from '@/components/guardrails/OptOutButton'
+import { RatioHealthBar } from '@/components/guardrails/RatioHealthBar'
+import { FeatureOptOutManager } from '@/components/guardrails/FeatureOptOutManager'
+import { SprintModeSelector } from '@/components/sprint/SprintModeSelector'
+import { GracePeriodActivator } from '@/components/guardrails/GracePeriodActivator'
 import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard'
 import { useTierUnlocks } from '@/hooks/useTierUnlocks'
 import { getTierDisplayName, getNextTier, getTierThreshold } from '@/lib/tierGating'
@@ -143,15 +146,18 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
         </Card>
       )}
 
-      {/* Psych feature opt-outs */}
+      {/* Relationship Health */}
       <Card>
-        <div className="space-y-2">
-          <h2 className="font-heading text-base font-semibold text-text-primary mb-3">Engagement Features</h2>
-          <OptOutButton feature="mystery_box" label="Mystery Box Rewards" onOptOut={(f) => localStorage.setItem(`optout_${f}`, '1')} />
-          <OptOutButton feature="decaying_points" label="Decaying Point Bank" onOptOut={(f) => localStorage.setItem(`optout_${f}`, '1')} />
-          <OptOutButton feature="streak_hostage" label="Streak Warnings" onOptOut={(f) => localStorage.setItem(`optout_${f}`, '1')} />
+        <div className="space-y-3">
+          <h2 className="font-heading text-base font-semibold text-text-primary">Relationship Health</h2>
+          <RatioHealthBar />
+          <SprintModeSelector />
+          <GracePeriodActivator />
         </div>
       </Card>
+
+      {/* Feature opt-outs (persisted to Supabase) */}
+      <FeatureOptOutManager />
 
       {partnerName && (
         <Card>

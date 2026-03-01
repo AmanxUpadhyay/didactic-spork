@@ -26,10 +26,13 @@ export function ScoreComparison({
       {/* My score bar */}
       <div className="space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-text-primary truncate">{myName}</span>
+          <div className="flex items-center gap-1">
+            {iAmAhead && <span className="text-sm">👑</span>}
+            <span className="text-sm font-medium text-text-primary truncate">{myName}</span>
+          </div>
           <span className={cn(
-            'font-accent text-lg font-bold tabular-nums',
-            iAmAhead ? 'text-primary' : 'text-text-secondary',
+            'font-accent text-2xl font-bold tabular-nums',
+            iAmAhead || isTied ? 'text-primary' : 'text-text-secondary',
           )}>
             {myScore.toFixed(1)}
           </span>
@@ -49,10 +52,13 @@ export function ScoreComparison({
       {/* Partner score bar */}
       <div className="space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-text-primary truncate">{partnerName}</span>
+          <div className="flex items-center gap-1">
+            {!iAmAhead && !isTied && <span className="text-sm">👑</span>}
+            <span className="text-sm font-medium text-text-primary truncate">{partnerName}</span>
+          </div>
           <span className={cn(
-            'font-accent text-lg font-bold tabular-nums',
-            !iAmAhead && !isTied ? 'text-primary' : 'text-text-secondary',
+            'font-accent text-2xl font-bold tabular-nums',
+            !iAmAhead || isTied ? 'text-primary' : 'text-text-secondary',
           )}>
             {partnerScore.toFixed(1)}
           </span>

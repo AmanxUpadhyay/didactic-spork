@@ -9,6 +9,7 @@ import { callWithRetry } from "../_shared/fallback.ts";
 import { getModelConfig } from "../_shared/types.ts";
 import type { KiraFunctionType, CronRequestBody } from "../_shared/types.ts";
 import { selectTemplate, interpolateTemplate, buildNotificationPayload } from "../_shared/notification-templates.ts";
+import { recordInteraction, shouldSuppressNegative, injectPositiveKiraMessage, checkGracePeriod } from "../_shared/health-monitor.ts";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -59,6 +60,10 @@ Deno.serve(async (req: Request) => {
         return await handlePointBankDecay(supabase);
       case "fresh_start_calc":
         return await handleFreshStartCalc(supabase);
+      case "health_check":
+        return await handleHealthCheck(supabase);
+      case "positive_injection":
+        return await handlePositiveInjection(supabase);
       default:
         return new Response(
           JSON.stringify({ error: `Unknown function_type: ${functionType}` }),
@@ -212,6 +217,9 @@ async function handleDailyNotification(
       continue;
     }
 
+    // Check 5:1 ratio — suppress negative-valence notifications if unhealthy
+    const suppressNeg = await shouldSuppressNegative(supabase, userId);
+
     const userContext = await assembleUserContext(supabase, userId);
     const now = new Date();
     const mood = selectMood({
@@ -237,6 +245,16 @@ async function handleDailyNotification(
       notifData = JSON.parse(result.text);
     } catch {
       notifData = { title: "Good morning!", body: "Time to check in on your habits." };
+    }
+
+    // If ratio is unhealthy and this would be negative, inject positive instead
+    if (suppressNeg) {
+      await injectPositiveKiraMessage(supabase, userId, {
+        completionRate: userContext.completions.completionRate7d,
+        streakDays: userContext.streaks.bestIndividual,
+      });
+      results.push({ userId, redirected: "positive_injection" });
+      continue;
     }
 
     // Insert into notification_queue
@@ -464,6 +482,24 @@ async function handleStreakWarning(supabase: SupabaseAdmin) {
       .select("display_name")
       .eq("id", userId)
       .maybeSingle();
+
+    // Check grace period — skip warning if active
+    const grace = await checkGracePeriod(supabase, userId);
+    if (grace?.active) {
+      results.push({ userId, skipped: "grace period active" });
+      continue;
+    }
+
+    // Check 5:1 ratio — if unhealthy, send encouraging message instead
+    const suppressNeg = await shouldSuppressNegative(supabase, userId);
+    if (suppressNeg) {
+      await injectPositiveKiraMessage(supabase, userId, {
+        streakDays: streak,
+        recentAchievement: `${streak}-day streak`,
+      });
+      results.push({ userId, redirected: "positive_instead_of_warning" });
+      continue;
+    }
 
     // Select and interpolate template
     const template = await selectTemplate(supabase, "streak_warning", userId);
@@ -910,6 +946,207 @@ async function handleFreshStartCalc(supabase: SupabaseAdmin) {
     await supabase.from("notification_queue").insert(payload);
 
     results.push({ userId, bonus, reason });
+  }
+
+  return new Response(JSON.stringify({ success: true, results }), {
+    status: 200, headers: corsHeaders,
+  });
+}
+
+// --- Health Check Handler ---
+
+async function handleHealthCheck(supabase: SupabaseAdmin) {
+  // Run signal detection
+  const { data: signalResult } = await supabase.rpc("detect_relationship_health_signals");
+
+  // Get all unresolved signals
+  const { data: signals } = await supabase
+    .from("relationship_health_signals")
+    .select("*")
+    .eq("resolved", false)
+    .order("created_at", { ascending: false });
+
+  if (!signals || signals.length === 0) {
+    return new Response(
+      JSON.stringify({ success: true, signals_detected: signalResult?.signals_created ?? 0, interventions: 0 }),
+      { status: 200, headers: corsHeaders }
+    );
+  }
+
+  const { data: pair } = await supabase
+    .from("partner_pairs")
+    .select("user_a, user_b")
+    .eq("active", true)
+    .limit(1)
+    .maybeSingle();
+
+  if (!pair) {
+    return new Response(JSON.stringify({ error: "No active pair" }), {
+      status: 404, headers: corsHeaders,
+    });
+  }
+
+  const interventions = [];
+
+  // If 3+ unresolved signals, send proactive Kira push to both users
+  if (signals.length >= 3) {
+    for (const userId of [pair.user_a, pair.user_b]) {
+      const userContext = await assembleUserContext(supabase, userId);
+      const mood = "empathetic" as const;
+      const config = getModelConfig("health_check");
+      const systemPrompt = assembleSystemPrompt(mood, "health_check");
+
+      // Get interaction ratio for context
+      const { data: ratioData } = await supabase.rpc("get_interaction_ratio", {
+        p_user_id: userId,
+      });
+
+      const userMessage = buildUserMessage("health_check", userContext, undefined, {
+        signals: signals.map((s: Record<string, unknown>) => ({
+          type: s.signal_type,
+          severity: s.severity,
+          metadata: s.metadata,
+        })),
+        activeCount: signals.length,
+        interactionRatio: ratioData,
+      });
+
+      const result = await callWithRetry(
+        () => callBedrock(config.modelId, systemPrompt, userMessage, config.maxTokens),
+        "health_check"
+      );
+
+      let structuredData: Record<string, unknown>;
+      try {
+        structuredData = JSON.parse(result.text);
+      } catch {
+        structuredData = {
+          message: "Hey — Kira here. I've noticed some patterns that might be worth talking about. Want to take a look?",
+          suggested_action: "none",
+          severity: "gentle",
+        };
+      }
+
+      // Queue proactive push notification
+      await supabase.from("notification_queue").insert({
+        user_id: userId,
+        category: "health_check",
+        title: "Kira wants to check in",
+        body: ((structuredData as { message?: string }).message || "").slice(0, 120),
+        scheduled_for: new Date().toISOString(),
+        status: "pending",
+        urgency: "normal",
+        data: { url: "/settings", type: "health_check", signals: signals.length },
+      });
+
+      // Record positive interaction (Kira reaching out is caring)
+      await recordInteraction(supabase, userId, "kira_health_check", "positive", "kira_message", {
+        signals_count: signals.length,
+      });
+
+      await storeResponse(supabase, {
+        functionType: "health_check",
+        responseText: (structuredData as { message?: string }).message || result.text,
+        structuredData,
+        modelUsed: result.isFallback ? "fallback" : config.modelId,
+        personalityMode: mood,
+        tokensInput: result.tokensInput,
+        tokensOutput: result.tokensOutput,
+        userId,
+      });
+
+      interventions.push({ userId, type: "proactive_push", signals: signals.length });
+    }
+  }
+
+  // For individual signals, activate catch-up mechanics
+  for (const signal of signals) {
+    if (signal.signal_type === "sustained_losing" && signal.affected_user_id) {
+      // Auto-activate catch-up for sustained loser
+      const { data: sprint } = await supabase
+        .from("sprints")
+        .select("id")
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle();
+
+      if (sprint) {
+        const { data: tierData } = await supabase.rpc("get_catch_up_tier", {
+          p_user_id: signal.affected_user_id,
+        });
+
+        if (tierData && tierData.tier > 0) {
+          await supabase.from("catch_up_state").upsert(
+            {
+              user_id: signal.affected_user_id,
+              sprint_id: sprint.id,
+              tier: tierData.tier,
+              comeback_multiplier: tierData.tier >= 2 ? 1.2 : 1.15,
+            },
+            { onConflict: "user_id,sprint_id" }
+          );
+          interventions.push({
+            userId: signal.affected_user_id,
+            type: "catch_up_activated",
+            tier: tierData.tier,
+          });
+        }
+      }
+    }
+  }
+
+  return new Response(
+    JSON.stringify({
+      success: true,
+      signals_detected: signalResult?.signals_created ?? 0,
+      unresolved_count: signals.length,
+      interventions,
+    }),
+    { status: 200, headers: corsHeaders }
+  );
+}
+
+// --- Positive Injection Handler ---
+
+async function handlePositiveInjection(supabase: SupabaseAdmin) {
+  const { data: pair } = await supabase
+    .from("partner_pairs")
+    .select("user_a, user_b")
+    .eq("active", true)
+    .limit(1)
+    .maybeSingle();
+
+  if (!pair) {
+    return new Response(JSON.stringify({ error: "No active pair" }), {
+      status: 404, headers: corsHeaders,
+    });
+  }
+
+  const results = [];
+
+  for (const userId of [pair.user_a, pair.user_b]) {
+    const { data: ratioData } = await supabase.rpc("get_interaction_ratio", {
+      p_user_id: userId,
+    });
+
+    // Only inject for unhealthy ratios (skip cold start)
+    if (!ratioData || ratioData.cold_start || ratioData.healthy) {
+      results.push({ userId, skipped: "ratio healthy or cold start" });
+      continue;
+    }
+
+    // Get recent achievements for personalization
+    const userContext = await assembleUserContext(supabase, userId);
+
+    await injectPositiveKiraMessage(supabase, userId, {
+      completionRate: userContext.completions.completionRate7d,
+      streakDays: userContext.streaks.bestIndividual,
+      recentAchievement: userContext.streaks.bestIndividual > 3
+        ? `${userContext.streaks.bestIndividual}-day streak`
+        : undefined,
+    });
+
+    results.push({ userId, injected: true, ratio: ratioData.ratio });
   }
 
   return new Response(JSON.stringify({ success: true, results }), {

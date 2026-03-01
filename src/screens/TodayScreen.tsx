@@ -27,7 +27,12 @@ import { TomorrowTeaser } from '@/components/psych/TomorrowTeaser'
 import { StreakHostageDisplay } from '@/components/psych/StreakHostageDisplay'
 import { useDecayingPoints } from '@/hooks/useDecayingPoints'
 import { useFreshStart } from '@/hooks/useFreshStart'
-import { useCelebration } from '@/lib/animations'
+import { m } from 'motion/react'
+import { useCelebration, kawaiiSpring, haptics } from '@/lib/animations'
+import { useCatchUp } from '@/hooks/useCatchUp'
+import { GracePeriodBanner } from '@/components/guardrails/GracePeriodBanner'
+import { CatchUpIndicator } from '@/components/sprint/CatchUpIndicator'
+import { MochiMoodStrip } from '@/components/ui/MochiMoodStrip'
 import type { Task } from '@/types/habits'
 
 interface TodayScreenProps {
@@ -59,6 +64,7 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
   const { bank } = useDecayingPoints()
   const { bonus, isMonday: isFreshStartMonday } = useFreshStart()
   const { celebrate } = useCelebration()
+  const { tier: catchUpTier } = useCatchUp()
 
   const dismissConfetti = useCallback(() => setShowConfetti(false), [])
 
@@ -151,7 +157,7 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="font-heading text-2xl font-semibold text-text-primary">Today</h1>
+          <h1 className="font-heading text-4xl font-extrabold tracking-tight text-text-primary">Today</h1>
           <p className="text-sm text-text-secondary">{formatDateDisplay(today)}</p>
         </div>
         {dueHabits.length > 0 && (
@@ -163,6 +169,12 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
       <FeatureGate feature="couple_rescue">
         <StreakRescuePrompt className="mb-4" />
       </FeatureGate>
+
+      {/* Grace period banner (self-contained) */}
+      <GracePeriodBanner className="mb-4" />
+
+      {/* Catch-up indicator (trailing partner only) */}
+      {catchUpTier > 0 && <CatchUpIndicator className="mb-4" />}
 
       {/* Couple streak banner */}
       {bestCoupleStreak && (
@@ -186,6 +198,16 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
           daysRemaining={getDaysRemainingInSprint(sprint.week_start, tz)}
           onTap={onNavigateToSprint}
           className="mb-4"
+        />
+      )}
+
+      {/* Mochi mood strip */}
+      {dueHabits.length > 0 && (
+        <MochiMoodStrip
+          progress={progress}
+          remaining={dueHabits.length - completedCount}
+          className="mb-4"
+          onMicroCelebrate={() => celebrate('micro' as any)}
         />
       )}
 
@@ -235,10 +257,12 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
       )}
 
       {dueHabits.length > 0 && completedCount === dueHabits.length && (
-        <div className="mt-6 text-center">
-          <p className="font-heading text-lg font-semibold text-primary animate-[bouncy_600ms_var(--ease-bouncy)]">
-            All done for today!
-          </p>
+        <div className="mt-6">
+          <EmptyState
+            variant="all-done"
+            title="All done for today!"
+            description="You crushed it 🎉"
+          />
         </div>
       )}
 
@@ -246,13 +270,16 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
       {isEvening && <TomorrowTeaser tomorrowTaskCount={tomorrowTaskCount} className="mt-4" />}
 
       {/* Mood check-in entry point */}
-      <button
+      <m.button
         onClick={() => setMoodSheetOpen(true)}
+        whileTap={{ scale: 0.96 }}
+        transition={kawaiiSpring}
+        onPointerDown={() => haptics.light()}
         className="w-full flex items-center gap-3 mt-4 px-4 py-3 rounded-2xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors"
       >
         <KiraAvatar mood="empathetic" size="sm" />
         <span className="text-sm font-medium text-primary">Mood check-in</span>
-      </button>
+      </m.button>
 
       <HabitActionMenu
         open={!!actionHabit && !confirmArchive}
