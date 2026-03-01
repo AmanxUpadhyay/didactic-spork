@@ -5,7 +5,7 @@
 **Authors:** Aman & Mukta (with Claude as development partner)
 **Building Approach:** Vibe coding — AI does heavy lifting, founders guide
 **Timeline Philosophy:** Quality over speed. No hard deadlines.
-**Companion docs:** [Ideation Document v2](ideation-document-v2.md) (spec) | [Architecture Decision Record](architecture-decision-record.md) (decisions)
+**Companion docs:** [Ideation Document v2](../ideation/ideation-document-v2.md) (spec) | [Architecture Decision Record](../architecture/architecture-decision-record.md) (decisions)
 
 ---
 
@@ -14,6 +14,7 @@
 This roadmap is divided into **7 phases**, each with a clear goal, deliverables, and definition of done. Phases are sequential but some tasks within a phase can run in parallel. Each phase builds on the last — nothing ships until its dependencies are solid.
 
 Every feature is tagged with its source research brief for traceability:
+
 - **[B1]** Psychological Warfare Against Procrastination
 - **[B2]** Anti-AI-Slop Design System
 - **[B3]** Gamification Engine
@@ -27,13 +28,13 @@ Every feature is tagged with its source research brief for traceability:
 
 These must be resolved before Phase 1 begins.
 
-| Decision | Status | Owner | Notes |
-|----------|--------|-------|-------|
-| App name | ✅ Resolved | Aman & Mukta | **Jugalbandi** |
-| Frontend framework | ✅ Resolved | Claude recommends | **React + Vite + Tailwind CSS v4** — fast HMR, tree-shaking, PWA via vite-plugin-pwa |
-| Mascot species | ✅ Resolved | Co-create | **Mochi** — see `image/mochi.png` [B2] |
-| Mascot visual design | 🔄 In progress | Commission or create | 2 of 5+ expression states done (Idle, Happy Bounce); more coming [B2] |
-| Domain & hosting | ❌ Not started | Aman | Deferred — not blocking Phase 0. PWA requires HTTPS. Vercel/Netlify/Cloudflare Pages recommended |
+| Decision             | Status         | Owner                | Notes                                                                                            |
+| -------------------- | -------------- | -------------------- | ------------------------------------------------------------------------------------------------ |
+| App name             | ✅ Resolved    | Aman & Mukta         | **Jugalbandi**                                                                                   |
+| Frontend framework   | ✅ Resolved    | Claude recommends    | **React + Vite + Tailwind CSS v4** — fast HMR, tree-shaking, PWA via vite-plugin-pwa             |
+| Mascot species       | ✅ Resolved    | Co-create            | **Mochi** — see `image/mochi.png` [B2]                                                           |
+| Mascot visual design | 🔄 In progress | Commission or create | 2 of 5+ expression states done (Idle, Happy Bounce); more coming [B2]                            |
+| Domain & hosting     | ❌ Not started | Aman                 | Deferred — not blocking Phase 0. PWA requires HTTPS. Vercel/Netlify/Cloudflare Pages recommended |
 
 ---
 
@@ -49,7 +50,7 @@ These must be resolved before Phase 1 begins.
 
 - [x] Create Supabase project
 - [x] Configure auth for exactly 2 users (email/password, no social login needed)
-- [x] Set up Row Level Security (RLS) policies on all tables *(RLS completed in Phase 3 gap audit, migration 011)*
+- [x] Set up Row Level Security (RLS) policies on all tables _(RLS completed in Phase 3 gap audit, migration 011)_
 - [x] Generate VAPID keys for push notifications [B5]
 - [x] Store VAPID private key, Anthropic API key, and all secrets in Supabase Vault
 - [x] Enable Supabase Realtime on tables that need live sync between partners
@@ -59,33 +60,40 @@ These must be resolved before Phase 1 begins.
 Create all tables from the ideation document §8. Priority order:
 
 **User & Auth Layer:**
+
 - [x] `users` — profiles, preferences, food/dietary info, hard_nos, mild_discomforts [B3]
 - [x] `user_ai_profiles` — Kira personality preferences per user [B4]
 
 **Task & Sprint Layer:**
+
 - [x] `tasks` — all tasks (deadline + recurring), with implementation intention fields: `if_trigger`, `then_action` [B1]
 - [x] `sprints` — weekly sprint metadata, scores, winner, `tier_points_earned`, `relative_performance_index` [B3]
 - [x] `sprint_tasks` — junction table with `difficulty_rating` (hybrid AI + user) [B3]
 
 **Gamification Layer:**
+
 - [x] `streaks` — individual + mutual streak tracking, `couple_rescue_available`, `milestone_floor` [B3]
 - [x] `tier_progress` — Tier Points per user: `current_tp`, `current_tier`, `prestige_level` [B3]
 - [x] `relationship_xp` — permanent, never-resetting growth counter [B1]
 
 **Mood & Wellbeing Layer:**
+
 - [x] `mood_entries` — mood check-ins with adaptive depth, feeds into AI mood selection [B4]
 - [x] `appreciation_notes` — weekly pre-score appreciation entries, required before score reveal [B3]
 
 **Notification Layer:**
+
 - [x] `push_subscriptions` — VAPID endpoints per device: endpoint, p256dh, auth, user_agent [B5]
 - [x] `notification_queue` — scheduled notifications with urgency, category, escalation_level [B5]
 - [x] `notification_preferences` — per-user granular toggle controls [B5]
 
 **Punishment & Date Layer:**
+
 - [x] `punishments` — AI-generated date plans with `intensity_tier`, `vetoes_granted` [B3]
 - [x] `date_history` — venue/cuisine/activity tracking, 8-week non-repeat window [B3]
 
 **Safety Layer:**
+
 - [x] `relationship_health` — automated signal logs: `signal_type`, `intervention_taken` [B3]
 
 ### 0.3 — Frontend Project Setup
@@ -252,27 +260,30 @@ Implement the research-validated 30/20/30/15/5 weighted scoring system [B3]:
 
 ### 3.1 — Supabase Edge Functions (AI Bridge)
 
-- [x] **Claude API wrapper** — shared Edge Function with retry logic, rate limiting, error handling [B4] *(via AWS Bedrock SDK, 3-retry with exponential backoff, 8 shared modules in `_shared/`)*
+- [x] **Claude API wrapper** — shared Edge Function with retry logic, rate limiting, error handling [B4] _(via AWS Bedrock SDK, 3-retry with exponential backoff, 8 shared modules in `_shared/`)_
 - [x] **Prompt caching** — ~1500 token cached system prompt prefix to reduce costs [B4]
-- [x] **Model routing** — Haiku for routine tasks, Sonnet for complex reasoning [B4] *(via `@anthropic-ai/bedrock-sdk`, eu-central-1)*
+- [x] **Model routing** — Haiku for routine tasks, Sonnet for complex reasoning [B4] _(via `@anthropic-ai/bedrock-sdk`, eu-central-1)_
 - [x] **Context assembler** — parallel Supabase queries to build user context (profile, mood stats, recent tasks, streaks, week summary) [B4]
 - [ ] **Cost monitoring** — track API spend, alert if approaching £4/month budget [B4]
 
 ### 3.2 — Kira's Three-Layer Personality Model [B4]
 
 **Layer 1 — Core Personality (static):**
+
 - [x] System prompt: sharp, warm, occasionally savage, data-literate referee
 - [x] Cultural voice: Sheffield-aware, Gen Z internet-native, self-aware about being an AI
 - [x] Implement the "Kira never punishes through the mascot" rule — mascot stays gentle, Kira delivers the accountability [B2, B4]
 
 **Layer 2 — Mood Modes (user-selectable + AI-adaptive):**
-- [x] "Default Kira" — balanced warmth + accountability *(implemented as 6 deterministic modes: cheerful, sarcastic, tough_love, empathetic, hype_man, disappointed)*
+
+- [x] "Default Kira" — balanced warmth + accountability _(implemented as 6 deterministic modes: cheerful, sarcastic, tough_love, empathetic, hype_man, disappointed)_
 - [x] "Cheerful Coach" — unlocks at Tier 1 (Sprout, 30 TP) [B3]
 - [x] "Sassy Motivator" — unlocks at Tier 2 (In Sync, 120 TP) [B3]
 - [ ] Full personality customisation UI — unlocks at Tier 3 (Thriving, 300 TP) [B3]
-- [x] AI mood selector that reads recent mood_entries and adjusts Kira's tone [B4] *(deterministic selection via mood-selector module)*
+- [x] AI mood selector that reads recent mood_entries and adjusts Kira's tone [B4] _(deterministic selection via mood-selector module)_
 
 **Layer 3 — Emotion Overlay (contextual):**
+
 - [x] Dynamic adjustments based on: streak status, sprint standing, recent mood trends, time of day, day of week
 - [x] If partner is struggling → Kira adjusts to more supportive tone for both users [B4]
 
@@ -362,13 +373,13 @@ Implement the research-validated 30/20/30/15/5 weighted scoring system [B3]:
 - [x] **TP decay** — weekly score <40 → lose 15 TP; 3+ days inactivity → additional decay [B3]
 - [x] **Five tiers with unlocks** [B3]:
 
-| Tier | Name | TP | Unlocks |
-|------|------|----|---------|
-| 0 | Seedling | 0 | Core tracking, basic AI judge, manual entry, simple score |
-| 1 | Sprout | 30 | Cosmetics, streak display, Cheerful Coach mode, notification customisation |
-| 2 | In Sync | 120 | Analytics dashboard, joint challenges, AI suggestions, Sassy Motivator mode |
-| 3 | Thriving | 300 | Full AI customisation, shared calendar, joint goals, premium themes, veto upgrades, streak rescue |
-| 4 | Unshakeable | 600 | Everything unlocked, prestige cosmetics, custom challenges, full AI capability, Prestige mode |
+| Tier | Name        | TP  | Unlocks                                                                                           |
+| ---- | ----------- | --- | ------------------------------------------------------------------------------------------------- |
+| 0    | Seedling    | 0   | Core tracking, basic AI judge, manual entry, simple score                                         |
+| 1    | Sprout      | 30  | Cosmetics, streak display, Cheerful Coach mode, notification customisation                        |
+| 2    | In Sync     | 120 | Analytics dashboard, joint challenges, AI suggestions, Sassy Motivator mode                       |
+| 3    | Thriving    | 300 | Full AI customisation, shared calendar, joint goals, premium themes, veto upgrades, streak rescue |
+| 4    | Unshakeable | 600 | Everything unlocked, prestige cosmetics, custom challenges, full AI capability, Prestige mode     |
 
 - [x] **Prestige layer** — after reaching Tier 4, option to reset for prestige cosmetics [B3]
 - [x] **Tier display** — visual progression indicator on profile and home screen
@@ -412,16 +423,16 @@ Implement the research-validated 30/20/30/15/5 weighted scoring system [B3]:
 
 ### 5.2 — Notification Schedule [B5]
 
-| Time | Type | Content |
-|------|------|---------|
-| 9:30 AM Monday | Sprint start | Kira kicks off the week with goals and motivation |
-| 9:30 AM daily | Morning briefing | Today's tasks, partner's status, streak count |
-| Dynamic | Deadline escalation | 1 week → 3 days → 1 day → 4 hours → 1 hour → 30 min → OVERDUE |
-| On completion | Partner activity | "[Partner] just crushed their workout! You've got 3 tasks left..." [B1] |
-| 11:30 PM | Mood check-in | Adaptive depth prompt |
-| Sunday 10 PM | Sprint results | Winner announcement + appreciation note reminder |
-| Dynamic | Streak warning | "Your 14-day streak is in danger! One task saves it." [B3] |
-| Dynamic | Nudge | Loss-framed: "You're 12 points behind. [Partner] completed 2 tasks while you were on Instagram." [B1] |
+| Time           | Type                | Content                                                                                               |
+| -------------- | ------------------- | ----------------------------------------------------------------------------------------------------- |
+| 9:30 AM Monday | Sprint start        | Kira kicks off the week with goals and motivation                                                     |
+| 9:30 AM daily  | Morning briefing    | Today's tasks, partner's status, streak count                                                         |
+| Dynamic        | Deadline escalation | 1 week → 3 days → 1 day → 4 hours → 1 hour → 30 min → OVERDUE                                         |
+| On completion  | Partner activity    | "[Partner] just crushed their workout! You've got 3 tasks left..." [B1]                               |
+| 11:30 PM       | Mood check-in       | Adaptive depth prompt                                                                                 |
+| Sunday 10 PM   | Sprint results      | Winner announcement + appreciation note reminder                                                      |
+| Dynamic        | Streak warning      | "Your 14-day streak is in danger! One task saves it." [B3]                                            |
+| Dynamic        | Nudge               | Loss-framed: "You're 12 points behind. [Partner] completed 2 tasks while you were on Instagram." [B1] |
 
 ### 5.3 — Psychological Engines Implementation [B1]
 
@@ -580,39 +591,43 @@ Inspired by Finch's 18-step emotional journey [B2]:
 
 These are valuable but explicitly not in v1. Prioritized by user request data from competitive analysis. [B6]
 
-| Priority | Feature | Why It Waits |
-|----------|---------|-------------|
-| High | Calendar integrations (Google Cal, Apple Cal) | Nice for scheduling but not core to competition |
-| High | Apple Health / Google Fit auto-tracking | Reduces friction but adds complexity; manual works for v1 |
-| High | AI-generated weekly recaps & pattern analysis | Requires data accumulation first |
-| Medium | Shared habit goals (cooperative mode alongside competitive) | Competition-first is the hook |
-| Medium | Customizable mascot character evolution (Finch-style) | Core AI judge works without cosmetic progression |
-| Medium | Advanced mood-productivity correlation insights | Needs weeks of data |
-| Low | Real-money stakes integration (Stripe) | Social/task punishments are lower-friction for launch |
-| Low | Friends/community expansion beyond 2 users | Explicitly out of scope for couples-only positioning |
-| Low | One-time purchase monetization (£4.99–6.99) | Only needed if expanding beyond personal use [B6] |
+| Priority | Feature                                                     | Why It Waits                                              |
+| -------- | ----------------------------------------------------------- | --------------------------------------------------------- |
+| High     | Calendar integrations (Google Cal, Apple Cal)               | Nice for scheduling but not core to competition           |
+| High     | Apple Health / Google Fit auto-tracking                     | Reduces friction but adds complexity; manual works for v1 |
+| High     | AI-generated weekly recaps & pattern analysis               | Requires data accumulation first                          |
+| Medium   | Shared habit goals (cooperative mode alongside competitive) | Competition-first is the hook                             |
+| Medium   | Customizable mascot character evolution (Finch-style)       | Core AI judge works without cosmetic progression          |
+| Medium   | Advanced mood-productivity correlation insights             | Needs weeks of data                                       |
+| Low      | Real-money stakes integration (Stripe)                      | Social/task punishments are lower-friction for launch     |
+| Low      | Friends/community expansion beyond 2 users                  | Explicitly out of scope for couples-only positioning      |
+| Low      | One-time purchase monetization (£4.99–6.99)                 | Only needed if expanding beyond personal use [B6]         |
 
 ---
 
 ## Cross-Cutting Concerns (Apply to Every Phase)
 
 ### Security
+
 - Row Level Security on every Supabase table — users can only access their own data
 - VAPID keys and API keys stored in Supabase Vault, never in client code
 - Service worker scope limited to app domain
 
 ### Cost Management
+
 - AI costs monitored monthly, target: £2–4/month for 2 users [B4]
 - Haiku 4.5 for routine tasks, Sonnet 4.5 only when nuanced reasoning is needed [B4]
 - Prompt caching on system prompts to reduce token usage [B4]
 
 ### Design Consistency
+
 - Every screen checked against AI Slop Avoidance Checklist (18 anti-patterns) [B2]
 - No cool grays, no blue-tinted darks, no pure black or white anywhere [B2]
 - Cream backgrounds (`#FFF8F3`), warm dark mode (`#1E1618`), always [B2]
 - Baloo 2 for headings, Nunito for body, Comfortaa for numbers — no exceptions [B2]
 
 ### Testing
+
 - Both Aman and Mukta test every feature in real daily use before moving to next phase
 - Push notifications tested on: Android Chrome, Desktop Chrome, iOS Safari (home screen)
 - Dark mode tested across all three palettes
@@ -638,16 +653,16 @@ Phase 7 — Onboarding, Mascot & Polish ................... ✅ COMPLETE (844629
 
 The following roadmap items were explicitly deferred — they don't block v1 launch:
 
-| Item | Phase | Reason Deferred |
-|------|-------|-----------------|
-| Egg hatching ceremony + joint naming | 7.1/7.2 | Requires synchronous two-user presence; complex UX |
-| Mascot growth stages + collectible outfits | 7.1 | Requires weeks of usage data; cosmetic only |
-| Couple stats shareable card | 7.4 | Requires canvas/screenshot API; nice-to-have |
-| Photo proof upload + partner challenge | 7.5 | Requires Supabase Storage bucket + moderation |
-| Lighthouse PWA audit | 7.6 | Build is functional; audit before public launch |
-| Data export (CSV) | 7.6 | Engineering quality-of-life; not user-facing |
-| Haptic feedback | 7.3 | Requires Capacitor or native shell |
-| AI cost monitoring dashboard | Cross-cutting | Manual monitoring via Supabase logs sufficient for 2 users |
+| Item                                       | Phase         | Reason Deferred                                            |
+| ------------------------------------------ | ------------- | ---------------------------------------------------------- |
+| Egg hatching ceremony + joint naming       | 7.1/7.2       | Requires synchronous two-user presence; complex UX         |
+| Mascot growth stages + collectible outfits | 7.1           | Requires weeks of usage data; cosmetic only                |
+| Couple stats shareable card                | 7.4           | Requires canvas/screenshot API; nice-to-have               |
+| Photo proof upload + partner challenge     | 7.5           | Requires Supabase Storage bucket + moderation              |
+| Lighthouse PWA audit                       | 7.6           | Build is functional; audit before public launch            |
+| Data export (CSV)                          | 7.6           | Engineering quality-of-life; not user-facing               |
+| Haptic feedback                            | 7.3           | Requires Capacitor or native shell                         |
+| AI cost monitoring dashboard               | Cross-cutting | Manual monitoring via Supabase logs sufficient for 2 users |
 
 **Total estimated timeline: ~23 weeks (5–6 months)**
 
@@ -655,4 +670,4 @@ This is approximate. Some phases overlap, some take longer. Quality over speed a
 
 ---
 
-*This roadmap is a living document. Update as decisions are made and development progresses.*
+_This roadmap is a living document. Update as decisions are made and development progresses._

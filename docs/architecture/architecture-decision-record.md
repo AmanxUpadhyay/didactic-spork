@@ -4,7 +4,7 @@
 **Date:** February 28, 2026
 **Authors:** Aman & Mukta (with Claude as development partner)
 **Status:** Pre-Development — All Decisions Resolved
-**Companion docs:** [Ideation Document v2](ideation-document-v2.md) (spec) | [Development Roadmap](development-roadmap.md) (timeline)
+**Companion docs:** [Ideation Document v2](../ideation/ideation-document-v2.md) (spec) | [Development Roadmap](../roadmaps/development-roadmap.md) (timeline)
 
 ---
 
@@ -19,7 +19,6 @@ This ADR captures every architectural decision made during pre-development acros
 
 Research brief key:
 
-
 | Tag  | Brief                                            | File                                             |
 | ---- | ------------------------------------------------ | ------------------------------------------------ |
 | [B1] | Psychological Warfare Against Procrastination    | `docs/research/compass_artifact_wf-ddd161ab*.md` |
@@ -28,7 +27,6 @@ Research brief key:
 | [B4] | Adaptive AI Personality (Kira)                   | `docs/research/compass_artifact_wf-f3095f8c*.md` |
 | [B5] | PWA Push Notifications                           | `docs/research/compass_artifact_wf-ad74123c*.md` |
 | [B6] | Competitive Analysis & Strategic Differentiation | `docs/research/compass_artifact_wf-3cf112c6*.md` |
-
 
 ---
 
@@ -57,14 +55,12 @@ Research brief key:
 
 ### Decisions
 
-
 | Decision                  | Alternatives Considered                               | Rationale                                                                                                                                                                                                                                              | Status   |
 | ------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
 | Progressive Web App (PWA) | Native iOS + Android, React Native, Flutter           | Single codebase, no app store gatekeeping, push notifications via Web Push (iOS 16.4+), installable to home screen. 2 users don't justify the overhead of native development. [B5, B6]                                                                 | Accepted |
 | Supabase as sole backend  | Firebase, custom Node/Express, AWS Amplify            | PostgreSQL (not NoSQL), built-in Auth + Realtime + Edge Functions + Vault + pg_cron. No vendor lock-in on data layer. Free tier covers 2 users comfortably. Firebase rejected for NoSQL lock-in. Custom backend rejected as over-engineering. [B4, B5] | Accepted |
 | 2-user hard constraint    | Multi-user with couples mode, expandable architecture | The app is purpose-built for exactly one couple. Garcia & Tor's N-effect research shows competitive motivation peaks in a dyad. Every table, policy, and feature is optimized for 2. Designing for expansion would dilute the product. [B1, B6]        | Accepted |
 | Claude API for AI         | OpenAI GPT, local LLM, no AI                          | Claude demonstrates stronger personality consistency and nuanced reasoning for the "AI judge" use case. Edge Functions call Claude directly — no middleware needed. [B4, B6]                                                                           | Accepted |
-
 
 ### System Context Diagram
 
@@ -103,8 +99,6 @@ graph TB
     style Claude fill:#F2B8A2,color:#3D2C2E
 ```
 
-
-
 **Sources:** [B1] §Social Comparison/N-Effect, [B4] §Architecture, [B5] §Web Push, [B6] §Market Gaps
 
 ---
@@ -114,7 +108,6 @@ graph TB
 **Context:** The frontend must deliver a kawaii, warm aesthetic at native-app performance levels. It needs to work as an installable PWA with push notifications, offline support, and real-time partner sync. The founders explicitly reject generic AI-generated UI — every technology choice must enable distinctive visual identity.
 
 ### Decisions
-
 
 | Decision                                             | Alternatives Considered                                                           | Rationale                                                                                                                                                                                                                                                            | Status   |
 | ---------------------------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
@@ -127,7 +120,6 @@ graph TB
 | Hugeicons (Stroke Rounded, 1.5px)                    | Lucide, Heroicons, Phosphor                                                       | 46,000+ icons, consistent kawaii-compatible rounded style. Free tier covers needs (4,600 icons). Scoped packages enable tree-shaking (~0.75KB per icon). [B2]                                                                                                        | Accepted |
 | Dark mode via `prefers-color-scheme` + manual toggle | Light-only, dark-only                                                             | Three warm-tinted dark modes (Midnight, Evening, Fireside) — never neutral gray or blue-gray. CSS variables on `data-theme` attribute. [B2]                                                                                                                          | Accepted |
 | Banned font list enforced                            | No restrictions                                                                   | Inter, Roboto, DM Sans, Poppins, Open Sans, Montserrat, Space Grotesk, Lato, and all system fonts are banned. These are markers of generic AI-generated UI. [B2]                                                                                                     | Accepted |
-
 
 ### Frontend Component Tree
 
@@ -156,8 +148,6 @@ graph TD
     style Fonts fill:#F7D1D1,color:#3D2C2E
 ```
 
-
-
 **Sources:** [B2] §Typography, §Animation, §Icons, §Anti-Slop, [B5] §PWA, [B6] §Design Benchmarks
 
 ---
@@ -168,7 +158,6 @@ graph TD
 
 ### Decisions
 
-
 | Decision                               | Alternatives Considered                                      | Rationale                                                                                                                                                                                                                                                            | Status   |
 | -------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | Warm color system (3 named palettes)   | Material Design colors, Shadcn defaults, cool-toned palettes | Three complete palettes — Strawberry Milk (default), Matcha Latte, Honey Biscuit — all sharing a warm undertone rule: no cool grays, no blue-tinted darks, no pure black (`#000`) or white (`#FFF`). Cream backgrounds (`#FFF8F3`), warm dark mode (`#1E1618`). [B2] | Accepted |
@@ -178,7 +167,6 @@ graph TD
 | Component specs with exact values      | Generic component library (Shadcn, Radix)                    | Pill buttons (9999px radius, 14px 28px padding, bottom ledge shadow), cards (20px radius, 2px colored border, warm shadow), inputs (16px radius, head-shake error animation). All specified to pixel-level. [B2]                                                     | Accepted |
 | Typographic scale: Major Third (1.250) | Default Tailwind scale, custom arbitrary                     | 10 tokens from `0.75rem` (12px) to `3.052rem` (49px). Line heights: 1.1 display, 1.25 headings, 1.5 body. Min button text 16px (prevents iOS auto-zoom). [B2]                                                                                                        | Accepted |
 | `prefers-contrast: more` support       | No high-contrast mode                                        | Deepens all colors by 30% for users who need it. All text-on-background combos already pass WCAG AA (4.5:1 for primary, 3:1 for large/secondary). [B2]                                                                                                               | Accepted |
-
 
 ### Color Palette Hierarchy
 
@@ -205,10 +193,7 @@ graph TD
     style HB fill:#E8B84B,color:#3A2D20
 ```
 
-
-
 ### Key Design Tokens
-
 
 | Token                      | Value                                     | Note                                 |
 | -------------------------- | ----------------------------------------- | ------------------------------------ |
@@ -224,7 +209,6 @@ graph TD
 | `--touch-target-min`       | `44×44px`                                 | WCAG / Apple HIG minimum             |
 | `--content-padding`        | `20px`                                    |                                      |
 
-
 **Sources:** [B2] §Palettes, §Typography, §Components, §Anti-Slop Checklist, §Animation
 
 ---
@@ -235,7 +219,6 @@ graph TD
 
 ### Decisions
 
-
 | Decision                                                 | Alternatives Considered                                                        | Rationale                                                                                                                                                                                                                                             | Status   |
 | -------------------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | Supabase (PostgreSQL + Auth + Realtime + Edge Functions) | Firebase (Firestore + Cloud Functions), PlanetScale + Clerk + separate compute | PostgreSQL gives relational integrity, RLS, materialized views, pg_cron, and full SQL. Supabase bundles Auth, Realtime, Edge Functions, and Vault in one platform. Firebase rejected for NoSQL vendor lock-in and lack of Postgres features. [B4, B5] | Accepted |
@@ -245,7 +228,6 @@ graph TD
 | Materialized views for AI context                        | Real-time computed views, application-level aggregation                        | `mv_user_mood_recent` (7-day avg, 30-day avg, trend, volatility) refreshed every 4 hours via pg_cron. Avoids expensive aggregation queries during AI context assembly. [B4]                                                                           | Accepted |
 | VAPID keys + all secrets in Supabase Vault               | Environment variables, .env files, hardcoded                                   | Vault provides encrypted at-rest storage accessible via `vault.decrypted_secrets`. VAPID keys, Anthropic API key, and service role key never appear in client code or Edge Function source. [B5]                                                      | Accepted |
 | Email/password auth only                                 | Social login (Google, Apple), magic links, passkeys                            | Two known users. Social login adds OAuth complexity for zero benefit. Email/password via Supabase Auth with JWT tokens. [B4]                                                                                                                          | Accepted |
-
 
 ### Core Database Schema (ER Diagram)
 
@@ -352,8 +334,6 @@ erDiagram
     }
 ```
 
-
-
 ### Authentication Flow
 
 ```mermaid
@@ -374,8 +354,6 @@ sequenceDiagram
     Note over Auth: Exactly 2 accounts configured<br/>No social login, no self-registration
 ```
 
-
-
 **Sources:** [B3] §Schema, [B4] §Context Assembly, §Database, [B5] §Notification Schema, §VAPID
 
 ---
@@ -385,7 +363,6 @@ sequenceDiagram
 **Context:** Kira is the AI judge, personality, and brain of the system — the "third member of the relationship." Rather than a generic chatbot, Kira is a character with consistent personality, moods, and cultural voice. The architecture separates deterministic mood selection (testable code) from generative expression (Claude's natural language), ensuring personality consistency while keeping costs under £4/month. [B4]
 
 ### Decisions
-
 
 | Decision                                                  | Alternatives Considered                                             | Rationale                                                                                                                                                                                                                                                                                                                            | Status   |
 | --------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
@@ -397,7 +374,6 @@ sequenceDiagram
 | 7 prompt templates per function                           | Single generic prompt, fully dynamic prompts                        | Sprint judging, date planning, task suggestion, excuse evaluation, mood check-in, notification copy, morning briefing — each with specific output format, constraints, and personality calibration. [B4]                                                                                                                             | Accepted |
 | Hinglish cultural voice (max 3 phrases/interaction)       | English only, full Hinglish, Hindi                                  | Digital Hinglish as identity seasoning, not the main dish. Universal desi experiences (family dynamics, chai, Bollywood). Sheffield-aware. Gen Z internet-native. Inspired by Zomato/Swiggy push notification tone. Calibrate based on implicit user engagement feedback. [B4]                                                       | Accepted |
 | £2–4/month budget target                                  | No budget constraint, higher budget for quality                     | Estimated £1.20–3.20/month with prompt caching and batch API. Heavy usage stays under £5/month. Supabase free tier covers backend for 2 users. [B4]                                                                                                                                                                                  | Accepted |
-
 
 ### Mood Selection → Prompt Assembly → Response Pipeline
 
@@ -432,8 +408,6 @@ flowchart TD
     style H fill:#E8878F,color:#FFF8F3
 ```
 
-
-
 ### Kira's Three-Layer Personality Model
 
 ```mermaid
@@ -463,10 +437,7 @@ graph TB
     style Reactive fill:#F7D1D1,color:#3D2C2E
 ```
 
-
-
 ### Model Routing Reference
-
 
 | Function              | Model      | Est. Cost/Call | Streaming                 | Frequency |
 | --------------------- | ---------- | -------------- | ------------------------- | --------- |
@@ -479,7 +450,6 @@ graph TB
 | Date planning         | Sonnet 4.5 | ~$0.020        | Yes (fun to watch)        | Weekly    |
 | Excuse evaluation     | Sonnet 4.5 | ~$0.015        | No (quick classification) | ~1/day    |
 
-
 **Sources:** [B4] §Three-Layer Model, §Mood Selection, §Prompt Caching, §Model Routing, §Cost Estimates, §Cultural Voice
 
 ---
@@ -489,7 +459,6 @@ graph TB
 **Context:** The scoring system is the competitive engine that turns habit tracking into an accountability weapon. It must reward genuine effort, punish gaming, maintain streaks without "what the hell" abandonment, and progress users through feature-unlocking tiers. Every mechanic is calibrated against behavioral research to keep motivation high without triggering relationship damage. [B1, B3]
 
 ### Decisions
-
 
 | Decision                                          | Alternatives Considered                           | Rationale                                                                                                                                                                                                                                                                                                                      | Status   |
 | ------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
@@ -502,7 +471,6 @@ graph TB
 | Couple rescue mechanic                            | No rescue, automatic restoration                  | When a streak breaks, partner is notified and can complete a bonus task together to restore it. Turns frustration into cooperation. 1 rescue per week per partner cooldown. [B3]                                                                                                                                               | Accepted |
 | Ties = mutual wins                                | Tiebreaker metrics, coin flip                     | Ties are celebrated. If a tiebreaker is needed: highest difficulty attempted → better consistency → longer streak → declare mutual win (both plan a date). [B3]                                                                                                                                                                | Accepted |
 | Relative Performance Index (not ELO)              | ELO, raw win/loss record                          | Each player's score as percentage of combined total, rolling 4-week average. Tracks performance delta without zero-sum framing. [B3]                                                                                                                                                                                           | Accepted |
-
 
 ### Tier Progression
 
@@ -554,10 +522,7 @@ stateDiagram-v2
     }
 ```
 
-
-
 ### Scoring Weights Breakdown
-
 
 | Component         | Weight | Formula                                         | Anti-Gaming                                                  |
 | ----------------- | ------ | ----------------------------------------------- | ------------------------------------------------------------ |
@@ -567,9 +532,7 @@ stateDiagram-v2
 | Streak Bonus      | 15%    | `min(25 × log(days) / log(30), 100)`            | Logarithmic cap at 60 days prevents runaway                  |
 | Bonus Points      | 5%     | Variable rewards: early_bird, perfect_day, etc. | Sum capped at 100                                            |
 
-
 ### TP Earning and Decay
-
 
 | Condition                 | TP Change                                    |
 | ------------------------- | -------------------------------------------- |
@@ -579,7 +542,6 @@ stateDiagram-v2
 | 3+ days inactivity        | Additional `5 × (days_inactive - 2)` TP loss |
 | Score 20–39 for 2+ weeks  | "AT RISK" → lose 20 TP/week                  |
 | Score < 20 or no activity | Lose 25 TP/week immediately                  |
-
 
 **Sources:** [B1] §Variable Ratio Reinforcement, [B3] §Scoring, §Tiers, §Streaks, §Difficulty, §Anti-Gaming
 
@@ -591,7 +553,6 @@ stateDiagram-v2
 
 ### Decisions
 
-
 | Decision                                             | Alternatives Considered                                 | Rationale                                                                                                                                                                                                                                      | Status   |
 | ---------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | 3-tier intensity (Mild / Moderate / Spicy) by margin | Fixed punishment regardless of margin, random intensity | Graduated sanctions per behavioral research. Mild (< 10 pt gap): playful, £20–30. Moderate (10–25 pt gap): 1–2 uncomfortable elements, £40–60. Spicy (> 25 pt gap): full AI control, £80–100. [B1, B3]                                         | Accepted |
@@ -602,7 +563,6 @@ stateDiagram-v2
 | Wave intensity pattern                               | Automatic escalation, random                            | Mild → Moderate → Spicy → Mild cycle. Not automatic escalation — prevents the system from becoming progressively punitive. [B3]                                                                                                                | Accepted |
 | Mutual failure handling (both < 30%)                 | No special case, both punished                          | AI shifts to "disappointed parent" tone. Budget drops to £30 (forces creativity: Peak District picnic, free gallery + cheap pub). Collaborative redemption challenge (volunteer together, cook together). Uses "we" language exclusively. [B3] | Accepted |
 | Post-date ratings with quality safeguard             | No ratings, rating without consequences                 | Both partners rate 1–5 after each date. If ratings dip below 3/5 twice consecutively, AI immediately pulls back intensity. Rating of 1/5 triggers immediate downshift to Mild. [B3]                                                            | Accepted |
-
 
 ### Date Engine Pipeline
 
@@ -636,8 +596,6 @@ flowchart TD
     style E fill:#E5A84B,color:#3D2C2E
 ```
 
-
-
 **Sources:** [B1] §Peak-End Rule, §Graduated Sanctions, [B3] §Punishment Dates, §Veto System, §Date Memory, §Mutual Failure
 
 ---
@@ -647,7 +605,6 @@ flowchart TD
 **Context:** The app deploys psychological manipulation techniques — with user consent and full transparency. Six validated engines drive engagement, while 10 "dark patterns deployed for good" create urgency and commitment. The critical constraint: the app must never become a source of relationship damage. Gottman's 5:1 positive-to-negative ratio is a hard engineering requirement, not a guideline. The RelationshipHealthMonitor detects warning signals and intervenes automatically. [B1, B3]
 
 ### Decisions
-
 
 | Decision                                                | Alternatives Considered                                                                           | Rationale                                                                                                                                                                                                                                                                                                                       | Status   |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
@@ -659,7 +616,6 @@ flowchart TD
 | Mandatory grace periods and opt-out                     | No pause option, competition always on                                                            | Either partner can instantly pause competitive features — no explanation required, no guilt. Life events (illness, travel, exams) trigger automatic grace with no TP decay. One free week per month where competition pauses. [B1, B3]                                                                                          | Accepted |
 | No lifetime win-loss records                            | Full historical records                                                                           | Lifetime records are a "contempt factory." Timeline celebrates total shared growth: "Together: 22 weeks of growth, 650 habits completed, 12 dates experienced." Relationship XP counter never resets. [B1]                                                                                                                      | Accepted |
 | Score gap circuit breaker                               | No automatic intervention                                                                         | If one partner leads by >40% for 2 consecutive weeks, auto-switch to team mode for 1 week. Based on Kohler effect research: motivation collapses beyond ~40% ability discrepancy. [B1]                                                                                                                                          | Accepted |
-
 
 ### Relationship Health Monitor
 
@@ -689,10 +645,7 @@ flowchart TD
     style I fill:#7DB8A0,color:#3D2C2E
 ```
 
-
-
 ### Mercy Rules Quick Reference
-
 
 | Condition                                   | Response                                                               |
 | ------------------------------------------- | ---------------------------------------------------------------------- |
@@ -704,7 +657,6 @@ flowchart TD
 | Date rating is 1/5                          | Immediate downshift to Mild; couples check-in triggered                |
 | Engagement drop > 50% week-over-week        | "Relationship temperature check" prompt                                |
 
-
 **Sources:** [B1] §Six Engines, §Dark Patterns, §Gottman's Ratio, §Graduated Sanctions, [B3] §Catch-Up, §Mercy Rules, §Health Monitor
 
 ---
@@ -714,7 +666,6 @@ flowchart TD
 **Context:** Push notifications are the primary "pinch" mechanism — the thing that forces users to open the app. The system uses Web Push (RFC 8292/8291) via Supabase Edge Functions, with @negrel/webpush for Deno compatibility. iOS requires PWA installation to home screen before push works, and offers only one permission prompt — making the pre-permission flow critical. The notification schedule covers 7 types, with deadline escalation through 7 urgency steps. [B5]
 
 ### Decisions
-
 
 | Decision                                          | Alternatives Considered                                                                                                           | Rationale                                                                                                                                                                                                                                                                                                     | Status   |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
@@ -730,7 +681,6 @@ flowchart TD
 | iOS pre-permission flow (in-app dialog first)     | Direct system prompt, no explanation                                                                                              | iOS allows only one permission ask. A custom in-app dialog explains the value (partner accountability, deadline reminders, streak protection) and promises 2–3 notifications/day, never during sleep. "Add to Home Screen" gate must come first — push subscription silently fails if PWA not installed. [B5] | Accepted |
 | AI-generated notification copy (Haiku 4.5)        | Static templates only, Sonnet for copy                                                                                            | Behavioral psychology techniques per notification: loss aversion, curiosity gap, progress anchoring, identity reinforcement. Max 60 chars title, 120 chars body, max 1 emoji. Haiku keeps costs under $0.001/notification. [B4, B5]                                                                           | Accepted |
 | Graceful exit sequence (Duolingo-inspired)        | Keep sending forever, abrupt stop                                                                                                 | Days 1–3 missed: "Your habits are waiting." Days 4–7: "Your streak is fading." Days 8–14: "Partner hasn't heard from you." Day 15+: "We'll pause reminders." Then silence. Cessation message itself drives a 3% retention lift. [B5]                                                                          | Accepted |
-
 
 ### Push Notification Delivery Pipeline
 
@@ -762,10 +712,7 @@ sequenceDiagram
     Note over WP,Push: On 404/410 → deactivate subscription<br/>On 429/5xx → retry with backoff (5^n minutes, max 3)
 ```
 
-
-
 ### Notification Schedule
-
 
 | Time (UK)   | Type                          | Tag                 | Urgency    | Trigger       |
 | ----------- | ----------------------------- | ------------------- | ---------- | ------------- |
@@ -777,7 +724,6 @@ sequenceDiagram
 | 22:00 Sun   | Sprint results                | `sprint-results`    | Normal     | Weekly cron   |
 | 23:30       | Mood check-in                 | `mood-checkin`      | Low        | Daily cron    |
 
-
 **Sources:** [B5] §Web Push Architecture, §VAPID, §@negrel/webpush, §Edge Functions, §pg_cron, §iOS Limitations, §Deadline Escalation, §Throttling, [B4] §Notification Copy
 
 ---
@@ -787,7 +733,6 @@ sequenceDiagram
 **Context:** The onboarding flow is the first emotional experience with the app. Inspired by Finch's 18-step journey (which achieved 4.95 stars from 550K+ reviews), the flow must take both partners from zero to their first sprint in under 10 minutes. The shared mascot (Mochi) is a bonding mechanism — both partners hatch, name, and care for it together. The mascot never punishes; Kira delivers accountability. [B2, B4, B6]
 
 ### Decisions
-
 
 | Decision                                             | Alternatives Considered                               | Rationale                                                                                                                                                                                                                   | Status   |
 | ---------------------------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
@@ -799,7 +744,6 @@ sequenceDiagram
 | Collectible outfits earned through joint consistency | Purchasable cosmetics, no customization               | Outfits earned by joint milestones, not purchased. Avoids exploitative gem economy (Habitica's failure mode per [B6]). Prestige cosmetics exclusive to Prestige tier. [B2, B3, B6]                                          | Accepted |
 | Day 1 counts as Day 1 of streak (endowed progress)   | Start at Day 0, start counting after first completion | Nunes & Dreze (2006): pre-filled progress cards completed at 34% vs 19% (nearly double). Signup day counts as Day 1, giving users the "already started" feeling. [B1, B3]                                                   | Accepted |
 | iOS pre-permission before system prompt              | Direct system prompt, skip permission                 | iOS allows one ask. Custom in-app dialog explains value before triggering the native prompt. "Add to Home Screen" must come before notification permission — push silently fails without PWA installation. [B5]             | Accepted |
-
 
 ### 18-Step Onboarding Journey
 
@@ -838,10 +782,7 @@ flowchart LR
     style S18 fill:#7DB8A0,color:#3D2C2E
 ```
 
-
-
 ### Mascot Specifications
-
 
 | Property           | Value                                                                 | Source                                             |
 | ------------------ | --------------------------------------------------------------------- | -------------------------------------------------- |
@@ -855,7 +796,6 @@ flowchart LR
 | Expression states  | Happy, excited, sleepy, encouraging, milestone — never punishing      | [B2]                                               |
 | Current assets     | 2 of 5+ states done (Idle, Happy Bounce) — see `image/mochi.png`      | Roadmap                                            |
 
-
 **Sources:** [B1] §Endowed Progress, [B2] §Mascot, §Onboarding, [B5] §iOS Pre-Permission, [B6] §Finch Analysis, §Habitica Cosmetics
 
 ---
@@ -863,7 +803,6 @@ flowchart LR
 ## Appendix A: Decision Index
 
 Quick-reference table of all decisions with section links.
-
 
 | #   | Decision                                     | Section                                                   | Sources    |
 | --- | -------------------------------------------- | --------------------------------------------------------- | ---------- |
@@ -947,13 +886,11 @@ Quick-reference table of all decisions with section links.
 | 78  | Endowed progress (Day 1 = Day 1)             | [10. Onboarding & Mascot](#10-onboarding--mascot)         | B1, B3     |
 | 79  | iOS pre-permission before system prompt      | [10. Onboarding & Mascot](#10-onboarding--mascot)         | B5         |
 
-
 ---
 
 ## Appendix B: Research Brief Cross-Reference
 
 Maps each research brief to the decisions it informed.
-
 
 | Brief                         | Domain                                                                                                                                                                                                                                                                                                                                                                | Decisions Informed |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
@@ -964,11 +901,9 @@ Maps each research brief to the decisions it informed.
 | **[B5]** Notifications        | PWA (#1), vite-plugin-pwa (#7), Vault (#25), pg_cron (#23, #63), Web Push (#60), @negrel/webpush (#61), schema (#62), escalation (#64), active hours (#65), cap (#66), partner triggers (#67), Realtime (#68), iOS pre-permission (#69, #79), exit sequence (#71)                                                                                                     |                    |
 | **[B6]** Competitive Analysis | React + Vite (#5), 2-user constraint (#3), Claude API (#4), outfits model (#77)                                                                                                                                                                                                                                                                                       |                    |
 
-
 ---
 
 ## Appendix C: Glossary
-
 
 | Term            | Definition                                                                             |
 | --------------- | -------------------------------------------------------------------------------------- |
@@ -986,7 +921,6 @@ Maps each research brief to the decisions it informed.
 | **VAPID**       | Voluntary Application Server Identification — Web Push signing standard (RFC 8292)     |
 | **VR schedule** | Variable Ratio reinforcement — random reward schedule (Skinner)                        |
 
-
 ---
 
-*This ADR is a living document. Update as development progresses and decisions evolve.*
+_This ADR is a living document. Update as development progresses and decisions evolve._

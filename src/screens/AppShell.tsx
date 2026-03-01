@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { AnimatePresence, m } from 'motion/react'
 import { NavBar, BottomSheet } from '@/components/ui'
 import { usePairing } from '@/contexts/PairingContext'
@@ -49,6 +49,10 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
   const [editingHabit, setEditingHabit] = useState<Task | null>(null)
   const [notifCenterOpen, setNotifCenterOpen] = useState(false)
   const prevTabRef = useRef<Tab>('today')
+  // Swipe gesture tracking
+  const swipeStartX = useRef(0)
+  const swipeStartY = useRef(0)
+  const swipeTarget = useRef<EventTarget | null>(null)
   const { partnerProfile } = usePairing()
   const { tierChanged, dismissTierChange } = useTierUnlocks()
   const { result: mysteryResult, clearResult: clearMystery, rollMysteryBox } = useMysteryBox()
@@ -62,6 +66,28 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
 
   useEffect(() => {
     prevTabRef.current = activeTab
+  }, [activeTab])
+
+  const handleSwipeStart = useCallback((e: React.TouchEvent) => {
+    swipeStartX.current = e.touches[0]?.clientX ?? 0
+    swipeStartY.current = e.touches[0]?.clientY ?? 0
+    swipeTarget.current = e.target
+  }, [])
+
+  const handleSwipeEnd = useCallback((e: React.TouchEvent) => {
+    const dx = (e.changedTouches[0]?.clientX ?? 0) - swipeStartX.current
+    const dy = (e.changedTouches[0]?.clientY ?? 0) - swipeStartY.current
+    // Only trigger if mostly horizontal and ≥120px
+    if (Math.abs(dx) < 120 || Math.abs(dy) > Math.abs(dx) * 0.6) return
+    // Skip if gesture started on a draggable habit card (has data-drag attr or is inside one)
+    const el = swipeTarget.current as HTMLElement | null
+    if (el?.closest('[data-no-tab-swipe]')) return
+    const idx = TAB_ORDER.indexOf(activeTab)
+    if (dx < 0 && idx < TAB_ORDER.length - 1) {
+      setActiveTab(TAB_ORDER[idx + 1]!)
+    } else if (dx > 0 && idx > 0) {
+      setActiveTab(TAB_ORDER[idx - 1]!)
+    }
   }, [activeTab])
 
   function handleFabClick() {
@@ -112,7 +138,11 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
   ]
 
   return (
-    <div className="min-h-dvh bg-background overflow-hidden">
+    <div
+      className="min-h-dvh bg-background overflow-hidden"
+      onTouchStart={handleSwipeStart}
+      onTouchEnd={handleSwipeEnd}
+    >
       {tierChanged && (
         <TierUnlockCelebration
           from={tierChanged.from}

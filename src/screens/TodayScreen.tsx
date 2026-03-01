@@ -242,18 +242,20 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
           description="Enjoy your day off!"
         />
       ) : (
-        <PullToRefresh onRefresh={async () => { await refetchHabits() }}>
-          <HabitList
-            habits={habits}
-            isCompletedToday={isCompletedToday}
-            isDueToday={isDue}
-            getStreak={getStreakForTask}
-            onToggle={handleToggle}
-            onLongPress={handleLongPress}
-            onComplete={onHabitComplete}
-            onReorder={reorderHabits}
-          />
-        </PullToRefresh>
+        <div data-no-tab-swipe>
+          <PullToRefresh onRefresh={async () => { await refetchHabits() }}>
+            <HabitList
+              habits={habits}
+              isCompletedToday={isCompletedToday}
+              isDueToday={isDue}
+              getStreak={getStreakForTask}
+              onToggle={handleToggle}
+              onLongPress={handleLongPress}
+              onComplete={onHabitComplete}
+              onReorder={reorderHabits}
+            />
+          </PullToRefresh>
+        </div>
       )}
 
       {dueHabits.length > 0 && completedCount === dueHabits.length && (
