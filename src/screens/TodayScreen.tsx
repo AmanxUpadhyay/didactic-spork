@@ -27,6 +27,7 @@ import { TomorrowTeaser } from '@/components/psych/TomorrowTeaser'
 import { StreakHostageDisplay } from '@/components/psych/StreakHostageDisplay'
 import { useDecayingPoints } from '@/hooks/useDecayingPoints'
 import { useFreshStart } from '@/hooks/useFreshStart'
+import { useCelebration } from '@/lib/animations'
 import type { Task } from '@/types/habits'
 
 interface TodayScreenProps {
@@ -57,6 +58,7 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
 
   const { bank } = useDecayingPoints()
   const { bonus, isMonday: isFreshStartMonday } = useFreshStart()
+  const { celebrate } = useCelebration()
 
   const dismissConfetti = useCallback(() => setShowConfetti(false), [])
 
@@ -78,6 +80,17 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
     const result = await toggleCompletion(taskId)
     if (result.completed) {
       if (result.milestone) {
+        // Streak milestones → escalating celebration intensities
+        const streak = result.milestone
+        if (streak >= 100) {
+          celebrate('epic')
+        } else if (streak >= 30) {
+          celebrate('large')
+        } else if (streak >= 7) {
+          celebrate('medium')
+        } else {
+          celebrate('small')
+        }
         toast(`${result.milestone}-day streak! Keep it up!`, 'success')
         setShowConfetti(true)
       } else {
@@ -87,9 +100,10 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
         toast(msg, 'success')
       }
 
-      // Check if all habits now complete (need +1 since state may not have updated yet)
+      // Check if all habits now complete
       const newCompleted = completedCount + 1
       if (newCompleted === dueHabits.length && dueHabits.length > 1) {
+        celebrate('small')
         setShowConfetti(true)
         toast('All done for today!', 'success')
       }
