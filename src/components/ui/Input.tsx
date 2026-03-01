@@ -1,4 +1,5 @@
-import { type InputHTMLAttributes, forwardRef, useState, useId } from 'react'
+import { type InputHTMLAttributes, forwardRef, useState, useId, useRef, useEffect } from 'react'
+import { m, useAnimation } from 'motion/react'
 import { cn } from '@/lib/cn'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -12,9 +13,22 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const id = idProp ?? generatedId
     const [focused, setFocused] = useState(false)
     const hasValue = props.value !== undefined && props.value !== ''
+    const shakeControls = useAnimation()
+    const prevError = useRef(error)
+
+    // Shake when error first appears
+    useEffect(() => {
+      if (error && error !== prevError.current) {
+        shakeControls.start({
+          x: [-4, 4, -3, 3, -2, 2, -1, 1, 0],
+          transition: { duration: 0.4, ease: 'easeInOut' },
+        })
+      }
+      prevError.current = error
+    }, [error, shakeControls])
 
     return (
-      <div className="relative w-full">
+      <m.div className="relative w-full" animate={shakeControls}>
         {label && (
           <label
             htmlFor={id}
@@ -29,36 +43,45 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {label}
           </label>
         )}
-        <input
-          ref={ref}
-          id={id}
-          type={type}
-          className={cn(
-            'w-full rounded-[var(--radius-input)]',
-            'border-2 border-border bg-surface',
-            'text-text-primary text-base',
-            label ? 'px-4 pt-5 pb-2' : 'px-4 py-3.5',
-            'transition-[border-color,box-shadow] duration-200 ease-out',
-            'outline-none',
-            'focus:border-primary focus:shadow-[var(--shadow-focus)]',
-            'placeholder:text-text-secondary/50',
-            error && 'border-error animate-[head-shake_400ms_ease]',
-            className,
-          )}
-          onFocus={(e) => {
-            setFocused(true)
-            props.onFocus?.(e)
+        <m.div
+          animate={{
+            boxShadow: focused
+              ? '0 0 0 4px color-mix(in srgb, var(--color-primary) 20%, transparent)'
+              : '0 0 0 0px transparent',
           }}
-          onBlur={(e) => {
-            setFocused(false)
-            props.onBlur?.(e)
-          }}
-          {...props}
-        />
+          transition={{ duration: 0.2 }}
+          className="rounded-[var(--radius-input)]"
+        >
+          <input
+            ref={ref}
+            id={id}
+            type={type}
+            className={cn(
+              'w-full rounded-[var(--radius-input)]',
+              'border-2 bg-surface',
+              'text-text-primary text-base',
+              label ? 'px-4 pt-5 pb-2' : 'px-4 py-3.5',
+              'transition-[border-color] duration-200 ease-out',
+              'outline-none',
+              'placeholder:text-text-secondary/50',
+              error ? 'border-error' : focused ? 'border-primary' : 'border-border',
+              className,
+            )}
+            onFocus={(e) => {
+              setFocused(true)
+              props.onFocus?.(e)
+            }}
+            onBlur={(e) => {
+              setFocused(false)
+              props.onBlur?.(e)
+            }}
+            {...props}
+          />
+        </m.div>
         {error && (
           <p className="mt-1.5 ml-1 text-sm text-error">{error}</p>
         )}
-      </div>
+      </m.div>
     )
   },
 )
