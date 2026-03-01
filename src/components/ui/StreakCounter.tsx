@@ -1,3 +1,5 @@
+import { m } from 'motion/react'
+import { useAnimatedCounter } from '@/lib/animations'
 import { cn } from '@/lib/cn'
 
 interface StreakCounterProps {
@@ -11,6 +13,7 @@ interface StreakCounterProps {
 
 export function StreakCounter({ current, best, showBest = false, freezeAvailable, size = 'md', className }: StreakCounterProps) {
   const flame = current > 0
+  const displayValue = useAnimatedCounter(current)
 
   return (
     <div className={cn('flex items-center gap-1.5', className)}>
@@ -23,14 +26,14 @@ export function StreakCounter({ current, best, showBest = false, freezeAvailable
       >
         {flame ? '\uD83D\uDD25' : '\u2764\uFE0F'}
       </span>
-      <span
+      <m.span
         className={cn(
           'font-accent font-bold text-text-primary',
           size === 'sm' ? 'text-base' : 'text-xl',
         )}
       >
-        {current}
-      </span>
+        {displayValue}
+      </m.span>
       {freezeAvailable !== undefined && freezeAvailable > 0 && (
         <span
           className={cn(

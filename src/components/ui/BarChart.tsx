@@ -1,5 +1,6 @@
+import { m } from 'motion/react'
 import { cn } from '@/lib/cn'
-import { useReducedMotion } from '@/lib/animations'
+import { useReducedMotion, kawaiiSpring } from '@/lib/animations'
 
 interface BarChartBar {
   label: string
@@ -32,15 +33,18 @@ export function BarChart({ bars, maxValue: maxProp, height = 160, className }: B
             {bar.value > 0 && (
               <span className="font-accent text-xs font-bold text-text-secondary">{bar.value}</span>
             )}
-            <div
-              className="relative w-full min-w-[28px] rounded-t-[var(--radius-small)] origin-bottom"
+            <m.div
+              className="relative w-full min-w-[28px] rounded-t-[var(--radius-small)]"
               style={{
                 height: `${pct}%`,
                 background: `linear-gradient(to top, var(--color-chart-a), var(--color-chart-b))`,
-                animation: reducedMotion
-                  ? 'none'
-                  : `bar-grow 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both`,
-                animationDelay: reducedMotion ? undefined : `${i * 60}ms`,
+                originY: 1,
+              }}
+              initial={reducedMotion ? false : { scaleY: 0 }}
+              animate={{ scaleY: 1 }}
+              transition={reducedMotion ? { duration: 0 } : {
+                ...kawaiiSpring,
+                delay: i * 0.06,
               }}
             />
             <span className="text-xs text-text-secondary font-medium truncate max-w-full">

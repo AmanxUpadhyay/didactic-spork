@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { m } from 'motion/react'
+import { kawaiiSpring } from '@/lib/animations'
 import { cn } from '@/lib/cn'
 
 interface MochiMoodStripProps {
@@ -42,7 +43,7 @@ export function MochiMoodStrip({ progress, remaining, onMicroCelebrate, classNam
         animate={{ y: [0, -6, 0] }}
         transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         onClick={handleTap}
-        whileTap={{ scale: 0.85 }}
+        whileTap={{ scale: 0.85, transition: kawaiiSpring }}
       />
 
       {/* Speech bubble */}

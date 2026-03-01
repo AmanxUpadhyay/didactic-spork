@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { m } from 'motion/react'
+import { kawaiiSpring, haptics } from '@/lib/animations'
 import { Button, Input } from '@/components/ui'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { DayPicker } from '@/components/ui/DayPicker'
@@ -161,13 +163,15 @@ export function HabitSheet({ onClose, userId, editHabit }: HabitSheetProps) {
             />
           </div>
 
-          <button
+          <m.button
             type="button"
             onClick={() => setShowIntention(!showIntention)}
+            onPointerDown={() => haptics.light()}
+            whileTap={{ scale: 0.93, transition: kawaiiSpring }}
             className="text-sm text-primary font-medium hover:underline"
           >
             {showIntention ? 'Hide' : 'Add'} implementation intention
-          </button>
+          </m.button>
 
           {showIntention && (
             <div className="space-y-3">

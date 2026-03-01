@@ -1,5 +1,7 @@
+import { m } from 'motion/react'
 import { cn } from '@/lib/cn'
 import { Card } from '@/components/ui'
+import { kawaiiSpring } from '@/lib/animations'
 
 interface ScoreBreakdownProps {
   completion: number
@@ -41,14 +43,16 @@ export function ScoreBreakdown({
             </span>
           </div>
           <div className="h-1.5 w-full rounded-[var(--radius-pill)] bg-border/30 overflow-hidden">
-            <div
-              className="h-full rounded-[var(--radius-pill)] origin-left"
+            <m.div
+              className="h-full rounded-[var(--radius-pill)]"
               style={{
                 width: `${Math.max(scores[key] ?? 0, 2)}%`,
                 background: 'linear-gradient(to right, var(--color-chart-a), var(--color-chart-b))',
-                animation: 'bar-grow 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
-                animationDelay: `${i * 60}ms`,
+                originX: 0,
               }}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ ...kawaiiSpring, delay: i * 0.06 }}
             />
           </div>
         </div>

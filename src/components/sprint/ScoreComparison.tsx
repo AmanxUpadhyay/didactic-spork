@@ -1,4 +1,6 @@
+import { m } from 'motion/react'
 import { cn } from '@/lib/cn'
+import { kawaiiSpring } from '@/lib/animations'
 
 interface ScoreComparisonProps {
   myScore: number
@@ -38,13 +40,16 @@ export function ScoreComparison({
           </span>
         </div>
         <div className="h-3 w-full rounded-[var(--radius-pill)] bg-border/30 overflow-hidden">
-          <div
-            className="h-full rounded-[var(--radius-pill)] origin-left"
+          <m.div
+            className="h-full rounded-[var(--radius-pill)]"
             style={{
               width: `${myPct}%`,
               background: 'linear-gradient(to right, var(--color-chart-a), var(--color-chart-b))',
-              animation: 'bar-grow 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+              originX: 0,
             }}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={kawaiiSpring}
           />
         </div>
       </div>
@@ -64,14 +69,16 @@ export function ScoreComparison({
           </span>
         </div>
         <div className="h-3 w-full rounded-[var(--radius-pill)] bg-border/30 overflow-hidden">
-          <div
-            className="h-full rounded-[var(--radius-pill)] origin-left"
+          <m.div
+            className="h-full rounded-[var(--radius-pill)]"
             style={{
               width: `${partnerPct}%`,
               background: 'linear-gradient(to right, var(--color-chart-b), var(--color-chart-a))',
-              animation: 'bar-grow 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
-              animationDelay: '80ms',
+              originX: 0,
             }}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ ...kawaiiSpring, delay: 0.08 }}
           />
         </div>
       </div>
