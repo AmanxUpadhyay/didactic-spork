@@ -280,24 +280,22 @@ async function createTasks(
 ): Promise<{ amanTaskIds: string[]; muktaTaskIds: string[] }> {
   console.log('[seed] Creating tasks…')
 
-  const amanInserts = AMAN_TASKS.map((t, i) => ({
+  const amanInserts = AMAN_TASKS.map((t) => ({
     user_id: amanId,
     title: t.title,
     difficulty: t.difficulty,
     recurrence: t.recurrence,
     task_type: 'habit' as const,
     active: true,
-    sort_order: i,
   }))
 
-  const muktaInserts = MUKTA_TASKS.map((t, i) => ({
+  const muktaInserts = MUKTA_TASKS.map((t) => ({
     user_id: muktaId,
     title: t.title,
     difficulty: t.difficulty,
     recurrence: t.recurrence,
     task_type: 'habit' as const,
     active: true,
-    sort_order: i,
   }))
 
   const { data: amanTasks, error: ae } = await admin
@@ -967,7 +965,7 @@ async function createInteractionLedger(amanId: string, muktaId: string) {
 async function createUserAiProfiles(amanId: string, muktaId: string) {
   console.log('[seed] Creating user AI profiles…')
   const now = new Date().toISOString()
-  const { error } = await admin.from('user_ai_profiles').insert([
+  const { error } = await admin.from('user_ai_profiles').upsert([
     {
       user_id: amanId,
       personality_summary:
@@ -1008,7 +1006,7 @@ async function createUserAiProfiles(amanId: string, muktaId: string) {
       version: 1,
       updated_at: now,
     },
-  ])
+  ], { onConflict: 'user_id' })
   if (error)
     throw new Error(`Failed to create user_ai_profiles: ${error.message}`)
 }

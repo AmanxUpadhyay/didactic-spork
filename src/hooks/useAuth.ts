@@ -14,6 +14,7 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isResettingPassword, setIsResettingPassword] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -25,7 +26,10 @@ export function useAuth() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsResettingPassword(true)
+      }
       setSession(session)
       setUser(session?.user ?? null)
       if (session?.user) fetchProfile(session.user.id)
@@ -54,12 +58,12 @@ export function useAuth() {
   }
 
   async function signUp(name: string, email: string, password: string) {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { name } },
     })
-    return { error }
+    return { error, session: data.session }
   }
 
   async function signOut() {
@@ -85,6 +89,10 @@ export function useAuth() {
     if (user) await fetchProfile(user.id)
   }
 
+  function clearPasswordReset() {
+    setIsResettingPassword(false)
+  }
+
   // True when OAuth callback lands with a session but no users row yet
   const needsProfileSetup = !loading && !!user && profile === null
 
@@ -94,11 +102,13 @@ export function useAuth() {
     profile,
     loading,
     needsProfileSetup,
+    isResettingPassword,
     signIn,
     signUp,
     signOut,
     signInWithGoogle,
     signInWithApple,
     refetchProfile,
+    clearPasswordReset,
   }
 }

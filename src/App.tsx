@@ -9,6 +9,7 @@ import { PairingFlow } from '@/screens/PairingFlow'
 import { AppShell } from '@/screens/AppShell'
 import { OnboardingFlow } from '@/screens/onboarding/OnboardingFlow'
 import { OAuthProfileSetup } from '@/screens/OAuthProfileSetup'
+import { PasswordResetScreen } from '@/screens/PasswordResetScreen'
 
 function AppRouter() {
   const {
@@ -16,12 +17,14 @@ function AppRouter() {
     user,
     loading: authLoading,
     needsProfileSetup,
+    isResettingPassword,
     signIn,
     signUp,
     signOut,
     signInWithGoogle,
     signInWithApple,
     refetchProfile,
+    clearPasswordReset,
   } = useAuth()
   const [onboardingDone, setOnboardingDone] = useState(false)
   useTheme()
@@ -32,6 +35,11 @@ function AppRouter() {
         <LoadingState message="Starting Jugalbandi..." />
       </div>
     )
+  }
+
+  // User arrived via password reset email link
+  if (isResettingPassword) {
+    return <PasswordResetScreen onComplete={clearPasswordReset} onCancel={clearPasswordReset} />
   }
 
   // OAuth user has a session but hasn't created their profile row yet
