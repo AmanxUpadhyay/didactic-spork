@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/hooks/useTheme'
 import { ToastProvider } from '@/components/ui/ToastProvider'
@@ -6,9 +7,11 @@ import { PairingProvider, usePairing } from '@/contexts/PairingContext'
 import { AuthFlow } from '@/screens/AuthFlow'
 import { PairingFlow } from '@/screens/PairingFlow'
 import { AppShell } from '@/screens/AppShell'
+import { OnboardingFlow } from '@/screens/onboarding/OnboardingFlow'
 
 function AppRouter() {
   const { profile, loading: authLoading, signIn, signUp, signOut } = useAuth()
+  const [onboardingDone, setOnboardingDone] = useState(false)
   useTheme()
 
   if (authLoading) {
@@ -21,6 +24,16 @@ function AppRouter() {
 
   if (!profile) {
     return <AuthFlow onLogin={signIn} onSignUp={signUp} />
+  }
+
+  const hasOnboarded = localStorage.getItem('jugalbandi_onboarding_complete')
+  if (!hasOnboarded && !onboardingDone) {
+    return (
+      <OnboardingFlow
+        userId={profile.id}
+        onComplete={() => setOnboardingDone(true)}
+      />
+    )
   }
 
   return (

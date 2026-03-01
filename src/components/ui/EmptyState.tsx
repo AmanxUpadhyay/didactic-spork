@@ -5,7 +5,7 @@ import { Button } from './Button'
 import { MochiAvatar } from './MochiAvatar'
 import { kawaiiSpring, gentleSpring } from '@/lib/animations'
 
-type EmptyStateVariant = 'no-data' | 'all-done'
+type EmptyStateVariant = 'no-data' | 'all-done' | 'error'
 
 interface EmptyStateProps {
   variant?: EmptyStateVariant
@@ -25,6 +25,7 @@ export function EmptyState({
   className,
 }: EmptyStateProps) {
   const isAllDone = variant === 'all-done'
+  const isError = variant === 'error'
 
   return (
     <div
@@ -70,6 +71,13 @@ export function EmptyState({
               </m.span>
             ))}
           </>
+        ) : isError ? (
+          <MochiAvatar
+            expression="confused"
+            size="xl"
+            alt="Mochi confused"
+            className="animate-[head-shake_400ms_ease_2]"
+          />
         ) : (
           <MochiAvatar
             size="xl"

@@ -42,7 +42,7 @@ export function PairingFlow() {
     <div className="min-h-dvh flex flex-col items-center justify-center px-5">
       <div className="w-full max-w-sm space-y-6">
         <div className="flex flex-col items-center gap-3">
-          <MochiAvatar size="md" className="animate-[float_3s_ease-in-out_infinite]" />
+          <MochiAvatar size="md" className="motion-safe:animate-[float_3s_ease-in-out_infinite]" />
           <h1 className="font-heading text-2xl font-semibold tracking-[var(--tracking-display)] text-text-primary">
             Find Your Partner
           </h1>

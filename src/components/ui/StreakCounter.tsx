@@ -17,7 +17,7 @@ export function StreakCounter({ current, best, showBest = false, freezeAvailable
       <span
         className={cn(
           'transition-transform duration-300 ease-[var(--ease-bouncy)]',
-          flame && 'animate-[float_2s_ease-in-out_infinite]',
+          flame && 'motion-safe:animate-[float_2s_ease-in-out_infinite]',
           size === 'sm' ? 'text-base' : 'text-xl',
         )}
       >

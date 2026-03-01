@@ -9,6 +9,7 @@ import { DateHistoryList } from '@/components/punishment/DateHistoryList'
 import { NotificationSettings } from '@/components/notifications/NotificationSettings'
 import { CommitmentCeremony } from '@/components/psych/CommitmentCeremony'
 import { OptOutButton } from '@/components/guardrails/OptOutButton'
+import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard'
 import { useTierUnlocks } from '@/hooks/useTierUnlocks'
 import { getTierDisplayName, getNextTier, getTierThreshold } from '@/lib/tierGating'
 
@@ -23,6 +24,7 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
   const [tierHubOpen, setTierHubOpen] = useState(false)
   const [dateHistoryOpen, setDateHistoryOpen] = useState(false)
   const [commitCeremonyOpen, setCommitCeremonyOpen] = useState(false)
+  const [progressOpen, setProgressOpen] = useState(false)
 
   const dayOfWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' })
   const isSunday = dayOfWeek === 'Sunday'
@@ -46,7 +48,7 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
         onClick={() => setTierHubOpen(true)}
       >
         <div className="flex items-center gap-4">
-          <MochiAvatar size="sm" className="rounded-full bg-primary/10" />
+          <MochiAvatar size="sm" expression="face" className="rounded-full bg-primary/10" />
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <p className="font-heading text-lg font-semibold text-text-primary">{profile.name}</p>
@@ -90,6 +92,20 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
           }>
             <ThemeSwitcher />
           </FeatureGate>
+        </div>
+      </Card>
+
+      {/* Your Progress card */}
+      <Card
+        className="cursor-pointer active:scale-[0.98] transition-transform"
+        onClick={() => setProgressOpen(true)}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-heading text-base font-semibold text-text-primary">Your Progress</h2>
+            <p className="text-xs text-text-secondary">Streaks, sprints, heatmap</p>
+          </div>
+          <span className="text-text-secondary text-sm">{'\u203A'}</span>
         </div>
       </Card>
 
@@ -149,6 +165,13 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
       <Button variant="ghost" className="w-full" onClick={onSignOut}>
         Sign Out
       </Button>
+
+      {/* Analytics bottom sheet */}
+      <BottomSheet open={progressOpen} onClose={() => setProgressOpen(false)}>
+        <div className="px-5 py-4 pb-8">
+          <AnalyticsDashboard partnerName={partnerName} />
+        </div>
+      </BottomSheet>
 
       {/* Tier Progress Hub bottom sheet */}
       <BottomSheet open={tierHubOpen} onClose={() => setTierHubOpen(false)}>

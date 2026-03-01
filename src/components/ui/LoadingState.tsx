@@ -14,7 +14,7 @@ export function LoadingState({ message = 'Loading...', className }: LoadingState
         className,
       )}
     >
-      <MochiAvatar size="lg" className="animate-[float_3s_ease-in-out_infinite]" alt="Mochi loading" />
+      <MochiAvatar size="lg" className="motion-safe:animate-[float_3s_ease-in-out_infinite]" alt="Mochi loading" />
       <p className="text-sm text-text-secondary font-medium animate-pulse">
         {message}
       </p>
