@@ -24,6 +24,7 @@ interface HabitCardProps {
   streak: Streak | null
   isDueToday: boolean
   onToggle: () => void
+  onComplete?: () => void
   onLongPress?: () => void
   ifTrigger?: string
   thenAction?: string
@@ -36,6 +37,7 @@ export function HabitCard({
   streak,
   isDueToday,
   onToggle,
+  onComplete,
   onLongPress,
   ifTrigger,
   thenAction,
@@ -55,6 +57,9 @@ export function HabitCard({
       setTimeout(() => setAnimating(false), 600)
     }
     onToggle()
+    if (!completed) {
+      onComplete?.()
+    }
   }
 
   function handlePointerDown() {

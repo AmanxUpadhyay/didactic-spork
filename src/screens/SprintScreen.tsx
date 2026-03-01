@@ -8,6 +8,8 @@ import { LoadingState } from '@/components/ui/LoadingState'
 import { ActiveSprintView } from '@/components/sprint/ActiveSprintView'
 import { AppreciationGateView } from '@/components/sprint/AppreciationGateView'
 import { SprintResultsView } from '@/components/sprint/SprintResultsView'
+import { CompetitiveScoreGap } from '@/components/psych/CompetitiveScoreGap'
+import { SunkCostTimeline } from '@/components/psych/SunkCostTimeline'
 
 export function SprintScreen() {
   const { profile } = useAuth()
@@ -61,6 +63,17 @@ export function SprintScreen() {
           partnerBreakdown={partnerBreakdown}
           timezone={tz}
         />
+        <div className="mt-4">
+          <CompetitiveScoreGap
+            myScore={myBreakdown?.total ?? 0}
+            partnerScore={partnerBreakdown?.total ?? 0}
+            myName={myName}
+            partnerName={partnerName}
+          />
+        </div>
+        <div className="mt-4">
+          <SunkCostTimeline />
+        </div>
       </div>
     )
   }

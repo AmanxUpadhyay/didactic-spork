@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { NavBar, BottomSheet } from '@/components/ui'
 import { usePairing } from '@/contexts/PairingContext'
 import { useTierUnlocks } from '@/hooks/useTierUnlocks'
+import { useMysteryBox } from '@/hooks/useMysteryBox'
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications'
 import { TodayScreen } from './TodayScreen'
 import { SprintScreen } from './SprintScreen'
 import { PartnerScreen } from './PartnerScreen'
@@ -9,6 +11,13 @@ import { SettingsScreen } from './SettingsScreen'
 import { HabitSheet } from '@/components/habits/HabitSheet'
 import { InstallPrompt } from '@/components/ui/InstallPrompt'
 import { TierUnlockCelebration } from '@/components/tier/TierUnlockCelebration'
+import { MysteryBoxReveal } from '@/components/psych/MysteryBoxReveal'
+import { ScoreGapCircuitBreaker } from '@/components/guardrails/ScoreGapCircuitBreaker'
+import { ContemplDetectionPrompt } from '@/components/guardrails/ContemplDetectionPrompt'
+import { NotificationOptIn } from '@/components/notifications/NotificationOptIn'
+import { NotificationBadge } from '@/components/notifications/NotificationBadge'
+import { NotificationCenter } from '@/components/notifications/NotificationCenter'
+import { InAppNotificationToast } from '@/components/notifications/InAppNotificationToast'
 import {
   Home03Icon,
   Award01Icon,
@@ -30,8 +39,11 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
   const [activeTab, setActiveTab] = useState<Tab>('today')
   const [habitSheetOpen, setHabitSheetOpen] = useState(false)
   const [editingHabit, setEditingHabit] = useState<Task | null>(null)
+  const [notifCenterOpen, setNotifCenterOpen] = useState(false)
   const { partnerProfile } = usePairing()
   const { tierChanged, dismissTierChange } = useTierUnlocks()
+  const { result: mysteryResult, clearResult: clearMystery, rollMysteryBox } = useMysteryBox()
+  const { notifications, unreadCount, latestNotification, clearLatest, markAllRead } = useRealtimeNotifications()
 
   function handleFabClick() {
     setEditingHabit(null)
@@ -68,7 +80,12 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
       onClick: () => setActiveTab('partner'),
     },
     {
-      icon: <HugeiconsIcon icon={Settings02Icon} size={22} />,
+      icon: (
+        <span className="relative">
+          <HugeiconsIcon icon={Settings02Icon} size={22} />
+          <span className="absolute -top-1.5 -right-1.5"><NotificationBadge count={unreadCount} /></span>
+        </span>
+      ),
       label: 'Settings',
       active: activeTab === 'settings',
       onClick: () => setActiveTab('settings'),
@@ -84,11 +101,19 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
           onDismiss={dismissTierChange}
         />
       )}
+      {mysteryResult?.triggered && mysteryResult.reward && (
+        <MysteryBoxReveal reward={mysteryResult.reward} onDismiss={clearMystery} />
+      )}
+      <ScoreGapCircuitBreaker />
+      <ContemplDetectionPrompt />
+      <InAppNotificationToast notification={latestNotification} onDismiss={clearLatest} />
       {activeTab === 'today' && <InstallPrompt />}
+      {activeTab === 'today' && <NotificationOptIn />}
       {activeTab === 'today' && (
         <TodayScreen
           onEditHabit={handleEditHabit}
           onNavigateToSprint={() => setActiveTab('sprint')}
+          onHabitComplete={rollMysteryBox}
         />
       )}
       {activeTab === 'sprint' && <SprintScreen />}
@@ -113,6 +138,12 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
           userId={profile.id}
           editHabit={editingHabit ?? undefined}
         />
+      </BottomSheet>
+
+      <BottomSheet open={notifCenterOpen} onClose={() => { setNotifCenterOpen(false); markAllRead() }}>
+        <div className="px-5 py-4">
+          <NotificationCenter notifications={notifications} onMarkAllRead={markAllRead} />
+        </div>
       </BottomSheet>
     </div>
   )

@@ -20,14 +20,21 @@ import { KiraMoodResponse } from '@/components/kira/KiraMoodResponse'
 import { KiraExcuseVerdict } from '@/components/kira/KiraExcuseVerdict'
 import { KiraAvatar } from '@/components/kira/KiraAvatar'
 import { getTodayInTimezone, formatDateDisplay, isHabitDueToday, getDaysRemainingInSprint } from '@/lib/dates'
+import { DecayingPointBank } from '@/components/psych/DecayingPointBank'
+import { MondayHeadStart } from '@/components/psych/MondayHeadStart'
+import { TomorrowTeaser } from '@/components/psych/TomorrowTeaser'
+import { StreakHostageDisplay } from '@/components/psych/StreakHostageDisplay'
+import { useDecayingPoints } from '@/hooks/useDecayingPoints'
+import { useFreshStart } from '@/hooks/useFreshStart'
 import type { Task } from '@/types/habits'
 
 interface TodayScreenProps {
   onEditHabit?: (habit: Task) => void
   onNavigateToSprint?: () => void
+  onHabitComplete?: (completionId: string) => void
 }
 
-export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProps) {
+export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }: TodayScreenProps) {
   const { profile } = useAuth()
   const tz = profile?.timezone || 'UTC'
   const { habits, loading: habitsLoading, archiveHabit } = useHabits(profile?.id)
@@ -47,12 +54,20 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProp
   const [moodSheetOpen, setMoodSheetOpen] = useState(false)
   const [excuseHabit, setExcuseHabit] = useState<Task | null>(null)
 
+  const { bank } = useDecayingPoints()
+  const { bonus, isMonday: isFreshStartMonday } = useFreshStart()
+
   const dismissConfetti = useCallback(() => setShowConfetti(false), [])
 
   const today = getTodayInTimezone(tz)
   const dueHabits = habits.filter((h) => isHabitDueToday(h.recurrence, h.custom_days, tz))
   const completedCount = dueHabits.filter((h) => isCompletedToday(h.id)).length
   const progress = dueHabits.length > 0 ? completedCount / dueHabits.length : 0
+
+  const currentHour = new Date().toLocaleString('en-US', { hour: 'numeric', hour12: false, timeZone: tz })
+  const isEvening = parseInt(currentHour) >= 21
+  // Rough count of tomorrow's habits (daily habits are always due)
+  const tomorrowTaskCount = habits.filter((h) => !h.recurrence || h.recurrence === 'daily').length || dueHabits.length
 
   function isDue(task: Task) {
     return isHabitDueToday(task.recurrence, task.custom_days, tz)
@@ -139,6 +154,15 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProp
         <CoupleStreakBanner streak={bestCoupleStreak} className="mb-4" />
       )}
 
+      {/* Streak hostage display */}
+      {bestCoupleStreak && bestCoupleStreak.current_days > 0 && (
+        <StreakHostageDisplay
+          streak={bestCoupleStreak.current_days}
+          atRisk={completedCount === 0 && dueHabits.length > 0}
+          className="mb-4"
+        />
+      )}
+
       {/* Sprint banner */}
       {sprint?.status === 'active' && (
         <SprintStatusBanner
@@ -146,6 +170,25 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProp
           partnerScore={partnerBreakdown?.total ?? 0}
           daysRemaining={getDaysRemainingInSprint(sprint.week_start, tz)}
           onTap={onNavigateToSprint}
+          className="mb-4"
+        />
+      )}
+
+      {/* Decaying point bank (active sprint only) */}
+      {sprint?.status === 'active' && bank && (
+        <DecayingPointBank
+          currentPoints={bank.currentPoints}
+          initialPoints={bank.initialPoints}
+          floorPoints={bank.floorPoints}
+          className="mb-4"
+        />
+      )}
+
+      {/* Monday head start (Mondays only) */}
+      {isFreshStartMonday && bonus && (
+        <MondayHeadStart
+          bonusPoints={bonus.bonusPoints}
+          reason={bonus.reason}
           className="mb-4"
         />
       )}
@@ -169,6 +212,7 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProp
           getStreak={getStreakForTask}
           onToggle={handleToggle}
           onLongPress={handleLongPress}
+          onComplete={onHabitComplete}
         />
       )}
 
@@ -179,6 +223,9 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint }: TodayScreenProp
           </p>
         </div>
       )}
+
+      {/* Tomorrow teaser (after 9PM) */}
+      {isEvening && <TomorrowTeaser tomorrowTaskCount={tomorrowTaskCount} className="mt-4" />}
 
       {/* Mood check-in entry point */}
       <button

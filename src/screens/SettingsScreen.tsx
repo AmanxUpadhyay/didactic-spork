@@ -4,6 +4,9 @@ import { FeatureGate } from '@/components/ui/FeatureGate'
 import { TierProgressHub } from '@/components/tier/TierProgressHub'
 import { PrestigeBadge } from '@/components/tier/PrestigeBadge'
 import { DateHistoryList } from '@/components/punishment/DateHistoryList'
+import { NotificationSettings } from '@/components/notifications/NotificationSettings'
+import { CommitmentCeremony } from '@/components/psych/CommitmentCeremony'
+import { OptOutButton } from '@/components/guardrails/OptOutButton'
 import { useTierUnlocks } from '@/hooks/useTierUnlocks'
 import { getTierDisplayName, getNextTier, getTierThreshold } from '@/lib/tierGating'
 
@@ -17,6 +20,10 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
   const { tier, tp, prestige } = useTierUnlocks()
   const [tierHubOpen, setTierHubOpen] = useState(false)
   const [dateHistoryOpen, setDateHistoryOpen] = useState(false)
+  const [commitCeremonyOpen, setCommitCeremonyOpen] = useState(false)
+
+  const dayOfWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' })
+  const isSunday = dayOfWeek === 'Sunday'
 
   const nextTier = getNextTier(tier)
   const nextTierTp = nextTier ? getTierThreshold(nextTier) : getTierThreshold(tier)
@@ -92,8 +99,34 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
 
       <Card>
         <div className="space-y-2">
-          <h2 className="font-heading text-base font-semibold text-text-primary">Notifications</h2>
-          <p className="text-sm text-text-secondary opacity-50">Coming in Phase 5</p>
+          <h2 className="font-heading text-base font-semibold text-text-primary mb-3">Notifications</h2>
+          <NotificationSettings />
+        </div>
+      </Card>
+
+      {/* Commitment Ceremony — Sunday only */}
+      {isSunday && (
+        <Card
+          className="cursor-pointer active:scale-[0.98] transition-transform"
+          onClick={() => setCommitCeremonyOpen(true)}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-heading text-base font-semibold text-text-primary">Weekly Commitment</h2>
+              <p className="text-xs text-text-secondary">Declare your habits for next week</p>
+            </div>
+            <span className="text-text-secondary text-sm">{'\u203A'}</span>
+          </div>
+        </Card>
+      )}
+
+      {/* Psych feature opt-outs */}
+      <Card>
+        <div className="space-y-2">
+          <h2 className="font-heading text-base font-semibold text-text-primary mb-3">Engagement Features</h2>
+          <OptOutButton feature="mystery_box" label="Mystery Box Rewards" onOptOut={(f) => localStorage.setItem(`optout_${f}`, '1')} />
+          <OptOutButton feature="decaying_points" label="Decaying Point Bank" onOptOut={(f) => localStorage.setItem(`optout_${f}`, '1')} />
+          <OptOutButton feature="streak_hostage" label="Streak Warnings" onOptOut={(f) => localStorage.setItem(`optout_${f}`, '1')} />
         </div>
       </Card>
 
@@ -121,6 +154,13 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
       <BottomSheet open={dateHistoryOpen} onClose={() => setDateHistoryOpen(false)}>
         <div className="px-5 py-4">
           <DateHistoryList />
+        </div>
+      </BottomSheet>
+
+      {/* Commitment Ceremony bottom sheet */}
+      <BottomSheet open={commitCeremonyOpen} onClose={() => setCommitCeremonyOpen(false)}>
+        <div className="px-5 py-4">
+          <CommitmentCeremony />
         </div>
       </BottomSheet>
     </div>

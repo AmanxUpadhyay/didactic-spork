@@ -7,10 +7,11 @@ interface HabitListProps {
   isDueToday: (task: Task) => boolean
   getStreak: (taskId: string) => Streak | null
   onToggle: (taskId: string) => void
+  onComplete?: (taskId: string) => void
   onLongPress?: (habit: Task) => void
 }
 
-export function HabitList({ habits, isCompletedToday, isDueToday, getStreak, onToggle, onLongPress }: HabitListProps) {
+export function HabitList({ habits, isCompletedToday, isDueToday, getStreak, onToggle, onComplete, onLongPress }: HabitListProps) {
   // Sort: due + pending first, then due + completed, then not due
   const sorted = [...habits].sort((a, b) => {
     const aDue = isDueToday(a)
@@ -36,6 +37,7 @@ export function HabitList({ habits, isCompletedToday, isDueToday, getStreak, onT
           streak={getStreak(habit.id)}
           isDueToday={isDueToday(habit)}
           onToggle={() => onToggle(habit.id)}
+          onComplete={onComplete ? () => onComplete(habit.id) : undefined}
           onLongPress={onLongPress ? () => onLongPress(habit) : undefined}
           ifTrigger={habit.if_trigger ?? undefined}
           thenAction={habit.then_action ?? undefined}

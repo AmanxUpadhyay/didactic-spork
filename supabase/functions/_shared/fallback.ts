@@ -86,6 +86,39 @@ const FALLBACK_RESPONSES: Record<KiraFunctionType, string> = {
       "Write a quick note to your partner about something they did this week that you appreciated. Leave it somewhere they'll find it.",
     timeEstimate: "10 mins",
   }),
+
+  streak_warning: JSON.stringify({
+    title: "Your streak needs you!",
+    body: "Don't let your progress slip — check in and complete a habit today.",
+  }),
+
+  schedule_daily: JSON.stringify({
+    title: "Good morning!",
+    body: "Your habits are waiting. Make today count!",
+  }),
+
+  deadline_escalation: JSON.stringify({
+    title: "Task deadline approaching",
+    body: "You have a task due soon. Don't let it slip!",
+  }),
+
+  point_bank_decay: JSON.stringify({
+    title: "Points are decaying!",
+    body: "Complete your habits to protect your point bank.",
+    decayed: 0,
+  }),
+
+  fresh_start_calc: JSON.stringify({
+    title: "Fresh start bonus!",
+    body: "New week, new energy. You earned a head start!",
+    bonus: 10,
+    reason: "Starting fresh",
+  }),
+
+  mystery_box_roll: JSON.stringify({
+    triggered: false,
+    reward: null,
+  }),
 };
 
 /**

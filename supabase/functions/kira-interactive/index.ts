@@ -8,6 +8,7 @@ import { storeResponse } from "../_shared/response-store.ts";
 import { callWithRetry } from "../_shared/fallback.ts";
 import { getModelConfig } from "../_shared/types.ts";
 import type { KiraFunctionType, InteractiveRequestBody } from "../_shared/types.ts";
+import { rollMysteryBox } from "../_shared/psych-engines.ts";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -53,6 +54,8 @@ Deno.serve(async (req: Request) => {
         return await handleDateRate(supabase, userId, payload);
       case "rescue_task":
         return await handleRescueTask(supabase, userId, payload);
+      case "mystery_box_roll":
+        return await handleMysteryBoxRoll(supabase, userId, payload);
       default:
         return new Response(
           JSON.stringify({ error: `Unknown function_type: ${functionType}` }),
@@ -852,6 +855,52 @@ async function handleRescueTask(
       data: structuredData,
       cooldown_until: cooldownUntil,
       fallback: result.isFallback,
+    }),
+    { status: 200, headers: corsHeaders }
+  );
+}
+
+// --- Mystery Box Roll Handler ---
+
+async function handleMysteryBoxRoll(
+  supabase: ReturnType<typeof import("jsr:@supabase/supabase-js@2").createClient>,
+  userId: string,
+  payload: Record<string, unknown>
+) {
+  const completionId = payload.completion_id as string;
+
+  if (!completionId) {
+    return new Response(
+      JSON.stringify({ error: "Missing 'completion_id' in payload" }),
+      { status: 400, headers: corsHeaders }
+    );
+  }
+
+  // Check if already rolled for this completion
+  const { data: existing } = await supabase
+    .from("variable_rewards")
+    .select("id, reward_type, triggered")
+    .eq("completion_id", completionId)
+    .maybeSingle();
+
+  if (existing) {
+    return new Response(
+      JSON.stringify({
+        success: true,
+        already_rolled: true,
+        triggered: existing.triggered,
+        reward: existing.triggered ? { type: existing.reward_type } : null,
+      }),
+      { status: 200, headers: corsHeaders }
+    );
+  }
+
+  const result = await rollMysteryBox(userId, completionId, supabase);
+
+  return new Response(
+    JSON.stringify({
+      success: true,
+      ...result,
     }),
     { status: 200, headers: corsHeaders }
   );

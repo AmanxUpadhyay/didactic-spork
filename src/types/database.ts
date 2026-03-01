@@ -325,6 +325,48 @@ export type Database = {
           },
         ]
       }
+      fresh_start_bonuses: {
+        Row: {
+          applied_at: string
+          bonus_points: number
+          id: string
+          reason: string
+          sprint_id: string
+          user_id: string
+        }
+        Insert: {
+          applied_at?: string
+          bonus_points: number
+          id?: string
+          reason: string
+          sprint_id: string
+          user_id: string
+        }
+        Update: {
+          applied_at?: string
+          bonus_points?: number
+          id?: string
+          reason?: string
+          sprint_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fresh_start_bonuses_sprint_id_fkey"
+            columns: ["sprint_id"]
+            isOneToOne: false
+            referencedRelation: "sprints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fresh_start_bonuses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       habit_completions: {
         Row: {
           completed_at: string | null
@@ -359,6 +401,54 @@ export type Database = {
             columns: ["task_id"]
             isOneToOne: false
             referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      implementation_intentions: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          planned_action: string
+          task_id: string
+          trigger_situation: string
+          trigger_time: string | null
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          planned_action: string
+          task_id: string
+          trigger_situation: string
+          trigger_time?: string | null
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          planned_action?: string
+          task_id?: string
+          trigger_situation?: string
+          trigger_time?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "implementation_intentions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "implementation_intentions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -636,6 +726,57 @@ export type Database = {
           user_b?: string
         }
         Relationships: []
+      }
+      point_bank_snapshots: {
+        Row: {
+          created_at: string
+          current_points: number
+          decay_log: Json
+          floor_points: number
+          id: string
+          initial_points: number
+          sprint_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_points?: number
+          decay_log?: Json
+          floor_points?: number
+          id?: string
+          initial_points?: number
+          sprint_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_points?: number
+          decay_log?: Json
+          floor_points?: number
+          id?: string
+          initial_points?: number
+          sprint_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "point_bank_snapshots_sprint_id_fkey"
+            columns: ["sprint_id"]
+            isOneToOne: false
+            referencedRelation: "sprints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "point_bank_snapshots_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       punishments: {
         Row: {
@@ -1220,6 +1361,51 @@ export type Database = {
         }
         Relationships: []
       }
+      variable_rewards: {
+        Row: {
+          completion_id: string
+          created_at: string
+          id: string
+          probability_used: number
+          reward_type: string
+          triggered: boolean
+          user_id: string
+        }
+        Insert: {
+          completion_id: string
+          created_at?: string
+          id?: string
+          probability_used: number
+          reward_type: string
+          triggered?: boolean
+          user_id: string
+        }
+        Update: {
+          completion_id?: string
+          created_at?: string
+          id?: string
+          probability_used?: number
+          reward_type?: string
+          triggered?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "variable_rewards_completion_id_fkey"
+            columns: ["completion_id"]
+            isOneToOne: false
+            referencedRelation: "habit_completions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "variable_rewards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       veto_records: {
         Row: {
           created_at: string
@@ -1282,12 +1468,32 @@ export type Database = {
           },
         ]
       }
+      notification_engagement: {
+        Row: {
+          categories_used: number | null
+          delivery_rate_pct: number | null
+          total_delivered: number | null
+          total_failed: number | null
+          total_queued: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_live_scores: { Args: { p_sprint_id?: string }; Returns: Json }
       check_appreciation_gate: { Args: { p_sprint_id: string }; Returns: Json }
+      check_engagement_dropoff: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
+      check_score_gap_circuit_breaker: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
       claim_invite_code: { Args: { p_code: string }; Returns: Json }
       generate_invite_code: { Args: never; Returns: Json }
+      get_notification_ratio: { Args: { p_user_id: string }; Returns: Json }
       get_partner_id: { Args: never; Returns: string }
       get_sprint_history: { Args: { p_limit?: number }; Returns: Json }
       get_tier_unlocks: { Args: { p_user_id: string }; Returns: Json }

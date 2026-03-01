@@ -9,7 +9,13 @@ export type KiraFunctionType =
   | "task_suggest"
   | "excuse_eval"
   | "date_rate"
-  | "rescue_task";
+  | "rescue_task"
+  | "streak_warning"
+  | "schedule_daily"
+  | "deadline_escalation"
+  | "point_bank_decay"
+  | "fresh_start_calc"
+  | "mystery_box_roll";
 
 export type PersonalityMode =
   | "cheerful"
@@ -41,6 +47,12 @@ export const FUNCTION_MODEL_CONFIG: Record<KiraFunctionType, ModelConfig> = {
   sprint_judge: { modelId: MODEL_IDS.sonnet, maxTokens: 2048 },
   date_plan: { modelId: MODEL_IDS.sonnet, maxTokens: 2048 },
   excuse_eval: { modelId: MODEL_IDS.sonnet, maxTokens: 1024 },
+  streak_warning: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
+  schedule_daily: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
+  deadline_escalation: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
+  point_bank_decay: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
+  fresh_start_calc: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
+  mystery_box_roll: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
 };
 
 // Override mood_response to Sonnet for deep mode
@@ -146,6 +158,8 @@ export interface ExcuseVerdict {
 export interface CronRequestBody {
   function_type: KiraFunctionType;
   sprint_id?: string;
+  user_id?: string;
+  completion_id?: string;
 }
 
 export interface InteractiveRequestBody {
