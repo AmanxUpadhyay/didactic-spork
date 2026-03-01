@@ -59,5 +59,16 @@ export function useHabits(userId: string | undefined) {
       .eq('id', taskId)
   }
 
-  return { habits, loading, archiveHabit, updateHabit, refetch: fetchHabits }
+  async function reorderHabits(orderedHabits: Task[]) {
+    // Optimistic update
+    setHabits(orderedHabits)
+    // Persist sort_order to DB
+    const updates = orderedHabits.map((h, i) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      supabase.from('tasks').update({ sort_order: i } as any).eq('id', h.id),
+    )
+    await Promise.all(updates)
+  }
+
+  return { habits, loading, archiveHabit, updateHabit, reorderHabits, refetch: fetchHabits }
 }

@@ -37,7 +37,7 @@ interface TodayScreenProps {
 export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }: TodayScreenProps) {
   const { profile } = useAuth()
   const tz = profile?.timezone || 'UTC'
-  const { habits, loading: habitsLoading, archiveHabit } = useHabits(profile?.id)
+  const { habits, loading: habitsLoading, archiveHabit, reorderHabits } = useHabits(profile?.id)
   const { isCompletedToday, toggleCompletion } = useCompletions(profile?.id, tz)
   const { getStreakForTask, bestCoupleStreak } = useStreaks(profile?.id)
   const { toast } = useToast()
@@ -213,6 +213,7 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
           onToggle={handleToggle}
           onLongPress={handleLongPress}
           onComplete={onHabitComplete}
+          onReorder={reorderHabits}
         />
       )}
 
