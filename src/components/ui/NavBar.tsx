@@ -1,5 +1,7 @@
 import { type ReactNode } from 'react'
+import { m, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/cn'
+import { kawaiiSpring, snappySpring, haptics } from '@/lib/animations'
 
 interface NavItem {
   icon: ReactNode
@@ -37,19 +39,21 @@ export function NavBar({ items, fabIcon, onFabClick, className }: NavBarProps) {
 
         {/* Center FAB */}
         {fabIcon && (
-          <button
+          <m.button
             onClick={onFabClick}
+            whileTap={{ scale: 0.85, rotate: 45 }}
+            whileHover={{ scale: 1.08 }}
+            transition={kawaiiSpring}
+            onPointerDown={() => haptics.light()}
             className={cn(
               'flex items-center justify-center',
               'w-14 h-14 -mt-7',
               'rounded-full bg-primary text-white',
               'shadow-[var(--shadow-button)]',
-              'transition-all duration-200 ease-[var(--ease-bouncy)]',
-              'active:scale-90 active:shadow-[var(--shadow-button-active)]',
             )}
           >
             {fabIcon}
-          </button>
+          </m.button>
         )}
 
         {rightItems.map((item, i) => (
@@ -67,19 +71,29 @@ function NavBarItem({ icon, label, active, onClick }: NavItem) {
       className={cn(
         'flex flex-col items-center justify-center gap-0.5',
         'w-16 h-full',
-        'transition-all duration-200 ease-[var(--ease-bouncy)]',
         active ? 'text-primary' : 'text-text-secondary',
       )}
     >
-      <span
-        className={cn(
-          'flex items-center justify-center',
-          'w-10 h-8 rounded-[var(--radius-pill)]',
-          'transition-all duration-200 ease-[var(--ease-bouncy)]',
-          active && 'bg-primary/10 scale-110',
-        )}
-      >
-        {icon}
+      <span className="relative flex items-center justify-center w-10 h-8">
+        {/* Sliding background indicator using layoutId */}
+        <AnimatePresence>
+          {active && (
+            <m.span
+              layoutId="tab-indicator"
+              className="absolute inset-0 rounded-[var(--radius-pill)] bg-primary/10"
+              transition={snappySpring}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Icon with scale spring */}
+        <m.span
+          animate={{ scale: active ? 1.1 : 1 }}
+          transition={kawaiiSpring}
+          className="relative z-10 flex items-center justify-center"
+        >
+          {icon}
+        </m.span>
       </span>
       <span className="text-[10px] font-medium leading-none">{label}</span>
     </button>

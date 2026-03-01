@@ -1,5 +1,7 @@
 import { type HTMLAttributes, forwardRef } from 'react'
+import { m } from 'motion/react'
 import { cn } from '@/lib/cn'
+import { gentleSpring } from '@/lib/animations'
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   hoverable?: boolean
@@ -8,22 +10,21 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, hoverable = false, children, ...props }, ref) => {
     return (
-      <div
+      <m.div
         ref={ref}
+        whileTap={hoverable ? { scale: 0.98 } : undefined}
+        whileHover={hoverable ? { scale: 1.01, y: -2 } : undefined}
+        transition={gentleSpring}
         className={cn(
           'rounded-[var(--radius-card)] bg-surface',
           'border-2 border-border p-5',
           'shadow-[var(--shadow-elevated)]',
-          hoverable && [
-            'transition-all duration-200 ease-[var(--ease-bouncy)]',
-            'hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(232,135,143,0.12)]',
-          ],
           className,
         )}
-        {...props}
+        {...(props as object)}
       >
         {children}
-      </div>
+      </m.div>
     )
   },
 )
