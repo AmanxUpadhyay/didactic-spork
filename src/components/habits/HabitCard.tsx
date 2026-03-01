@@ -1,7 +1,9 @@
-import { useState, useRef } from 'react'
+import { useRef } from 'react'
+import { m, useMotionValue, useTransform } from 'motion/react'
 import { cn } from '@/lib/cn'
 import { StreakCounter } from '@/components/ui/StreakCounter'
 import { AnimatedCheckbox } from '@/components/ui/AnimatedCheckbox'
+import { haptics } from '@/lib/animations'
 import type { DifficultyLevel, Streak } from '@/types/habits'
 
 const DIFFICULTY_COLORS: Record<DifficultyLevel, string> = {
@@ -43,28 +45,18 @@ export function HabitCard({
   ifTrigger,
   thenAction,
 }: HabitCardProps) {
-  const [animating, setAnimating] = useState(false)
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const didLongPress = useRef(false)
+  const didDrag = useRef(false)
 
-  function handleTap() {
-    if (didLongPress.current) {
-      didLongPress.current = false
-      return
-    }
-    if (!isDueToday) return
-    if (!completed) {
-      setAnimating(true)
-      setTimeout(() => setAnimating(false), 600)
-    }
-    onToggle()
-    if (!completed) {
-      onComplete?.()
-    }
-  }
+  // Swipe gesture values
+  const x = useMotionValue(0)
+  const checkOpacity = useTransform(x, [0, 80, 200], [0, 0.4, 1])
+  const successOpacity = useTransform(x, [0, 100, 200], [0, 0.3, 0.85])
 
   function handlePointerDown() {
     didLongPress.current = false
+    didDrag.current = false
     longPressTimer.current = setTimeout(() => {
       didLongPress.current = true
       onLongPress?.()
@@ -79,76 +71,118 @@ export function HabitCard({
     }
   }
 
-  function handlePointerLeave() {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current)
-      longPressTimer.current = null
+  function handleClick() {
+    if (didLongPress.current || didDrag.current) {
+      didLongPress.current = false
+      return
+    }
+    if (!isDueToday) return
+    onToggle()
+    if (!completed) {
+      onComplete?.()
     }
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleTap}
+    <m.div
+      style={{ x, touchAction: 'pan-y', position: 'relative', overflow: 'hidden' }}
+      className={cn(
+        'w-full rounded-[var(--radius-card)] overflow-hidden',
+        !isDueToday && 'opacity-40',
+      )}
+      drag={isDueToday && !completed ? 'x' : false}
+      dragConstraints={{ left: -60, right: 220 }}
+      dragElastic={{ left: 0.1, right: 0.25 }}
+      onDragStart={() => { didDrag.current = true }}
+      onDragEnd={(_, info) => {
+        if (info.offset.x > 200 || info.velocity.x > 500) {
+          haptics.success()
+          onToggle()
+          onComplete?.()
+        }
+        x.set(0)
+      }}
+      onClick={handleClick}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerLeave}
-      disabled={!isDueToday}
-      className={cn(
-        'w-full text-left',
-        'rounded-[var(--radius-card)] bg-surface',
-        'border-2 p-4',
-        'transition-all duration-200 ease-[var(--ease-bouncy)]',
-        'active:scale-[0.98] cursor-pointer',
-        'select-none',
-        completed
-          ? 'border-primary/30 opacity-60'
-          : 'border-border shadow-[var(--shadow-elevated)]',
-        !isDueToday && 'opacity-40 cursor-not-allowed',
-        animating && 'animate-[bloom_400ms_var(--ease-bouncy)]',
-      )}
+      onPointerLeave={handlePointerUp}
     >
-      <div className="flex items-center gap-3">
-        {/* Animated checkbox — visual only, outer button drives toggle */}
-        <div className="pointer-events-none">
-          <AnimatedCheckbox
-            checked={completed}
-            onChange={() => {}}
-            size={28}
-            disabled={!isDueToday}
-          />
-        </div>
+      {/* Success overlay — reveals on swipe right */}
+      <m.div
+        className="absolute inset-0 rounded-[var(--radius-card)] flex items-center pl-4 pointer-events-none"
+        style={{
+          backgroundColor: 'var(--color-success, #4ade80)',
+          opacity: successOpacity,
+        }}
+      >
+        <m.div style={{ opacity: checkOpacity }} className="text-white">
+          <svg viewBox="0 0 20 20" fill="none" width="28" height="28">
+            <m.path
+              d="M4 10L8 14L16 6"
+              stroke="white"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </m.div>
+      </m.div>
 
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <p
-            className={cn(
-              'font-medium text-text-primary truncate',
-              completed && 'line-through',
-            )}
-          >
-            {title}
-          </p>
-          {ifTrigger && thenAction && (
-            <p className="text-xs text-text-secondary truncate">
-              If {ifTrigger} → {thenAction}
-            </p>
-          )}
-          <div className="flex items-center gap-2 mt-0.5">
-            <span
+      {/* Card content */}
+      <div
+        className={cn(
+          'text-left',
+          'rounded-[var(--radius-card)] bg-surface',
+          'border-2 p-4',
+          'select-none cursor-pointer',
+          completed
+            ? 'border-primary/30 opacity-60'
+            : 'border-border shadow-[var(--shadow-elevated)]',
+          !isDueToday && 'cursor-not-allowed',
+        )}
+      >
+        <div className="flex items-center gap-3">
+          {/* Animated checkbox — visual only, swipe/tap drives toggle */}
+          <div className="pointer-events-none">
+            <AnimatedCheckbox
+              checked={completed}
+              onChange={() => {}}
+              size={28}
+              disabled={!isDueToday}
+            />
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <p
               className={cn(
-                'text-xs font-semibold px-2 py-0.5 rounded-[var(--radius-pill)]',
-                DIFFICULTY_COLORS[difficulty],
+                'font-medium text-text-primary truncate',
+                completed && 'line-through',
               )}
             >
-              {DIFFICULTY_LABELS[difficulty]}
-            </span>
-            {streak && streak.current_days > 0 && (
-              <StreakCounter current={streak.current_days} freezeAvailable={streak.freeze_available} size="sm" />
+              {title}
+            </p>
+            {ifTrigger && thenAction && (
+              <p className="text-xs text-text-secondary truncate">
+                If {ifTrigger} → {thenAction}
+              </p>
             )}
+            <div className="flex items-center gap-2 mt-0.5">
+              <span
+                className={cn(
+                  'text-xs font-semibold px-2 py-0.5 rounded-[var(--radius-pill)]',
+                  DIFFICULTY_COLORS[difficulty],
+                )}
+              >
+                {DIFFICULTY_LABELS[difficulty]}
+              </span>
+              {streak && streak.current_days > 0 && (
+                <StreakCounter current={streak.current_days} freezeAvailable={streak.freeze_available} size="sm" />
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </button>
+    </m.div>
   )
 }
