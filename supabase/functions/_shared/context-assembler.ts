@@ -22,6 +22,7 @@ export async function assembleUserContext(
     completionsRes,
     taskCountRes,
     summaryRes,
+    acceptedSuggestionsRes,
   ] = await Promise.all([
     // User profile
     supabase.from("users").select("*").eq("id", userId).single(),
@@ -71,6 +72,14 @@ export async function assembleUserContext(
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
+    // Previously accepted task suggestions (last 10)
+    supabase
+      .from("ai_suggestion_outcomes")
+      .select("suggestion_text, category")
+      .eq("user_id", userId)
+      .eq("accepted", true)
+      .order("accepted_at", { ascending: false })
+      .limit(10),
   ]);
 
   const user = userRes.data;
@@ -135,6 +144,12 @@ export async function assembleUserContext(
       tasksDue7d,
     },
     weeklySummary: summaryRes.data?.summary_text ?? null,
+    acceptedSuggestions: (acceptedSuggestionsRes.data || []).map(
+      (s: { suggestion_text: string; category: string | null }) => ({
+        text: s.suggestion_text,
+        category: s.category,
+      })
+    ),
   };
 }
 

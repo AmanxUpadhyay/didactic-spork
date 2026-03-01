@@ -20,7 +20,9 @@ export type KiraFunctionType =
   | "health_check_response"
   | "activate_grace"
   | "switch_sprint_mode"
-  | "positive_injection";
+  | "positive_injection"
+  | "friday_teaser"
+  | "mark_suggestion_accepted";
 
 export type PersonalityMode =
   | "cheerful"
@@ -63,6 +65,9 @@ export const FUNCTION_MODEL_CONFIG: Record<KiraFunctionType, ModelConfig> = {
   activate_grace: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
   switch_sprint_mode: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
   positive_injection: { modelId: MODEL_IDS.haiku, maxTokens: 256 },
+  friday_teaser: { modelId: MODEL_IDS.haiku, maxTokens: 512 },
+  // mark_suggestion_accepted makes no Bedrock call; entry required for Record<KiraFunctionType, ModelConfig>
+  mark_suggestion_accepted: { modelId: MODEL_IDS.haiku, maxTokens: 64 },
 };
 
 // Override mood_response to Sonnet for deep mode
@@ -105,6 +110,7 @@ export interface UserContext {
     tasksDue7d: number;
   };
   weeklySummary: string | null;
+  acceptedSuggestions: Array<{ text: string; category: string | null }>;
 }
 
 export interface SprintContext {
@@ -149,6 +155,8 @@ export interface DatePlanOption {
   extras: string[];
   estimatedCost: number;
   rationale: string;
+  peakMoment?: string;
+  closingNote?: string;
 }
 
 export interface TaskSuggestion {

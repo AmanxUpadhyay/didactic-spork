@@ -5,6 +5,8 @@ export interface DateOption {
   extras: string[]
   estimatedCost: number
   rationale: string
+  peakMoment?: string
+  closingNote?: string
 }
 
 export interface SurpriseElement {

@@ -53,12 +53,14 @@ Rules:
 - For SPICY intensity: only hard_nos are off-limits
 - Don't repeat venues/categories/cuisines from the rotation memory
 - Vary the vibe: one chill, one adventurous, one creative
+- Each option must include a peakMoment: one specific, memorable highlight — surprising, emotionally resonant, or sensory-intense. One sentence max.
+- Each option must include a closingNote: the final beat that ends the date on warmth. One sentence. Must follow naturally from the activity.
 - Include estimated costs for each component
 - If mutual_failure is true: use collaborative "we" language, suggest a joint improvement activity, budget is £30
 - If both_win is true: generate a celebratory reward date, use excited tone
 - If surprise_eligible is true: add a surprise_element to the spiciest option (a fun twist or unexpected add-on)
 - If veto_regenerate is true: replace ONLY the vetoed option indices, keep others
-- Return JSON: { "options": [{ "title": "", "activity": "", "food": "", "extras": [], "estimatedCost": 0, "rationale": "" }], "surprise_element": { "description": "", "revealAt": "during_date" } | null }`,
+- Return JSON: { "options": [{ "title": "", "activity": "", "food": "", "extras": [], "estimatedCost": 0, "rationale": "", "peakMoment": "", "closingNote": "" }], "surprise_element": { "description": "", "revealAt": "during_date" } | null }`,
 
   daily_notification: `TASK: Morning Briefing Notification
 Write a short push notification to start their day.
@@ -104,6 +106,7 @@ Rules:
 - Include variety: physical, mental, creative, relationship
 - Each suggestion needs: title, description, difficulty, time estimate, rationale
 - Don't suggest things in their hard_nos
+- Reference previously accepted suggestions — build on them or vary away. Never suggest a task with the same title as an accepted suggestion.
 - Return JSON: { "suggestions": [{ "title": "", "description": "", "difficulty": "easy|medium|hard|legendary", "timeEstimate": "", "rationale": "" }] }`,
 
   excuse_eval: `TASK: Excuse Evaluation
@@ -193,6 +196,17 @@ Rules:
 - No generic "great job" — be specific
 - Max 2 sentences
 - Return JSON: { "message": "" }`,
+
+  friday_teaser: `TASK: Friday Teaser Notification
+A punishment date is coming. Write two short notification messages — one for the loser (who owes the date) and one for the winner (who gets the date).
+
+Rules:
+- Loser message: cryptic, mysterious, builds anticipation or dread — playful never cruel
+- Winner message: smug, excited, savours the upcoming reward
+- Never reveal actual date details — only tease that something is coming
+- Title: max 60 chars. Body: max 120 chars.
+- Intensity influences tone: gentle → warm curiosity, moderate → playful suspense, spicy → delicious dread
+- Return JSON: { "loser": { "title": "", "body": "" }, "winner": { "title": "", "body": "" } }`,
 };
 
 /**
@@ -340,6 +354,19 @@ Rescuer name: ${extra.rescuerName || userContext?.name || "Partner"}`);
     if (functionType === "task_suggest" && extra.currentTasks) {
       parts.push(`\n## Current Active Tasks
 ${JSON.stringify(extra.currentTasks)}`);
+    }
+
+    if (functionType === "task_suggest" && userContext?.acceptedSuggestions?.length) {
+      parts.push(`\n## Previously Accepted Suggestions (do not repeat these titles)
+${userContext.acceptedSuggestions.map((s) => `- ${s.text}${s.category ? ` [${s.category}]` : ""}`).join("\n")}`);
+    }
+
+    if (functionType === "friday_teaser") {
+      parts.push(`\n## Punishment Date Teaser
+Loser: ${extra.loserName || "Partner A"}
+Winner: ${extra.winnerName || "Partner B"}
+Intensity: ${extra.punishmentIntensity || "moderate"}
+Days until date: ${extra.daysUntilDate !== undefined ? extra.daysUntilDate : "unknown"}`);
     }
 
     if (functionType === "health_check" && extra.signals) {

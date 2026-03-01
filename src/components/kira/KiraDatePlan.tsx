@@ -12,6 +12,8 @@ interface DateOption {
   extras: string[]
   estimatedCost: number
   rationale: string
+  peakMoment?: string
+  closingNote?: string
 }
 
 interface KiraDatePlanProps {
@@ -130,6 +132,13 @@ export function KiraDatePlan({ sprintId, onAccept, className = '' }: KiraDatePla
               </span>
             </div>
 
+            {option.peakMoment && (
+              <div className="mb-2 px-2.5 py-1.5 rounded-[var(--radius-small)] bg-primary/10 border border-primary/20">
+                <p className="text-xs font-medium text-primary mb-0.5">Peak moment</p>
+                <p className="text-xs text-text-primary leading-relaxed">{option.peakMoment}</p>
+              </div>
+            )}
+
             <div className="space-y-1 mb-2">
               <p className="text-xs text-text-secondary">
                 <span className="font-medium">Activity:</span> {option.activity}
@@ -145,6 +154,12 @@ export function KiraDatePlan({ sprintId, onAccept, className = '' }: KiraDatePla
             </div>
 
             <p className="text-xs text-text-secondary italic mb-3">{option.rationale}</p>
+
+            {option.closingNote && (
+              <p className="text-xs text-text-secondary border-t border-border pt-2 mt-2">
+                <span className="font-medium">How it ends:</span> {option.closingNote}
+              </p>
+            )}
 
             {isSelected && (
               <div className="flex gap-2">

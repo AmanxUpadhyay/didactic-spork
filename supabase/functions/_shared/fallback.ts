@@ -119,6 +119,36 @@ const FALLBACK_RESPONSES: Record<KiraFunctionType, string> = {
     triggered: false,
     reward: null,
   }),
+
+  health_check: JSON.stringify({
+    message: "Hey — Kira here. I've noticed some patterns worth checking in on. How are you both doing?",
+    suggested_action: "none",
+    severity: "gentle",
+  }),
+
+  health_check_response: JSON.stringify({
+    response: "Got it. I'll keep an eye on things and check back in.",
+    action_confirmed: true,
+  }),
+
+  activate_grace: JSON.stringify({
+    message: "Take the time you need. Your streaks are safe.",
+  }),
+
+  switch_sprint_mode: JSON.stringify({
+    message: "Mode updated for next week. You've got this.",
+  }),
+
+  positive_injection: JSON.stringify({
+    message: "You and your partner are building something real. That matters.",
+  }),
+
+  friday_teaser: JSON.stringify({
+    loser: { title: "Something is coming...", body: "Kira is keeping secrets. The date is being planned. Sleep well." },
+    winner: { title: "Your prize is almost ready", body: "The date is being arranged. Good things come to those who crushed the sprint." },
+  }),
+
+  mark_suggestion_accepted: JSON.stringify({ success: true }),
 };
 
 /**

@@ -63,6 +63,8 @@ Deno.serve(async (req: Request) => {
         return await handleActivateGrace(supabase, userId, payload);
       case "switch_sprint_mode":
         return await handleSwitchSprintMode(supabase, userId, payload);
+      case "mark_suggestion_accepted":
+        return await handleMarkSuggestionAccepted(supabase, userId, payload);
       default:
         return new Response(
           JSON.stringify({ error: `Unknown function_type: ${functionType}` }),
@@ -133,6 +135,24 @@ async function handleTaskSuggest(
     tokensOutput: result.tokensOutput,
     userId,
   });
+
+  // Insert outcome rows for each suggestion (accepted=false until user accepts)
+  const suggestions = (structuredData as { suggestions?: Array<{ title: string; difficulty?: string; task_type?: string }> }).suggestions || [];
+  if (responseId && suggestions.length > 0) {
+    supabase.from("ai_suggestion_outcomes").insert(
+      suggestions.map((s, i) => ({
+        user_id: userId,
+        ai_response_id: responseId,
+        suggestion_index: i,
+        suggestion_text: s.title,
+        category: null as string | null,
+        task_type: s.difficulty || null,
+        accepted: false,
+      }))
+    ).then(({ error }) => {
+      if (error) console.error("Failed to insert suggestion outcomes:", error.message);
+    });
+  }
 
   return new Response(
     JSON.stringify({
@@ -1094,6 +1114,63 @@ async function handleActivateGrace(
       grace: graceResult,
       kira_message: message,
     }),
+    { status: 200, headers: corsHeaders }
+  );
+}
+
+// --- Mark Suggestion Accepted Handler ---
+// No Bedrock call — purely a DB update. Returns early without calling getModelConfig.
+
+async function handleMarkSuggestionAccepted(
+  supabase: ReturnType<typeof import("jsr:@supabase/supabase-js@2").createClient>,
+  userId: string,
+  payload: Record<string, unknown>
+) {
+  const aiResponseId = payload.ai_response_id as string | undefined;
+  const suggestionIndex = payload.suggestion_index as number | undefined;
+  const taskId = payload.task_id as string | undefined;
+
+  if (!aiResponseId || suggestionIndex === undefined || suggestionIndex === null) {
+    return new Response(
+      JSON.stringify({ error: "ai_response_id and suggestion_index required" }),
+      { status: 400, headers: corsHeaders }
+    );
+  }
+
+  // Find the outcome row — ownership check via user_id
+  const { data: outcome, error: findError } = await supabase
+    .from("ai_suggestion_outcomes")
+    .select("id, user_id")
+    .eq("ai_response_id", aiResponseId)
+    .eq("suggestion_index", suggestionIndex)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (findError || !outcome) {
+    return new Response(
+      JSON.stringify({ error: "Suggestion outcome not found or access denied" }),
+      { status: 404, headers: corsHeaders }
+    );
+  }
+
+  const { error: updateError } = await supabase
+    .from("ai_suggestion_outcomes")
+    .update({
+      accepted: true,
+      accepted_at: new Date().toISOString(),
+      task_id: taskId || null,
+    })
+    .eq("id", outcome.id);
+
+  if (updateError) {
+    return new Response(
+      JSON.stringify({ error: "Failed to update suggestion outcome", detail: updateError.message }),
+      { status: 500, headers: corsHeaders }
+    );
+  }
+
+  return new Response(
+    JSON.stringify({ success: true, outcome_id: outcome.id }),
     { status: 200, headers: corsHeaders }
   );
 }

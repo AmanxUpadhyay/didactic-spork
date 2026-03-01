@@ -7,7 +7,7 @@ import { assembleSystemPrompt, buildUserMessage } from "../_shared/prompts.ts";
 import { storeResponse } from "../_shared/response-store.ts";
 import { callWithRetry } from "../_shared/fallback.ts";
 import { getModelConfig } from "../_shared/types.ts";
-import type { KiraFunctionType, CronRequestBody } from "../_shared/types.ts";
+import type { KiraFunctionType, CronRequestBody, PersonalityMode } from "../_shared/types.ts";
 import { selectTemplate, interpolateTemplate, buildNotificationPayload } from "../_shared/notification-templates.ts";
 import { recordInteraction, shouldSuppressNegative, injectPositiveKiraMessage, checkGracePeriod } from "../_shared/health-monitor.ts";
 
@@ -64,6 +64,8 @@ Deno.serve(async (req: Request) => {
         return await handleHealthCheck(supabase);
       case "positive_injection":
         return await handlePositiveInjection(supabase);
+      case "friday_teaser":
+        return await handleFridayTeaser(supabase);
       default:
         return new Response(
           JSON.stringify({ error: `Unknown function_type: ${functionType}` }),
@@ -1102,6 +1104,172 @@ async function handleHealthCheck(supabase: SupabaseAdmin) {
       unresolved_count: signals.length,
       interventions,
     }),
+    { status: 200, headers: corsHeaders }
+  );
+}
+
+// --- Friday Teaser Handler ---
+
+async function handleFridayTeaser(supabase: SupabaseAdmin) {
+  // Find active pair
+  const { data: pair } = await supabase
+    .from("partner_pairs")
+    .select("user_a, user_b")
+    .eq("active", true)
+    .limit(1)
+    .maybeSingle();
+
+  if (!pair) {
+    return new Response(JSON.stringify({ error: "No active pair" }), {
+      status: 404, headers: corsHeaders,
+    });
+  }
+
+  // Find latest punishment with a date plan that hasn't been completed
+  // (punishments table has no status column — presence of date_plan = pending)
+  const { data: punishment } = await supabase
+    .from("punishments")
+    .select("id, sprint_id, loser_id, winner_id, intensity, scheduled_date, is_mutual_failure")
+    .not("date_plan", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!punishment) {
+    return new Response(
+      JSON.stringify({ success: true, message: "No pending punishment date" }),
+      { status: 200, headers: corsHeaders }
+    );
+  }
+
+  // Deduplication: skip if teaser already sent this week for this punishment
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data: recentTeaser } = await supabase
+    .from("ai_responses")
+    .select("id")
+    .eq("function_type", "friday_teaser")
+    .eq("sprint_id", punishment.sprint_id)
+    .gte("created_at", weekAgo)
+    .limit(1)
+    .maybeSingle();
+
+  if (recentTeaser) {
+    return new Response(
+      JSON.stringify({ success: true, message: "Teaser already sent this week" }),
+      { status: 200, headers: corsHeaders }
+    );
+  }
+
+  // Get user display names
+  const [loserRes, winnerRes] = await Promise.all([
+    supabase.from("users").select("display_name").eq("id", punishment.loser_id).maybeSingle(),
+    punishment.winner_id
+      ? supabase.from("users").select("display_name").eq("id", punishment.winner_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+
+  const loserName = (loserRes.data as { display_name?: string } | null)?.display_name || "Partner";
+  const winnerName = (winnerRes.data as { display_name?: string } | null)?.display_name || "Partner";
+
+  // Days until scheduled date (if set)
+  let daysUntilDate: number | undefined;
+  if (punishment.scheduled_date) {
+    const diff = new Date(punishment.scheduled_date).getTime() - Date.now();
+    daysUntilDate = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  }
+
+  // Intensity → mood map: gentle→cheerful, moderate→tough_love, spicy→sarcastic
+  const intensityMoodMap: Record<string, PersonalityMode> = {
+    gentle: "cheerful",
+    moderate: "tough_love",
+    spicy: "sarcastic",
+  };
+  const mood = intensityMoodMap[punishment.intensity] || "sarcastic";
+
+  // Call Kira for teaser messages
+  const config = getModelConfig("friday_teaser");
+  const systemPrompt = assembleSystemPrompt(mood, "friday_teaser");
+  const userMessage = buildUserMessage("friday_teaser", null, undefined, {
+    loserName,
+    winnerName,
+    punishmentIntensity: punishment.intensity,
+    daysUntilDate,
+  });
+
+  let teaserData: { loser: { title: string; body: string }; winner: { title: string; body: string } };
+  try {
+    const result = await callWithRetry(
+      () => callBedrock(config.modelId, systemPrompt, userMessage, config.maxTokens),
+      "friday_teaser"
+    );
+    teaserData = JSON.parse(result.text);
+  } catch {
+    teaserData = {
+      loser: {
+        title: `Something is coming, ${loserName}...`,
+        body: "Kira is keeping secrets. The date is being planned. Sleep well.",
+      },
+      winner: {
+        title: "Your prize is almost ready",
+        body: "The date is being arranged. Good things come to those who crushed the sprint.",
+      },
+    };
+  }
+
+  // Store AI response for deduplication tracking
+  await storeResponse(supabase, {
+    functionType: "friday_teaser",
+    responseText: JSON.stringify(teaserData),
+    structuredData: teaserData as unknown as Record<string, unknown>,
+    modelUsed: config.modelId,
+    personalityMode: mood,
+    tokensInput: 0,
+    tokensOutput: 0,
+    sprintId: punishment.sprint_id,
+  });
+
+  const results = [];
+
+  // Queue notification for loser
+  try {
+    await supabase.from("notification_queue").insert({
+      user_id: punishment.loser_id,
+      category: "friday_teaser",
+      title: teaserData.loser.title.slice(0, 60),
+      body: teaserData.loser.body.slice(0, 120),
+      scheduled_for: new Date().toISOString(),
+      status: "pending",
+      urgency: "normal",
+      data: { url: "/sprint", type: "friday_teaser" },
+      tag: "friday_teaser",
+    });
+    results.push({ userId: punishment.loser_id, role: "loser", sent: true });
+  } catch (err) {
+    results.push({ userId: punishment.loser_id, role: "loser", error: String(err) });
+  }
+
+  // Queue notification for winner (skip if mutual failure — no winner)
+  if (punishment.winner_id && !punishment.is_mutual_failure) {
+    try {
+      await supabase.from("notification_queue").insert({
+        user_id: punishment.winner_id,
+        category: "friday_teaser",
+        title: teaserData.winner.title.slice(0, 60),
+        body: teaserData.winner.body.slice(0, 120),
+        scheduled_for: new Date().toISOString(),
+        status: "pending",
+        urgency: "normal",
+        data: { url: "/sprint", type: "friday_teaser" },
+        tag: "friday_teaser",
+      });
+      results.push({ userId: punishment.winner_id, role: "winner", sent: true });
+    } catch (err) {
+      results.push({ userId: punishment.winner_id, role: "winner", error: String(err) });
+    }
+  }
+
+  return new Response(
+    JSON.stringify({ success: true, results }),
     { status: 200, headers: corsHeaders }
   );
 }

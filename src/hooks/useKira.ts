@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 
-type KiraFunctionType = 'task_suggest' | 'excuse_eval' | 'mood_response' | 'date_plan' | 'date_rate' | 'rescue_task' | 'health_check' | 'health_check_response' | 'activate_grace' | 'switch_sprint_mode' | 'positive_injection'
+type KiraFunctionType = 'task_suggest' | 'excuse_eval' | 'mood_response' | 'date_plan' | 'date_rate' | 'rescue_task' | 'health_check' | 'health_check_response' | 'activate_grace' | 'switch_sprint_mode' | 'positive_injection' | 'friday_teaser' | 'mark_suggestion_accepted'
 
 interface KiraResult {
   success: boolean
@@ -85,6 +85,12 @@ export function useKira() {
     [invoke]
   )
 
+  const markSuggestionAccepted = useCallback(
+    (aiResponseId: string, suggestionIndex: number, taskId?: string) =>
+      invoke('mark_suggestion_accepted', { ai_response_id: aiResponseId, suggestion_index: suggestionIndex, task_id: taskId }),
+    [invoke]
+  )
+
   return {
     loading,
     error,
@@ -95,5 +101,6 @@ export function useKira() {
     planDate,
     rateDate,
     requestRescueTask,
+    markSuggestionAccepted,
   }
 }
