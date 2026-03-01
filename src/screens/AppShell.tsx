@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { AnimatePresence, m } from 'motion/react'
 import { NavBar, BottomSheet } from '@/components/ui'
 import { usePairing } from '@/contexts/PairingContext'
 import { useTierUnlocks } from '@/hooks/useTierUnlocks'
@@ -18,6 +19,7 @@ import { NotificationOptIn } from '@/components/notifications/NotificationOptIn'
 import { NotificationBadge } from '@/components/notifications/NotificationBadge'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
 import { InAppNotificationToast } from '@/components/notifications/InAppNotificationToast'
+import { pageEnterRight, pageEnterLeft } from '@/lib/animations'
 import {
   Home03Icon,
   Award01Icon,
@@ -30,6 +32,8 @@ import type { Task } from '@/types/habits'
 
 type Tab = 'today' | 'sprint' | 'partner' | 'settings'
 
+const TAB_ORDER: Tab[] = ['today', 'sprint', 'partner', 'settings']
+
 interface AppShellProps {
   profile: { id: string; name: string; avatar_url: string | null; timezone: string }
   onSignOut: () => void
@@ -40,10 +44,20 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
   const [habitSheetOpen, setHabitSheetOpen] = useState(false)
   const [editingHabit, setEditingHabit] = useState<Task | null>(null)
   const [notifCenterOpen, setNotifCenterOpen] = useState(false)
+  const prevTabRef = useRef<Tab>('today')
   const { partnerProfile } = usePairing()
   const { tierChanged, dismissTierChange } = useTierUnlocks()
   const { result: mysteryResult, clearResult: clearMystery, rollMysteryBox } = useMysteryBox()
   const { notifications, unreadCount, latestNotification, clearLatest, markAllRead } = useRealtimeNotifications()
+
+  // Track direction for slide animation
+  const direction = TAB_ORDER.indexOf(activeTab) > TAB_ORDER.indexOf(prevTabRef.current)
+    ? 'right'
+    : 'left'
+
+  useEffect(() => {
+    prevTabRef.current = activeTab
+  }, [activeTab])
 
   function handleFabClick() {
     setEditingHabit(null)
@@ -93,7 +107,7 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
   ]
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-dvh bg-background overflow-hidden">
       {tierChanged && (
         <TierUnlockCelebration
           from={tierChanged.from}
@@ -109,22 +123,35 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
       <InAppNotificationToast notification={latestNotification} onDismiss={clearLatest} />
       {activeTab === 'today' && <InstallPrompt />}
       {activeTab === 'today' && <NotificationOptIn />}
-      {activeTab === 'today' && (
-        <TodayScreen
-          onEditHabit={handleEditHabit}
-          onNavigateToSprint={() => setActiveTab('sprint')}
-          onHabitComplete={rollMysteryBox}
-        />
-      )}
-      {activeTab === 'sprint' && <SprintScreen />}
-      {activeTab === 'partner' && <PartnerScreen />}
-      {activeTab === 'settings' && (
-        <SettingsScreen
-          profile={profile}
-          partnerName={partnerProfile?.name}
-          onSignOut={onSignOut}
-        />
-      )}
+
+      {/* Direction-aware tab transitions */}
+      <AnimatePresence mode="wait" initial={false}>
+        <m.div
+          key={activeTab}
+          variants={direction === 'right' ? pageEnterRight : pageEnterLeft}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          className="pb-20"
+        >
+          {activeTab === 'today' && (
+            <TodayScreen
+              onEditHabit={handleEditHabit}
+              onNavigateToSprint={() => setActiveTab('sprint')}
+              onHabitComplete={rollMysteryBox}
+            />
+          )}
+          {activeTab === 'sprint' && <SprintScreen />}
+          {activeTab === 'partner' && <PartnerScreen />}
+          {activeTab === 'settings' && (
+            <SettingsScreen
+              profile={profile}
+              partnerName={partnerProfile?.name}
+              onSignOut={onSignOut}
+            />
+          )}
+        </m.div>
+      </AnimatePresence>
 
       <NavBar
         items={navItems}
