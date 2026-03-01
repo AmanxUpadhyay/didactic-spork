@@ -8,9 +8,21 @@ import { AuthFlow } from '@/screens/AuthFlow'
 import { PairingFlow } from '@/screens/PairingFlow'
 import { AppShell } from '@/screens/AppShell'
 import { OnboardingFlow } from '@/screens/onboarding/OnboardingFlow'
+import { OAuthProfileSetup } from '@/screens/OAuthProfileSetup'
 
 function AppRouter() {
-  const { profile, loading: authLoading, signIn, signUp, signOut } = useAuth()
+  const {
+    profile,
+    user,
+    loading: authLoading,
+    needsProfileSetup,
+    signIn,
+    signUp,
+    signOut,
+    signInWithGoogle,
+    signInWithApple,
+    refetchProfile,
+  } = useAuth()
   const [onboardingDone, setOnboardingDone] = useState(false)
   useTheme()
 
@@ -22,8 +34,26 @@ function AppRouter() {
     )
   }
 
+  // OAuth user has a session but hasn't created their profile row yet
+  if (needsProfileSetup && user) {
+    return (
+      <OAuthProfileSetup
+        userId={user.id}
+        email={user.email ?? ''}
+        onComplete={refetchProfile}
+      />
+    )
+  }
+
   if (!profile) {
-    return <AuthFlow onLogin={signIn} onSignUp={signUp} />
+    return (
+      <AuthFlow
+        onLogin={signIn}
+        onSignUp={signUp}
+        onGoogleSignIn={signInWithGoogle}
+        onAppleSignIn={signInWithApple}
+      />
+    )
   }
 
   const hasOnboarded = localStorage.getItem('jugalbandi_onboarding_complete')

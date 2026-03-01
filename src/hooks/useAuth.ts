@@ -67,5 +67,38 @@ export function useAuth() {
     setProfile(null)
   }
 
-  return { session, user, profile, loading, signIn, signUp, signOut }
+  async function signInWithGoogle() {
+    return supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    })
+  }
+
+  async function signInWithApple() {
+    return supabase.auth.signInWithOAuth({
+      provider: 'apple',
+      options: { redirectTo: window.location.origin },
+    })
+  }
+
+  async function refetchProfile() {
+    if (user) await fetchProfile(user.id)
+  }
+
+  // True when OAuth callback lands with a session but no users row yet
+  const needsProfileSetup = !loading && !!user && profile === null
+
+  return {
+    session,
+    user,
+    profile,
+    loading,
+    needsProfileSetup,
+    signIn,
+    signUp,
+    signOut,
+    signInWithGoogle,
+    signInWithApple,
+    refetchProfile,
+  }
 }

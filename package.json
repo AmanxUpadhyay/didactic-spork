@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seed:demo": "bun run scripts/seed-demo.ts"
   },
   "dependencies": {
     "@fontsource-variable/baloo-2": "^5.1.1",
