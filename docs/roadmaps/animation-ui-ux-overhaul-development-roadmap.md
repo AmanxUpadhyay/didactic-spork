@@ -117,31 +117,33 @@ These decisions are final. Do not deviate.
 
 **Goal:** Set up the animation configuration system, install all libraries, create the shared hooks/variants/utilities that every subsequent phase depends on. No visible animations yet — just the plumbing.
 
+**Status: COMPLETE** (verified 2026-03-01)
+
 **Estimated effort:** 3–5 days
 **Depends on:** Core Phase 0 complete (project scaffolded, fonts loaded, palette configured)
 
 ### A.1 — Install & Configure Animation Libraries
 
-- [ ] Install `motion` v12.x — verify import paths via Context7 (`motion/react`, not `framer-motion`)
-- [ ] Install `@formkit/auto-animate` — verify React `useAutoAnimate` hook API via Context7
-- [ ] Install `canvas-confetti` — do NOT add to main bundle; it will be lazy-loaded
-- [ ] Install `@lottiefiles/dotlottie-react` — verify WASM initialization pattern via Context7
-- [ ] Verify all packages in `package.json` with correct versions
-- [ ] Run `npm run build` — confirm no bundle size regressions beyond ~45 kB gzipped total
+- [x] Install `motion` v12.x — verify import paths via Context7 (`motion/react`, not `framer-motion`)
+- [x] Install `@formkit/auto-animate` — verify React `useAutoAnimate` hook API via Context7
+- [x] Install `canvas-confetti` — do NOT add to main bundle; it will be lazy-loaded
+- [x] Install `@lottiefiles/dotlottie-react` — verify WASM initialization pattern via Context7
+- [x] Verify all packages in `package.json` with correct versions
+- [x] Run `npm run build` — confirm no bundle size regressions beyond ~45 kB gzipped total
 
 ### A.2 — LazyMotion Provider Setup
 
-- [ ] Wrap the app root in `<LazyMotion features={domAnimation}>` for tree-shaking
-- [ ] Create `src/providers/AnimationProvider.tsx` that wraps both `LazyMotion` and `MotionConfig`
-- [ ] Set global `<MotionConfig reducedMotion="user">` for accessibility
-- [ ] Verify: `m.div` works throughout the app (not just `motion.div`)
-- [ ] **Chrome verification:** Open app → DevTools → Network → confirm Motion JS chunk loads async
+- [x] Wrap the app root in `<LazyMotion features={domAnimation}>` for tree-shaking
+- [x] Create `src/providers/AnimationProvider.tsx` that wraps both `LazyMotion` and `MotionConfig`
+- [x] Set global `<MotionConfig reducedMotion="user">` for accessibility
+- [x] Verify: `m.div` works throughout the app (not just `motion.div`)
+- [x] **Chrome verification:** Open app → DevTools → Network → confirm Motion JS chunk loads async
 
 ### A.3 — Shared Animation Configuration System
 
 Create the centralised animation config at `src/lib/animations/`:
 
-- [ ] **`config.ts`** — Export all shared constants:
+- [x] **`config.ts`** — Export all shared constants:
   - `kawaiiEasing: [0.34, 1.56, 0.64, 1]`
   - `kawaiiSpring: { type: "spring", stiffness: 400, damping: 15, mass: 0.8 }`
   - `gentleSpring: { type: "spring", stiffness: 200, damping: 20 }`
@@ -149,35 +151,35 @@ Create the centralised animation config at `src/lib/animations/`:
   - `pageTransitionSpring: { type: "spring", stiffness: 300, damping: 25, mass: 0.8 }`
   - Duration constants for every context from the Design System timing table
 
-- [ ] **`variants.ts`** — Shared Motion variants:
+- [x] **`variants.ts`** — Shared Motion variants:
   - `fadeUp`, `fadeDown`, `fadeIn`, `scaleIn`, `slideInRight`, `slideInLeft`
   - `staggerContainer(delay?)`, `staggerItem`
   - `cardEnter`, `cardExit`
   - `pageEnter`, `pageExit`
 
-- [ ] **`hooks/useKawaiiSpring.ts`** — Custom hook wrapping Motion's `useSpring` with kawaii defaults
-- [ ] **`hooks/useStaggerIn.ts`** — Hook for staggered page entry animations
-- [ ] **`hooks/useCelebration.ts`** — Hook wrapping canvas-confetti with:
+- [x] **`hooks/useKawaiiSpring.ts`** — Custom hook wrapping Motion's `useSpring` with kawaii defaults
+- [x] **`hooks/useStaggerIn.ts`** — Hook for staggered page entry animations
+- [x] **`hooks/useCelebration.ts`** — Hook wrapping canvas-confetti with:
   - Dark mode detection (adjust particle colors automatically)
   - Intensity levels: `small`, `medium`, `epic`
   - Haptic feedback integration (`navigator.vibrate` with feature detection)
   - Palette-aware colors (Strawberry Milk vs Matcha Latte vs Honey Biscuit confetti)
-- [ ] **`hooks/useAnimatedCounter.ts`** — Hook for spring-animated number displays (streak counters, XP)
-- [ ] **`hooks/useReducedMotion.ts`** — Hook checking `prefers-reduced-motion` for conditional rendering
-- [ ] **`haptics.ts`** — Haptic feedback pattern library:
+- [x] **`hooks/useAnimatedCounter.ts`** — Hook for spring-animated number displays (streak counters, XP)
+- [x] **`hooks/useReducedMotion.ts`** — Hook checking `prefers-reduced-motion` for conditional rendering
+- [x] **`haptics.ts`** — Haptic feedback pattern library:
   - `light: () => navigator.vibrate?.(10)`
   - `medium: () => navigator.vibrate?.(25)`
   - `success: () => navigator.vibrate?.([10, 30, 10, 30, 50])`
   - `celebration: () => navigator.vibrate?.([10, 20, 10, 20, 10, 20, 50])`
   - Feature detection wrapper (no-op on iOS)
-- [ ] **`index.ts`** — Barrel export everything
+- [x] **`index.ts`** — Barrel export everything
 
 ### A.4 — Service Worker Animation Asset Caching
 
-- [ ] Update `vite.config.ts` Workbox config to cache `.json` and `.lottie` files with CacheFirst strategy
-- [ ] Configure runtime caching for lazy-loaded animation JS chunks
-- [ ] Set `expiration.maxEntries: 50` for animation asset cache
-- [ ] **Chrome verification:** DevTools → Application → Cache Storage → confirm animation files cached
+- [x] Update `vite.config.ts` Workbox config to cache `.json` and `.lottie` files with CacheFirst strategy
+- [x] Configure runtime caching for lazy-loaded animation JS chunks
+- [x] Set `expiration.maxEntries: 50` for animation asset cache
+- [x] **Chrome verification:** DevTools → Application → Cache Storage → confirm animation files cached
 
 ### Phase A — Definition of Done
 

@@ -457,8 +457,7 @@ async function handleStreakWarning(supabase: SupabaseAdmin) {
       .from("habit_completions")
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId)
-      .eq("completed", true)
-      .gte("date", todayStart.toISOString().slice(0, 10));
+      .eq("completed_date", todayStart.toISOString().slice(0, 10));
 
     if ((count ?? 0) > 0) {
       results.push({ userId, skipped: "already completed today" });
@@ -762,8 +761,7 @@ async function handlePointBankDecay(supabase: SupabaseAdmin) {
         .from("habit_completions")
         .select("id", { count: "exact", head: true })
         .in("task_id", taskIds)
-        .eq("completed", true)
-        .eq("date", today);
+        .eq("completed_date", today);
 
       uncompleted = taskIds.length - (completedCount ?? 0);
     }
@@ -817,7 +815,7 @@ async function handleFreshStartCalc(supabase: SupabaseAdmin) {
   // Get the most recently completed sprint (last week's)
   const { data: lastSprint } = await supabase
     .from("sprints")
-    .select("id, week_start")
+    .select("id, week_start, score_a, score_b")
     .eq("status", "completed")
     .order("week_start", { ascending: false })
     .limit(1)
@@ -870,15 +868,8 @@ async function handleFreshStartCalc(supabase: SupabaseAdmin) {
     let reason = "Fresh week energy!";
 
     if (lastSprint) {
-      // Calculate based on last week's performance
-      const { data: scores } = await supabase
-        .from("sprint_scores")
-        .select("final_score")
-        .eq("sprint_id", lastSprint.id)
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      const lastScore = scores?.final_score ?? 0;
+      // Calculate based on last week's performance using score columns on sprints table
+      const lastScore = userId === pair.user_a ? (lastSprint.score_a ?? 0) : (lastSprint.score_b ?? 0);
 
       if (lastScore >= 85) {
         bonus = 40;

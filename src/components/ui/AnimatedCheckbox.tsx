@@ -18,7 +18,7 @@ export function AnimatedCheckbox({ checked, onChange, size = 24, disabled = fals
     onChange(newChecked)
     if (newChecked) {
       await controls.start({ scale: [1, 1.15, 1], transition: kawaiiSpring })
-      celebrate('micro')
+      celebrate('small')
     }
   }
 

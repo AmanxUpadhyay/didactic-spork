@@ -37,8 +37,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <m.button
         ref={ref}
-        whileTap={disabled ? undefined : (variant === 'primary' ? { scale: 0.97, y: 4 } : { scale: 0.97 })}
-        whileHover={disabled ? undefined : { scale: 1.03 }}
+        whileTap={disabled ? undefined : { scale: 0.85, y: variant === 'primary' ? 2 : 0 }}
+        whileHover={disabled ? undefined : { scale: 1.05 }}
         transition={kawaiiSpring}
         onPointerDown={(e) => {
           if (!disabled) haptics.light()

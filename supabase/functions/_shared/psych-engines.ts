@@ -172,19 +172,25 @@ export async function calculateFreshStartBonus(
   prevSprintId: string,
   supabase: SupabaseClient
 ): Promise<FreshStartBonusResult> {
-  // Query sprint_scores for user in prev sprint
-  const { data: prevScore } = await supabase
-    .from("sprint_scores")
-    .select("final_score")
-    .eq("user_id", userId)
-    .eq("sprint_id", prevSprintId)
+  const { data: sprint } = await supabase
+    .from("sprints")
+    .select("score_a, score_b")
+    .eq("id", prevSprintId)
     .maybeSingle();
 
-  if (!prevScore) {
+  const { data: pair } = await supabase
+    .from("partner_pairs")
+    .select("user_a")
+    .eq("active", true)
+    .maybeSingle();
+
+  if (!sprint) {
     return { bonus: 10, reason: "Welcome bonus" };
   }
 
-  const score = prevScore.final_score ?? 0;
+  const score = pair?.user_a === userId
+    ? (sprint?.score_a ?? 0)
+    : (sprint?.score_b ?? 0);
 
   if (score >= 85) {
     return { bonus: 40, reason: "Incredible last week" };
