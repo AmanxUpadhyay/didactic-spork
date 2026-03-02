@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react'
-import { m } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/cn'
 import { kawaiiSpring, haptics } from '@/lib/animations'
 import { MagneticDot } from './MagneticDot'
@@ -18,9 +18,10 @@ interface NavBarProps {
   onFabClick?: () => void
   className?: string
   onTabChange?: (tabId: string, x: number, y: number) => void
+  flashTabIndex?: number
 }
 
-export function NavBar({ items, fabIcon, onFabClick, className, onTabChange }: NavBarProps) {
+export function NavBar({ items, fabIcon, onFabClick, className, onTabChange, flashTabIndex }: NavBarProps) {
   const midpoint = Math.floor(items.length / 2)
   const leftItems = items.slice(0, midpoint)
   const rightItems = items.slice(midpoint)
@@ -37,7 +38,7 @@ export function NavBar({ items, fabIcon, onFabClick, className, onTabChange }: N
     >
       <div className="flex items-center justify-around h-16 px-2 relative">
         {leftItems.map((item, i) => (
-          <NavBarItem key={i} {...item} tabIndex={i} onTabChange={onTabChange} />
+          <NavBarItem key={i} {...item} tabIndex={i} onTabChange={onTabChange} flashTabIndex={flashTabIndex} />
         ))}
 
         {/* Center FAB */}
@@ -61,7 +62,7 @@ export function NavBar({ items, fabIcon, onFabClick, className, onTabChange }: N
         )}
 
         {rightItems.map((item, i) => (
-          <NavBarItem key={midpoint + i} {...item} tabIndex={midpoint + i} onTabChange={onTabChange} />
+          <NavBarItem key={midpoint + i} {...item} tabIndex={midpoint + i} onTabChange={onTabChange} flashTabIndex={flashTabIndex} />
         ))}
       </div>
     </nav>
@@ -71,9 +72,10 @@ export function NavBar({ items, fabIcon, onFabClick, className, onTabChange }: N
 interface NavBarItemInternalProps extends NavItem {
   tabIndex: number
   onTabChange?: (tabId: string, x: number, y: number) => void
+  flashTabIndex?: number
 }
 
-function NavBarItem({ icon, label, active, onClick, tabIndex, onTabChange }: NavBarItemInternalProps) {
+function NavBarItem({ icon, label, active, onClick, tabIndex, onTabChange, flashTabIndex }: NavBarItemInternalProps) {
   function handleClick(e: React.MouseEvent) {
     haptics.light()
     if (onTabChange) {
@@ -94,7 +96,7 @@ function NavBarItem({ icon, label, active, onClick, tabIndex, onTabChange }: Nav
       )}
     >
       {/* Icon with scale spring */}
-      <span className="flex items-center justify-center w-10 h-8">
+      <span className="relative flex items-center justify-center w-10 h-8 overflow-visible">
         <m.span
           animate={{ scale: active ? 1.1 : 1 }}
           transition={kawaiiSpring}
@@ -102,6 +104,18 @@ function NavBarItem({ icon, label, active, onClick, tabIndex, onTabChange }: Nav
         >
           {icon}
         </m.span>
+        <AnimatePresence>
+          {tabIndex === flashTabIndex && (
+            <m.span
+              key="ripple"
+              className="absolute inset-0 rounded-full border-2 border-primary pointer-events-none"
+              initial={{ scale: 0.6, opacity: 0.8 }}
+              animate={{ scale: 2.2, opacity: 0 }}
+              exit={{}}
+              transition={{ duration: 0.6, ease: [0.0, 0.6, 0.4, 1.0] }}
+            />
+          )}
+        </AnimatePresence>
       </span>
       <span className="text-[10px] font-medium leading-none">{label}</span>
 

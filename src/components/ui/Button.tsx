@@ -9,6 +9,7 @@ type ButtonSize = 'sm' | 'md' | 'lg'
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant
   size?: ButtonSize
+  isLoading?: boolean
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -33,29 +34,36 @@ const sizeStyles: Record<ButtonSize, string> = {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', disabled, children, onPointerDown, ...props }, ref) => {
+  ({ className, variant = 'primary', size = 'md', disabled, isLoading, children, onPointerDown, ...props }, ref) => {
+    const effectiveDisabled = disabled || isLoading
     return (
       <m.button
         ref={ref}
-        whileTap={disabled ? undefined : { scale: 0.85, y: variant === 'primary' ? 2 : 0 }}
-        whileHover={disabled ? undefined : { scale: 1.05 }}
+        whileTap={effectiveDisabled ? undefined : { scale: 0.85, y: variant === 'primary' ? 2 : 0 }}
+        whileHover={effectiveDisabled ? undefined : { scale: 1.05 }}
         transition={kawaiiSpring}
         onPointerDown={(e) => {
-          if (!disabled) haptics.light()
+          if (!effectiveDisabled) haptics.light()
           onPointerDown?.(e as React.PointerEvent<HTMLButtonElement>)
         }}
         className={cn(
           'inline-flex items-center justify-center gap-2',
           'rounded-[var(--radius-pill)]',
           'select-none cursor-pointer',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
+          'disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed',
           variantStyles[variant],
           sizeStyles[size],
           className,
         )}
-        disabled={disabled}
+        disabled={effectiveDisabled}
         {...(props as object)}
       >
+        {isLoading && (
+          <svg className="animate-spin shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="6" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2.5" />
+            <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+          </svg>
+        )}
         {children}
       </m.button>
     )

@@ -198,10 +198,17 @@ export function HabitCard({
           'rounded-[var(--radius-card)] bg-surface',
           'border-2 p-4',
           'select-none cursor-pointer',
+          'transition-[background-color,border-color,box-shadow] duration-150',
           completed
             ? 'border-primary/30 opacity-60'
             : 'border-border shadow-[var(--shadow-elevated)]',
           !isDueToday && 'cursor-not-allowed',
+          !completed && isDueToday && [
+            'hover:bg-[color-mix(in_srgb,var(--color-primary)_5%,var(--color-surface))]',
+            'hover:border-primary/30',
+            'active:bg-[color-mix(in_srgb,var(--color-primary)_10%,var(--color-surface))]',
+            'active:shadow-none',
+          ],
         )}
       >
         <div className="flex items-center gap-3">

@@ -50,6 +50,7 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
   const [habitSheetOpen, setHabitSheetOpen] = useState(false)
   const [editingHabit, setEditingHabit] = useState<Task | null>(null)
   const [notifCenterOpen, setNotifCenterOpen] = useState(false)
+  const [sprintFlash, setSprintFlash] = useState(false)
   const [tapOrigin, setTapOrigin] = useState({ x: 195, y: 780 })
   const [isTransitioning, setIsTransitioning] = useState(false)
   const pendingTab = useRef<Tab>('today')
@@ -63,6 +64,11 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
   const { result: mysteryResult, clearResult: clearMystery, rollMysteryBox } = useMysteryBox()
   const { notifications, unreadCount, latestNotification, clearLatest, markAllRead } = useRealtimeNotifications()
   const { isTraining } = useTrainingWheels()
+
+  const triggerSprintFlash = useCallback(() => {
+    setSprintFlash(true)
+    setTimeout(() => setSprintFlash(false), 1500)
+  }, [])
 
   // Track direction for slide animation
   const direction = TAB_ORDER.indexOf(activeTab) > TAB_ORDER.indexOf(prevTabRef.current)
@@ -231,7 +237,7 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
             <TodayScreen
               onEditHabit={handleEditHabit}
               onNavigateToSprint={() => handleTabChange('sprint', window.innerWidth / 2, window.innerHeight / 2)}
-              onHabitComplete={rollMysteryBox}
+              onHabitComplete={(id) => { rollMysteryBox(id); triggerSprintFlash() }}
             />
           )}
           {activeTab === 'sprint' && <SprintScreen onTabChange={(tab) => handleTabChange(tab, window.innerWidth / 2, window.innerHeight / 2)} />}
@@ -251,6 +257,7 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
         fabIcon={<HugeiconsIcon icon={Add01Icon} size={24} />}
         onFabClick={handleFabClick}
         onTabChange={handleTabChange}
+        flashTabIndex={sprintFlash ? 1 : undefined}
       />
       </m.div>{/* end background zoom wrapper */}
 
