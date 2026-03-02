@@ -25,7 +25,11 @@ function formatRelativeTime(dateStr: string | null | undefined): string {
   return `${Math.floor(hours / 24)}d ago`
 }
 
-export function PartnerScreen() {
+interface PartnerScreenProps {
+  onNavigateToSettings?: () => void
+}
+
+export function PartnerScreen({ onNavigateToSettings }: PartnerScreenProps) {
   const { profile } = useAuth()
   const { partnerId, partnerProfile } = usePairing()
   const partnerTz = partnerProfile?.timezone || 'UTC'
@@ -132,6 +136,7 @@ export function PartnerScreen() {
         <EmptyState
           title="No partner yet"
           description="Link up with your partner to see their habits"
+          action={onNavigateToSettings ? { label: 'Go to Settings', onClick: onNavigateToSettings } : undefined}
         />
       </div>
     )

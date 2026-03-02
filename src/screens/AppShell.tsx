@@ -241,7 +241,11 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
             />
           )}
           {activeTab === 'sprint' && <SprintScreen onTabChange={(tab) => handleTabChange(tab, window.innerWidth / 2, window.innerHeight / 2)} />}
-          {activeTab === 'partner' && <PartnerScreen />}
+          {activeTab === 'partner' && (
+            <PartnerScreen
+              onNavigateToSettings={() => handleTabChange('settings', window.innerWidth / 2, window.innerHeight / 2)}
+            />
+          )}
           {activeTab === 'settings' && (
             <SettingsScreen
               profile={profile}
