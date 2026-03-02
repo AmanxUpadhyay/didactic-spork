@@ -188,7 +188,7 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
 
   return (
     <div
-      className="min-h-dvh overflow-hidden"
+      className="min-h-dvh [overflow:clip]"
       style={{ background: 'var(--bg-gradient), var(--color-bg)' }}
       onTouchStart={handleSwipeStart}
       onTouchEnd={handleSwipeEnd}

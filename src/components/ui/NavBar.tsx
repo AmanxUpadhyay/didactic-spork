@@ -28,7 +28,7 @@ export function NavBar({ items, fabIcon, onFabClick, className, onTabChange, fla
     <nav
       className={cn(
         'fixed bottom-0 left-0 right-0 z-40',
-        'bg-surface/92 backdrop-blur-[12px]',
+        'bg-surface',
         'border-t border-border',
         'pb-[env(safe-area-inset-bottom)]',
         className,
