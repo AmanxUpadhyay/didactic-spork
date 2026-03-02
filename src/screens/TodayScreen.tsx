@@ -182,7 +182,7 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
 
       <div className="space-y-4">
       {/* Streak rescue prompt (if partner's streak is broken) */}
-      <FeatureGate feature="couple_rescue">
+      <FeatureGate feature="couple_rescue" fallback={null}>
         <StreakRescuePrompt />
       </FeatureGate>
 
@@ -190,7 +190,11 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
       <GracePeriodBanner />
 
       {/* Catch-up indicator (trailing partner only) */}
-      {catchUpTier > 0 && <CatchUpIndicator />}
+      {catchUpTier > 0 && (
+        <div className="flex justify-center">
+          <CatchUpIndicator />
+        </div>
+      )}
 
       {/* Couple streak banner */}
       {bestCoupleStreak && (
@@ -252,18 +256,18 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
           title="Nothing due today"
           description="Enjoy your day off!"
         />
-      ) : completedCount === dueHabits.length ? (
-        <EmptyState
-          variant="all-done"
-          title="You crushed it! 🎉"
-          description={
-            partnerBreakdown && partnerBreakdown.total > 0
-              ? "Your partner is still going — lead by example!"
-              : "A perfect day. Come back tomorrow!"
-          }
-        />
       ) : (
         <div data-no-tab-swipe>
+          {completedCount === dueHabits.length && (
+            <m.p
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={kawaiiSpring}
+              className="text-center text-sm font-semibold text-primary mb-3 tracking-wide"
+            >
+              All done today ✓
+            </m.p>
+          )}
           <PullToRefresh onRefresh={async () => { await refetchHabits() }}>
             <ScrollPhysicsContainer>
             <HabitList

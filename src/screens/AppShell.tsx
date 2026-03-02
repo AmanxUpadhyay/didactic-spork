@@ -231,7 +231,6 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
           initial="hidden"
           animate="visible"
           exit="exit"
-          className="pb-20"
         >
           {activeTab === 'today' && (
             <TodayScreen
@@ -255,6 +254,7 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
           )}
         </m.div>
       </AnimatePresence>
+      </m.div>{/* end background zoom wrapper */}
 
       <NavBar
         items={navItems}
@@ -263,7 +263,6 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
         onTabChange={handleTabChange}
         flashTabIndex={sprintFlash ? 1 : undefined}
       />
-      </m.div>{/* end background zoom wrapper */}
 
       {/* Geometric mask tab transition overlay */}
       <GeometricMask

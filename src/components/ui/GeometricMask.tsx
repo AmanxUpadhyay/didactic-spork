@@ -33,7 +33,14 @@ export function GeometricMask({
 
   const screenW = typeof window !== 'undefined' ? window.innerWidth : 390
   const screenH = typeof window !== 'undefined' ? window.innerHeight : 844
-  const coverRadius = Math.ceil(Math.hypot(screenW, screenH) / CIRCLE_SIZE) + 2
+  const coverRadius = Math.ceil(
+    Math.max(
+      Math.hypot(originX, originY),
+      Math.hypot(screenW - originX, originY),
+      Math.hypot(originX, screenH - originY),
+      Math.hypot(screenW - originX, screenH - originY),
+    ) / (CIRCLE_SIZE / 2)
+  ) + 2
 
   return (
     <AnimatePresence>
@@ -51,7 +58,7 @@ export function GeometricMask({
               scale: coverRadius,
               opacity: 1,
               transition: {
-                scale: { duration: 0.28, ease: expansionEase as any },
+                scale: { duration: 0.38, ease: expansionEase as any },
               },
             }}
             onAnimationComplete={() => {
