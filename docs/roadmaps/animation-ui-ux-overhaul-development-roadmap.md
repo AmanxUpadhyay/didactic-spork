@@ -508,14 +508,17 @@ This is a cinematic moment — sprint results should feel like opening an envelo
 
 > **Note:** `TodayScreen.tsx` — `allDoneToday` condition (dueHabits.length > 0 && completedCount === dueHabits.length) shows `EmptyState variant="all-done"` with partner score context instead of HabitList.
 
-### E.6 — Sound System (Optional but Recommended)
+### E.6 — Sound System ✅
 
-- [ ] Create `src/lib/sounds.ts` using Web Audio API
-- [ ] Pre-load short audio buffers (~50ms–2s) for: soft pop, chime, fanfare, victory, level-up
-- [ ] Sounds respect a user-controlled volume/mute toggle in settings
-- [ ] Sounds synchronize with animation keypoints (confetti burst = chime plays)
-- [ ] iOS Web Audio unlock: play silent audio on first user interaction
-- [ ] **Chrome verification:** Trigger celebration → confirm sound plays in sync with animation
+- [x] Create `src/lib/sounds.ts` using Web Audio API
+- [x] Synthesized sounds via oscillator+envelope (no audio files): softPop, chime, fanfare, victory, levelUp
+- [x] Sounds respect a user-controlled volume/mute toggle in settings
+- [x] Sounds synchronize with animation keypoints (confetti burst = sound plays in useCelebration)
+- [x] iOS Web Audio unlock: `unlockAudio()` on first `pointerdown` in AppShell
+- [x] `AnimatedCheckbox` plays `softPop` on check
+- [x] **Chrome verification:** Trigger celebration → confirm sound plays in sync with animation
+
+> **Note:** `src/lib/sounds.ts` — `getCtx()` lazily creates + resumes AudioContext. `tone()` primitive creates osc+gain nodes per note. Volume/mute persisted to `localStorage`. 5 sounds: `softPop` (880Hz sine), `chime` (C5+G5+E6 chord), `fanfare` (3-note C-E-G arpeggio), `victory` (4-note C-E-G-C6 fanfare), `levelUp` (330→1320Hz exponential sweep). Settings card in SettingsScreen has mute Toggle + volume range slider.
 
 ### Phase E — Definition of Done
 
@@ -728,15 +731,17 @@ This is a cinematic moment — sprint results should feel like opening an envelo
 - [ ] **Chrome verification:** Use Chrome device emulation for each mobile viewport
 - [ ] **Record final demo GIF** of the complete app flow with all animations
 
-### H.6 — Animation Documentation
+### H.6 — Animation Documentation ✅
 
-- [ ] Create `ANIMATION_GUIDE.md` in the project root documenting:
+- [x] Create `ANIMATION_GUIDE.md` in the project root documenting:
   - How to add new animations (use shared variants, don't create one-offs)
   - How to modify the kawaii spring config
   - How to add new celebration tiers
   - How to add new Mochi expressions
   - Performance rules (only transform + opacity, lazy-load, etc.)
   - How to test animations (Chrome DevTools workflow)
+
+> **Note:** `ANIMATION_GUIDE.md` at project root — covers m.* vs motion.*, spring configs, useCelebration intensity table, Mochi expression steps, sound system, reduced motion patterns, DevTools testing workflow, bundle notes.
 
 ### Phase H — Definition of Done
 

@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { haptics } from '../haptics'
 import { useReducedMotion } from './useReducedMotion'
+import { sounds } from '@/lib/sounds'
 
 export type CelebrationIntensity = 'micro' | 'small' | 'medium' | 'large' | 'epic'
 
@@ -30,6 +31,7 @@ export function useCelebration() {
     switch (intensity) {
       case 'micro':
         haptics.light()
+        sounds.softPop()
         confetti({
           particleCount: Math.round(12 * scale),
           spread: 50,
@@ -41,19 +43,23 @@ export function useCelebration() {
         break
       case 'small':
         haptics.success()
+        sounds.chime()
         confetti({ particleCount: Math.round(30 * scale), spread: 60, colors, origin: { y: 0.6 } })
         break
       case 'medium':
         haptics.success()
+        sounds.fanfare()
         confetti({ particleCount: Math.round(80 * scale), spread: 90, colors, origin: { y: 0.6 } })
         break
       case 'large':
         haptics.celebration()
+        sounds.victory()
         confetti({ particleCount: Math.round(60 * scale), spread: 70, colors, origin: { y: 0.6 }, angle: 60 })
         confetti({ particleCount: Math.round(60 * scale), spread: 70, colors, origin: { y: 0.6 }, angle: 120 })
         break
       case 'epic': {
         haptics.celebration()
+        sounds.levelUp()
         const end = Date.now() + 3000
         const frame = () => {
           confetti({ particleCount: Math.round(5 * scale), angle: 60, spread: 55, colors, origin: { x: 0 } })

@@ -1,5 +1,6 @@
 import { m, useAnimation } from 'motion/react'
 import { kawaiiSpring, useCelebration } from '@/lib/animations'
+import { sounds } from '@/lib/sounds'
 
 interface AnimatedCheckboxProps {
   checked: boolean
@@ -17,6 +18,7 @@ export function AnimatedCheckbox({ checked, onChange, size = 24, disabled = fals
     const newChecked = !checked
     onChange(newChecked)
     if (newChecked) {
+      sounds.softPop()
       await controls.start({ scale: [1, 1.15, 1], transition: kawaiiSpring })
       celebrate('small')
     }

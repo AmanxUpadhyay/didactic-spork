@@ -24,6 +24,7 @@ import { NotificationBadge } from '@/components/notifications/NotificationBadge'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
 import { InAppNotificationToast } from '@/components/notifications/InAppNotificationToast'
 import { pageEnterRight, pageEnterLeft } from '@/lib/animations'
+import { unlockAudio } from '@/lib/sounds'
 import {
   Home03Icon,
   Award01Icon,
@@ -67,6 +68,13 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
   useEffect(() => {
     prevTabRef.current = activeTab
   }, [activeTab])
+
+  // Unlock Web Audio API on first user gesture (required for iOS Safari)
+  useEffect(() => {
+    const unlock = () => { unlockAudio(); document.removeEventListener('pointerdown', unlock) }
+    document.addEventListener('pointerdown', unlock, { once: true })
+    return () => document.removeEventListener('pointerdown', unlock)
+  }, [])
 
   const handleSwipeStart = useCallback((e: React.TouchEvent) => {
     swipeStartX.current = e.touches[0]?.clientX ?? 0

@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { m } from 'motion/react'
 import { Card, Button, BottomSheet, ThemeSwitcher, MochiAvatar } from '@/components/ui'
+import { Toggle } from '@/components/ui/Toggle'
 import { useToast } from '@/components/ui/ToastProvider'
 import { staggerContainer, staggerItem } from '@/lib/animations'
+import { sounds, isMuted, getVolume, setMuted, setVolume } from '@/lib/sounds'
 import { FeatureGate } from '@/components/ui/FeatureGate'
 import { TierProgressHub } from '@/components/tier/TierProgressHub'
 import { PrestigeBadge } from '@/components/tier/PrestigeBadge'
@@ -30,6 +32,8 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
   const [dateHistoryOpen, setDateHistoryOpen] = useState(false)
   const [commitCeremonyOpen, setCommitCeremonyOpen] = useState(false)
   const [progressOpen, setProgressOpen] = useState(false)
+  const [soundMuted, setSoundMuted] = useState(isMuted)
+  const [soundVolume, setSoundVolume] = useState(getVolume)
 
   const dayOfWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' })
   const isSunday = dayOfWeek === 'Sunday'
@@ -129,6 +133,45 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
         <div className="space-y-2">
           <h2 className="font-heading text-base font-semibold text-text-primary mb-3">Notifications</h2>
           <NotificationSettings />
+        </div>
+      </Card>
+
+      {/* Sound settings */}
+      <Card>
+        <div className="space-y-3">
+          <h2 className="font-heading text-base font-semibold text-text-primary">Sound</h2>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-text-secondary">Sound effects</span>
+            <Toggle
+              checked={!soundMuted}
+              onChange={(on) => {
+                setSoundMuted(!on)
+                setMuted(!on)
+                if (on) sounds.chime()
+              }}
+            />
+          </div>
+          {!soundMuted && (
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-text-secondary shrink-0">🔈</span>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.05}
+                value={soundVolume}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value)
+                  setSoundVolume(v)
+                  setVolume(v)
+                }}
+                onMouseUp={() => sounds.chime()}
+                onTouchEnd={() => sounds.chime()}
+                className="flex-1 accent-primary h-1.5"
+              />
+              <span className="text-xs text-text-secondary shrink-0">🔊</span>
+            </div>
+          )}
         </div>
       </Card>
 
