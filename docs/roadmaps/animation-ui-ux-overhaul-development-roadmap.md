@@ -304,20 +304,11 @@ This is the most important micro-interaction in the entire app. It must feel *sa
 
 ### C.2 — View Transitions API Integration
 
-- [ ] Add `viewTransition` prop to all `<Link>` components
-- [ ] Test native View Transitions on supported browsers (Chrome 111+, Safari 18+)
-- [ ] Add CSS `view-transition-name` to key shared elements (mascot, streak counter, user avatar)
-- [ ] Fallback: Motion `AnimatePresence` handles transition on unsupported browsers
-- [ ] **Context7 check:** Verify latest View Transitions API support and React Router integration
-- [ ] **Chrome verification:** Open DevTools → check "document.startViewTransition" availability
+> **N/A — App uses tab-based navigation (not React Router).** No `<Link>` components exist. View Transitions API requires browser navigation events triggered by router links. Tab switching is handled by `useState<Tab>` in `AppShell` — these transitions already use direction-aware `pageEnterRight`/`pageEnterLeft` Motion variants. Native View Transitions API is not applicable.
 
 ### C.3 — Shared Element Transitions with layoutId
 
-- [ ] Habit card (list) → Habit detail (full screen): shared `layoutId` for smooth expansion
-- [ ] Partner avatar (nav) → Partner profile: shared element morph
-- [ ] Streak counter (home) → Streak detail: number morphs to larger display
-- [ ] Sprint card (home) → Sprint detail: card expands to full view
-- [ ] **Chrome verification:** Tap habit card → verify it morphs smoothly to detail view, back reverses
+> **N/A — No detail views or drill-down routes exist.** App is a 4-tab SPA with no habit detail screen, no partner profile route, no sprint detail view. All content is displayed inline within tabs. Shared element `layoutId` transitions require a source element and destination element in separate views. The tab indicator uses `layoutId="tab-indicator"` for sliding animation between tab buttons (B.6). If detail views are added in a future phase, this item should be revisited.
 
 ### C.4 — Staggered Page Entry Animations ✅ COMPLETE
 
@@ -574,12 +565,14 @@ This is a cinematic moment — sprint results should feel like opening an envelo
 
 > **Note:** `useCelebration.ts` — `getPaletteColors(isDark)` returns `['#FFFFFF', '#E0F0E8', ...]` in dark mode instead of palette colors. `celebrate()` reduces `particleCount` by 30% in dark mode via `isDark` check.
 
-### F.4 — Cross-Palette Consistency Audit
+### F.4 — Cross-Palette Consistency Audit ✅
 
-- [ ] Switch to Matcha Latte → verify ALL animations use palette tokens (no hardcoded hex)
-- [ ] Switch to Honey Biscuit → verify same
-- [ ] Confetti colors, glow colors, skeleton shimmer colors, button states — all palette-derived
-- [ ] **Chrome verification:** Take screenshots of 5 key screens in all 3 palettes × 2 modes = 30 screenshots
+- [x] Switch to Matcha Latte → verify ALL animations use palette tokens (no hardcoded hex)
+- [x] Switch to Honey Biscuit → verify same
+- [x] Confetti colors, glow colors, skeleton shimmer colors, button states — all palette-derived
+- [ ] **Chrome verification:** Take screenshots of 5 key screens in all 3 palettes × 2 modes = 30 screenshots (manual visual testing)
+
+> **Note (2026-03-02):** Code audit of all animation files confirms palette-safety. `useCelebration.ts` reads CSS vars at runtime via `getComputedStyle(document.documentElement)` — confetti colors update dynamically with theme. Only hex fallbacks are `#E8878F`/`#F2B8A2`/`#C4706E` (Strawberry Milk palette defaults, used only if CSS vars fail to read — acceptable) and `#FFFFFF`/`#E0F0E8`/`#FFE4EC` for dark mode sparkle accents (intentionally light/neutral). Skeleton shimmer uses `var(--color-surface-warm)` → `var(--color-surface-cream)`. Button states use `var(--color-primary)`. Glow effects use `color-mix(in srgb, var(--color-primary) 16%, transparent)`. All animation code is palette-agnostic. 30-screenshot visual matrix deferred to H.5 manual testing.
 
 ### Phase F — Definition of Done
 
