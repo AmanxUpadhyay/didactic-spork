@@ -1,6 +1,7 @@
 import { m, AnimatePresence } from 'motion/react'
 import { ConfettiCelebration } from '@/components/ui/ConfettiCelebration'
 import { KiraAvatar } from '@/components/kira/KiraAvatar'
+import { MochiAvatar } from '@/components/ui/MochiAvatar'
 import { Button } from '@/components/ui'
 import { getTierDisplayName, getNewFeaturesForTier, type TierName } from '@/lib/tierGating'
 import { kawaiiSpring, gentleSpring } from '@/lib/animations'
@@ -66,6 +67,16 @@ export function TierUnlockCelebration({ from, to, onDismiss }: TierUnlockCelebra
           />
 
           <div className="text-center">
+            {/* Mochi above the badge */}
+            <m.div
+              className="mx-auto mb-2 w-fit"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ ...kawaiiSpring, delay: 0.2 }}
+            >
+              <MochiAvatar expression="dance" size="md" enablePetting />
+            </m.div>
+
             {/* Badge with rotation spring */}
             <m.div
               className="mx-auto mb-3 w-fit"

@@ -4,6 +4,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Exchange01Icon, Award01Icon, BodyPartMuscleIcon } from '@hugeicons/core-free-icons'
 import { cn } from '@/lib/cn'
 import { kawaiiSpring, useCelebration } from '@/lib/animations'
+import { MochiAvatar } from '@/components/ui/MochiAvatar'
 
 interface SprintResultsRevealProps {
   myScore: number
@@ -202,10 +203,10 @@ export function SprintResultsReveal({
         className="flex justify-center"
         initial={{ opacity: 0, y: 20 }}
       >
-        <img
-          src={iWon || isTie ? '/image/mochi-celebrate.png' : '/image/mochi-love.png'}
-          alt="Mochi"
-          className="w-16 h-16 object-contain"
+        <MochiAvatar
+          expression={iWon || isTie ? 'celebrate' : 'sparkle'}
+          size="md"
+          enablePetting
         />
       </m.div>
     </div>

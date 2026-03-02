@@ -9,22 +9,22 @@ interface KiraAvatarProps {
 }
 
 const MOOD_COLORS: Record<string, string> = {
-  cheerful: 'bg-primary/20 ring-primary/40',
-  sarcastic: 'bg-amber-100 ring-amber-300',
-  tough_love: 'bg-rose-100 ring-rose-300',
-  empathetic: 'bg-violet-100 ring-violet-300',
-  hype_man: 'bg-emerald-100 ring-emerald-300',
-  disappointed: 'bg-slate-100 ring-slate-300',
+  cheerful:    'bg-primary/20 ring-primary/40',
+  sarcastic:   'bg-warning/15 ring-warning/30',
+  tough_love:  'bg-error/15 ring-error/25',
+  empathetic:  'bg-primary/10 ring-primary/20',
+  hype_man:    'bg-success/15 ring-success/25',
+  disappointed:'bg-border/60 ring-border',
 }
 
 function getMoodIcon(mood: string, iconSize: number): ReactNode {
   switch (mood) {
     case 'cheerful':     return <HugeiconsIcon icon={SparklesIcon} size={iconSize} />
-    case 'sarcastic':    return <HugeiconsIcon icon={NeutralIcon} size={iconSize} />
-    case 'tough_love':   return <HugeiconsIcon icon={BodyPartMuscleIcon} size={iconSize} />
-    case 'empathetic':   return <HugeiconsIcon icon={HeartCheckIcon} size={iconSize} className="text-violet-500" />
-    case 'hype_man':     return <HugeiconsIcon icon={FireIcon} size={iconSize} className="text-emerald-600" />
-    case 'disappointed': return <HugeiconsIcon icon={Sad01Icon} size={iconSize} />
+    case 'sarcastic':    return <HugeiconsIcon icon={NeutralIcon} size={iconSize} className="text-warning" />
+    case 'tough_love':   return <HugeiconsIcon icon={BodyPartMuscleIcon} size={iconSize} className="text-error" />
+    case 'empathetic':   return <HugeiconsIcon icon={HeartCheckIcon} size={iconSize} className="text-primary" />
+    case 'hype_man':     return <HugeiconsIcon icon={FireIcon} size={iconSize} className="text-success" />
+    case 'disappointed': return <HugeiconsIcon icon={Sad01Icon} size={iconSize} className="text-text-secondary" />
     default:             return <HugeiconsIcon icon={SparklesIcon} size={iconSize} />
   }
 }

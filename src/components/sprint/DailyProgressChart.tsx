@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Card } from '@/components/ui'
-import { BarChart } from '@/components/ui/BarChart'
+import { SparklineChart } from '@/components/ui/SparklineChart'
 import { supabase } from '@/lib/supabase'
 
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -20,8 +20,8 @@ export function DailyProgressChart({
   partnerId,
   className,
 }: DailyProgressChartProps) {
-  const [myBars, setMyBars] = useState<{ label: string; value: number }[]>([])
-  const [partnerBars, setPartnerBars] = useState<{ label: string; value: number }[]>([])
+  const [myValues, setMyValues] = useState<number[]>([])
+  const [partnerValues, setPartnerValues] = useState<number[]>([])
 
   const fetchData = useCallback(async () => {
     const start = new Date(weekStart)
@@ -50,11 +50,11 @@ export function DailyProgressChart({
     }
 
     const myCounts = await countsForUser(userId)
-    setMyBars(myCounts.map((v: number, i: number) => ({ label: DAY_LABELS[i]!, value: v })))
+    setMyValues(myCounts)
 
     if (partnerId) {
       const partnerCounts = await countsForUser(partnerId)
-      setPartnerBars(partnerCounts.map((v: number, i: number) => ({ label: DAY_LABELS[i]!, value: v })))
+      setPartnerValues(partnerCounts)
     }
   }, [sprintId, weekStart, userId, partnerId])
 
@@ -62,29 +62,19 @@ export function DailyProgressChart({
     fetchData()
   }, [fetchData])
 
-  if (myBars.length === 0) return null
+  if (myValues.length === 0) return null
 
-  const maxValue = Math.max(
-    ...myBars.map((b) => b.value),
-    ...partnerBars.map((b) => b.value),
-    1,
-  )
+  const chartSeries = [
+    { values: myValues, colorVar: '--color-primary', label: 'You' },
+    ...(partnerValues.length > 0
+      ? [{ values: partnerValues, colorVar: '--color-chart-shared', label: 'Partner' }]
+      : []),
+  ]
 
   return (
     <Card className={className}>
       <h3 className="text-sm font-medium text-text-secondary mb-3">Daily Completions</h3>
-      <div className="space-y-4">
-        <div>
-          <p className="text-xs text-text-secondary mb-1">You</p>
-          <BarChart bars={myBars} maxValue={maxValue} height={100} />
-        </div>
-        {partnerBars.length > 0 && (
-          <div>
-            <p className="text-xs text-text-secondary mb-1">Partner</p>
-            <BarChart bars={partnerBars} maxValue={maxValue} height={100} />
-          </div>
-        )}
-      </div>
+      <SparklineChart series={chartSeries} labels={DAY_LABELS} />
     </Card>
   )
 }

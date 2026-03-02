@@ -3,9 +3,10 @@ import { m } from 'motion/react'
 import { cn } from '@/lib/cn'
 import { Button } from './Button'
 import { MochiAvatar } from './MochiAvatar'
+import { MochiLoader } from './MochiLoader'
 import { kawaiiSpring, gentleSpring } from '@/lib/animations'
 
-type EmptyStateVariant = 'no-data' | 'all-done' | 'error'
+type EmptyStateVariant = 'no-data' | 'all-done' | 'error' | 'no-habits' | 'loading'
 
 interface EmptyStateProps {
   variant?: EmptyStateVariant
@@ -26,6 +27,8 @@ export function EmptyState({
 }: EmptyStateProps) {
   const isAllDone = variant === 'all-done'
   const isError = variant === 'error'
+  const isLoading = variant === 'loading'
+  const isNoHabits = variant === 'no-habits'
 
   return (
     <div
@@ -35,16 +38,17 @@ export function EmptyState({
       )}
     >
       <div className="relative">
-        {isAllDone ? (
+        {isLoading ? (
+          <MochiLoader size={80} />
+        ) : isAllDone ? (
           <>
             {/* Floating Mochi with celebrate expression */}
-            <m.img
-              src="/image/mochi-celebrate.png"
-              alt="Mochi celebrating"
-              className="w-24 h-24 object-contain"
+            <m.div
               animate={{ y: [0, -8, 0] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-            />
+            >
+              <MochiAvatar expression="celebrate" size="xl" enablePetting />
+            </m.div>
 
             {/* Floating hearts staggered */}
             {[0, 1, 2].map((i) => (
@@ -78,35 +82,49 @@ export function EmptyState({
             alt="Mochi confused"
             className="animate-[head-shake_400ms_ease_2]"
           />
+        ) : isNoHabits ? (
+          <MochiAvatar
+            expression="sleep"
+            size="xl"
+            alt="Mochi sleeping"
+            className="opacity-80"
+          />
         ) : (
           <MochiAvatar
             size="xl"
-            alt="Mochi sleeping"
+            alt="Mochi idle"
             className="opacity-60 grayscale-[30%]"
           />
         )}
       </div>
 
-      <m.div
-        className="space-y-1.5"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={gentleSpring}
-      >
-        <m.h3
-          className="text-lg font-heading font-semibold text-text-primary"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ ...kawaiiSpring, delay: 0.1 }}
+      {!isLoading && (
+        <m.div
+          className="space-y-1.5"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={gentleSpring}
         >
-          {title}
-        </m.h3>
-        {description && (
-          <p className="text-sm text-text-secondary max-w-[260px]">
-            {description}
-          </p>
-        )}
-      </m.div>
+          <m.h3
+            className={cn(
+              'font-heading text-text-primary',
+              isAllDone
+                ? 'text-2xl font-extrabold tracking-tight'
+                : 'text-lg font-semibold',
+            )}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ ...kawaiiSpring, delay: 0.1 }}
+          >
+            {title}
+          </m.h3>
+          {description && (
+            <p className="text-sm text-text-secondary max-w-[260px]">
+              {description}
+            </p>
+          )}
+        </m.div>
+      )}
 
       {action && (
         <Button size="sm" onClick={action.onClick}>
