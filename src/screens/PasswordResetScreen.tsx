@@ -52,11 +52,11 @@ export function PasswordResetScreen({ onComplete, onCancel }: PasswordResetScree
         animate={{ opacity: 1, y: 0 }}
         transition={pageTransitionSpring}
       >
-        <div className="flex flex-col items-center gap-3">
+        <div className="flex flex-col items-center gap-1">
           <MochiAvatar
-            size="lg"
+            size="2xl"
             expression="celebrate"
-            className="motion-safe:animate-[float_3s_ease-in-out_infinite]"
+            className="-mb-8 motion-safe:animate-[float_3s_ease-in-out_infinite]"
           />
           <h1 className="font-heading text-3xl font-extrabold tracking-[var(--tracking-display)] text-text-primary">
             Jugalbandi

@@ -6,3 +6,6 @@ dist
 *.tsbuildinfo
 .DS_Store
 .worktrees
+
+# Local Netlify folder
+.netlify

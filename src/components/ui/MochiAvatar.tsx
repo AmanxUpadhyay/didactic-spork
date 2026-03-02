@@ -51,7 +51,7 @@ const EXPRESSION_ANIMATIONS: Record<MochiExpression, ExpressionAnim> = {
 }
 
 interface MochiAvatarProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl'
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
   expression?: MochiExpression
   enablePetting?: boolean
   className?: string
@@ -63,6 +63,7 @@ const sizes = {
   md: 'w-20 h-20',
   lg: 'w-24 h-24',
   xl: 'w-32 h-32',
+  '2xl': 'w-40 h-40',
 }
 
 interface Heart {

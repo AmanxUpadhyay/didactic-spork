@@ -47,8 +47,8 @@ export function OAuthProfileSetup({ userId, email, onComplete }: OAuthProfileSet
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center px-5">
       <div className="w-full max-w-sm space-y-8">
-        <div className="flex flex-col items-center gap-3">
-          <MochiAvatar size="lg" className="motion-safe:animate-[float_3s_ease-in-out_infinite]" />
+        <div className="flex flex-col items-center gap-1">
+          <MochiAvatar size="2xl" className="-mb-8 motion-safe:animate-[float_3s_ease-in-out_infinite]" />
           <h1 className="font-heading text-2xl font-semibold tracking-[var(--tracking-display)] text-text-primary">
             One last thing
           </h1>

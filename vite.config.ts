@@ -13,7 +13,7 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.ts',
       registerType: 'autoUpdate',
-      includeAssets: ['icons/icon-192.png', 'icons/icon-512.png'],
+      includeAssets: ['image/mochi-face.png'],
       manifest: {
         name: 'Jugalbandi',
         short_name: 'Jugalbandi',
@@ -26,12 +26,12 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/icons/icon-192.png',
+            src: '/image/mochi-face.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/icons/icon-512.png',
+            src: '/image/mochi-face.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable',

@@ -67,8 +67,8 @@ export function Login({ onLogin, onGoogleSignIn, onAppleSignIn, onSwitchToSignup
         transition={pageTransitionSpring}
       >
         {/* Logo / mascot */}
-        <div className="flex flex-col items-center gap-3">
-          <MochiAvatar size="lg" expression="idle" className="motion-safe:animate-[float_3s_ease-in-out_infinite]" />
+        <div className="flex flex-col items-center gap-1">
+          <MochiAvatar size="2xl" expression="idle" className="-mb-8 motion-safe:animate-[float_3s_ease-in-out_infinite]" />
           <h1 className="font-heading text-3xl font-extrabold tracking-[var(--tracking-display)] text-text-primary">
             Jugalbandi
           </h1>

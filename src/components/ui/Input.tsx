@@ -14,8 +14,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const id = idProp ?? generatedId
     const [focused, setFocused] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
-    const [hasAutofill, setHasAutofill] = useState(false)
-    const hasValue = props.value !== undefined && props.value !== ''
     const shakeControls = useAnimation()
     const prevError = useRef(error)
     const isPassword = type === 'password'
@@ -36,11 +34,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <m.label
             htmlFor={id}
-            className="absolute left-4 pointer-events-none"
+            className="absolute left-4 pointer-events-none z-10"
+            style={{ top: '6px', fontSize: '12px' }}
             animate={
-              focused || hasValue || hasAutofill
-                ? { top: '6px', fontSize: '12px', color: 'var(--color-primary)', fontWeight: '500' }
-                : { top: '14px', fontSize: '16px', color: 'var(--color-text-secondary)', fontWeight: '400' }
+              focused
+                ? { color: 'var(--color-primary)', fontWeight: '500' }
+                : { color: 'var(--color-text-secondary)', fontWeight: '400' }
             }
             transition={kawaiiSpring}
           >
@@ -79,11 +78,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             onBlur={(e) => {
               setFocused(false)
               props.onBlur?.(e)
-            }}
-            onAnimationStart={(e) => {
-              if (e.animationName === 'onAutoFillStart') setHasAutofill(true)
-              if (e.animationName === 'onAutoFillCancel') setHasAutofill(false)
-              props.onAnimationStart?.(e)
             }}
             {...props}
           />
