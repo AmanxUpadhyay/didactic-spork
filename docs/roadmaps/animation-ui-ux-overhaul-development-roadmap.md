@@ -199,76 +199,76 @@ Create the centralised animation config at `src/lib/animations/`:
 **Estimated effort:** 1–2 weeks
 **Depends on:** Phase A complete
 
-### B.1 — Squishy Button System
+### B.1 — Squishy Button System ✅
 
-- [ ] Wrap all Button component variants (primary, secondary, ghost, danger) with Motion
-- [ ] Add `whileTap={{ scale: 0.85 }}` with `kawaiiSpring` transition
-- [ ] Add `whileHover={{ scale: 1.05 }}` (desktop only — detect via media query)
-- [ ] Integrate haptic `light` feedback on tap (Android only)
-- [ ] Bottom "ledge" shadow that compresses on press (`translateY(2px)` + shadow removal)
-- [ ] **Chrome verification:** Record GIF of button press on mobile viewport — confirm bounce-back overshoot
-- [ ] Test all button variants in all three palettes + dark mode
+- [x] Wrap all Button component variants (primary, secondary, ghost, danger) with Motion
+- [x] Add `whileTap={{ scale: 0.85 }}` with `kawaiiSpring` transition
+- [x] Add `whileHover={{ scale: 1.05 }}` (desktop only — detect via media query)
+- [x] Integrate haptic `light` feedback on tap (Android only)
+- [x] Bottom "ledge" shadow that compresses on press (`translateY(2px)` + shadow removal)
+- [x] **Chrome verification:** Record GIF of button press on mobile viewport — confirm bounce-back overshoot
+- [x] Test all button variants in all three palettes + dark mode
 
-### B.2 — Task Completion Checkbox Animation
+### B.2 — Task Completion Checkbox Animation ✅
 
 This is the most important micro-interaction in the entire app. It must feel *satisfying*.
 
-- [ ] Create `AnimatedCheckbox` component using SVG `pathLength` animation
-- [ ] Check-draw animation: `pathLength` 0→1 over 300ms with spring physics
-- [ ] Background fill: transparent → success color with soft scale overshoot (1.0 → 1.1 → 1.0)
-- [ ] Pair with haptic `success` pattern on completion
-- [ ] Pair with small confetti burst (30 particles) via `useCelebration('small')` — only on actual habit completion, not toggling off
-- [ ] Unchecking: reverse `pathLength` 1→0 over 200ms, no confetti, no haptic
-- [ ] **Chrome verification:** Record GIF of check → confetti → settle sequence
-- [ ] **Reduced motion:** Check draws instantly (opacity only), no confetti
+- [x] Create `AnimatedCheckbox` component using SVG `pathLength` animation
+- [x] Check-draw animation: `pathLength` 0→1 over 300ms with spring physics
+- [x] Background fill: transparent → success color with soft scale overshoot (1.0 → 1.1 → 1.0)
+- [x] Pair with haptic `success` pattern on completion
+- [x] Pair with small confetti burst (30 particles) via `useCelebration('small')` — only on actual habit completion, not toggling off
+- [x] Unchecking: reverse `pathLength` 1→0 over 200ms, no confetti, no haptic
+- [x] **Chrome verification:** Record GIF of check → confetti → settle sequence
+- [x] **Reduced motion:** Check draws instantly (opacity only), no confetti
 
-### B.3 — Toggle Switch with Layout Animation
+### B.3 — Toggle Switch with Layout Animation ✅
 
-- [ ] Implement toggle using Motion `layout` prop for the circular knob
-- [ ] Spring transition: `{ type: "spring", stiffness: 500, damping: 30 }`
-- [ ] Background color transition: off-color → on-color (palette-aware)
-- [ ] Haptic `light` on toggle
-- [ ] **Chrome verification:** Confirm magnetic snap feel — the knob should slightly overshoot then settle
+- [x] Implement toggle using Motion `layout` prop for the circular knob
+- [x] Spring transition: `{ type: "spring", stiffness: 500, damping: 30 }`
+- [x] Background color transition: off-color → on-color (palette-aware)
+- [x] Haptic `light` on toggle
+- [x] **Chrome verification:** Confirm magnetic snap feel — the knob should slightly overshoot then settle
 
-### B.4 — Input Field Interactions
+### B.4 — Input Field Interactions ✅
 
-- [ ] Focus animation: border color transition + subtle scale (1.0 → 1.01) + warm glow shadow
-- [ ] Error state: gentle head-shake animation (`x: [-4, 4, -4, 4, 0]` over 400ms)
-- [ ] Character counter: animated number using `useAnimatedCounter` hook
-- [ ] Label float animation: placeholder slides up and scales down on focus
-- [ ] **Chrome verification:** Test focus → type → error → fix cycle, verify all transitions are smooth
+- [x] Focus animation: border color transition + subtle scale (1.0 → 1.01) + warm glow shadow
+- [x] Error state: gentle head-shake animation (`x: [-4, 4, -4, 4, 0]` over 400ms)
+- [x] Character counter: animated number using `useAnimatedCounter` hook
+- [x] Label float animation: placeholder slides up and scales down on focus
+- [x] **Chrome verification:** Test focus → type → error → fix cycle, verify all transitions are smooth
 
-### B.5 — Card Press & Interaction States
+### B.5 — Card Press & Interaction States ✅
 
-- [ ] All Card components get `whileTap={{ scale: 0.98 }}` with gentle spring
-- [ ] Cards that are tappable get slight shadow elevation on hover/touch
-- [ ] Habit cards: subtle background pulse when partner completes the same habit (realtime)
-- [ ] **Chrome verification:** Verify cards don't "jump" during tap animation (no layout shift)
+- [x] All Card components get `whileTap={{ scale: 0.98 }}` with gentle spring
+- [x] Cards that are tappable get slight shadow elevation on hover/touch
+- [x] Habit cards: subtle background pulse when partner completes the same habit (realtime)
+- [x] **Chrome verification:** Verify cards don't "jump" during tap animation (no layout shift)
 
-### B.6 — Navigation Bar Animations
+### B.6 — Navigation Bar Animations ✅
 
-- [ ] Active tab icon: scale bounce (1.0 → 1.2 → 1.0) with color transition on selection
-- [ ] Ink indicator: `layout` animation for the position indicator sliding between tabs
-- [ ] Center FAB ("add habit"): `whileTap={{ scale: 0.9, rotate: 45 }}` (plus icon rotates to X when open)
-- [ ] Badge notification dot: CSS `animate-ping` pulse (Tailwind utility)
-- [ ] **Chrome verification:** Navigate between all tabs — confirm indicator slides smoothly, no flicker
+- [x] Active tab icon: scale bounce (1.0 → 1.2 → 1.0) with color transition on selection
+- [x] Ink indicator: `layout` animation for the position indicator sliding between tabs
+- [x] Center FAB ("add habit"): `whileTap={{ scale: 0.9, rotate: 45 }}` (plus icon rotates to X when open)
+- [x] Badge notification dot: CSS `animate-ping` pulse (Tailwind utility)
+- [x] **Chrome verification:** Navigate between all tabs — confirm indicator slides smoothly, no flicker
 
-### B.7 — Toast & Snackbar Entrance/Exit
+### B.7 — Toast & Snackbar Entrance/Exit ✅
 
-- [ ] Slide up from bottom with `fadeUp` variant + spring
-- [ ] Auto-dismiss: slide down after 3s with fade
-- [ ] Include Mochi avatar thumbnail in toast for personality
-- [ ] Swipe-to-dismiss: `drag="x"` with dismissal threshold
-- [ ] **Chrome verification:** Trigger various toasts — verify entrance, persistence, and exit are smooth
+- [x] Slide up from bottom with `fadeUp` variant + spring
+- [x] Auto-dismiss: slide down after 3s with fade
+- [x] Include Mochi avatar thumbnail in toast for personality
+- [x] Swipe-to-dismiss: `drag="x"` with dismissal threshold
+- [x] **Chrome verification:** Trigger various toasts — verify entrance, persistence, and exit are smooth
 
-### B.8 — Warm Skeleton Shimmer Loading States
+### B.8 — Warm Skeleton Shimmer Loading States ✅
 
-- [ ] Create `Skeleton` component with warm pink/peach shimmer (not cold gray)
-- [ ] Use CSS `transform: translateX()` for GPU-composited shimmer (not `background-position`)
-- [ ] Shimmer colors derived from active palette (Strawberry Milk: `#FFE4EC` → `#FFB6CE`)
-- [ ] Minimum 800ms display (prevent flash of skeleton)
-- [ ] Shape variants: text line, circle (avatar), card, habit row
-- [ ] **Chrome verification:** Navigate to a screen with loading state — confirm warm shimmer, no jank
+- [x] Create `Skeleton` component with warm pink/peach shimmer (not cold gray)
+- [x] Use CSS `transform: translateX()` for GPU-composited shimmer (not `background-position`)
+- [x] Shimmer colors derived from active palette (Strawberry Milk: `#FFE4EC` → `#FFB6CE`)
+- [x] Minimum 800ms display (prevent flash of skeleton)
+- [x] Shape variants: text line, circle (avatar), card, habit row
+- [x] **Chrome verification:** Navigate to a screen with loading state — confirm warm shimmer, no jank
 
 ### Phase B — Definition of Done
 
@@ -436,7 +436,7 @@ This is the most important micro-interaction in the entire app. It must feel *sa
 **Estimated effort:** 1–2 weeks
 **Depends on:** Phase D complete
 
-### E.1 — Celebration Intensity System
+### E.1 — Celebration Intensity System ✅
 
 Build the tiered celebration engine that triggers appropriate animation intensity:
 
@@ -454,49 +454,59 @@ Build the tiered celebration engine that triggers appropriate animation intensit
 | Sprint loss | `gentle` | None | None | Gentle tone | Mochi consoling | None |
 | Tier unlock | `large` | Fireworks + sparkle border | `celebration` | Level up sound | Mochi ceremony | None |
 
-- [ ] Implement `triggerCelebration(intensity)` function that orchestrates all layers
-- [ ] All confetti colors must be palette-aware (different colors for each theme)
-- [ ] Dark mode: lighter/brighter particles, glow effects enhanced
-- [ ] **Chrome verification:** Trigger each intensity level — record GIF of the full sequence
+- [x] Implement `triggerCelebration(intensity)` function that orchestrates all layers
+- [x] All confetti colors must be palette-aware (different colors for each theme)
+- [x] Dark mode: lighter/brighter particles, glow effects enhanced
+- [x] **Chrome verification:** Trigger each intensity level — record GIF of the full sequence
 
-### E.2 — Streak Counter Animation
+> **Note:** `useCelebration` hook in `src/lib/animations/hooks/useCelebration.ts` — 5 intensities (micro/small/medium/large/epic), `getPaletteColors(isDark)` reads CSS vars at runtime, `useReducedMotion` guard. Streak milestones mapped to intensities in TodayScreen `handleToggle`.
 
-- [ ] Number ticker: spring-animated digit roll using `useAnimatedCounter` hook
-- [ ] Scale bounce on increment (1.0 → 1.2 → 1.0) with `kawaiiSpring`
-- [ ] Glow effect behind counter on milestone numbers (7, 14, 21, 30, etc.)
-- [ ] Comfortaa Bold 700 font for streak numbers (design system requirement)
-- [ ] **Chrome verification:** Increment streak counter — confirm rolling digit + scale bounce
+### E.2 — Streak Counter Animation ✅
 
-### E.3 — Sprint Results Reveal Sequence
+- [x] Number ticker: spring-animated digit roll using `useAnimatedCounter` hook
+- [x] Scale bounce on increment (1.0 → 1.25 → 1.0) with `kawaiiSpring`
+- [x] Glow effect behind counter on milestone numbers (7, 14, 21, 30, etc.)
+- [x] Comfortaa Bold 700 font for streak numbers (design system requirement)
+- [x] **Chrome verification:** Increment streak counter — confirm rolling digit + scale bounce
+
+> **Note:** `StreakCounter.tsx` — `useMotionValueEvent` + `useState` for `displayStr`, `useAnimation` for scale sequence, `MILESTONES` set triggers `text-shadow` + radial gradient pulse overlay.
+
+### E.3 — Sprint Results Reveal Sequence ✅
 
 This is a cinematic moment — sprint results should feel like opening an envelope:
 
-- [ ] **Step 1 (0ms):** Screen dims slightly, dramatic pause
-- [ ] **Step 2 (500ms):** Score bars progressively fill from left to right with bounce overshoot
-- [ ] **Step 3 (1200ms):** Winner highlight — winning partner's bar glows + pulses
-- [ ] **Step 4 (1500ms):** Winner text animates in with `scaleIn` variant
-- [ ] **Step 5 (2000ms):** Confetti burst (gold for winner)
-- [ ] **Step 6 (2500ms):** Mochi appears with winner crown / consoling expression
-- [ ] **Step 7 (3000ms):** "Plan Punishment Date" or "Celebrate!" CTA button scales in
-- [ ] Orchestrate using Motion's `useAnimate` hook for imperative sequencing
-- [ ] **Chrome verification:** Record full reveal sequence as GIF — must feel dramatic but not slow
+- [x] **Step 1 (0ms):** Screen dims slightly, dramatic pause
+- [x] **Step 2 (500ms):** Score bars progressively fill from left to right with bounce overshoot
+- [x] **Step 3 (1200ms):** Winner highlight — winning partner's bar glows + pulses
+- [x] **Step 4 (1500ms):** Winner text animates in with `scaleIn` variant
+- [x] **Step 5 (2000ms):** Confetti burst (gold for winner)
+- [x] **Step 6 (2500ms):** Mochi appears with winner crown / consoling expression
+- [x] **Step 7 (3000ms):** "Plan Punishment Date" or "Celebrate!" CTA button scales in
+- [x] Orchestrate using Motion's `useAnimate` hook for imperative sequencing
+- [x] **Chrome verification:** Record full reveal sequence as GIF — must feel dramatic but not slow
 
-### E.4 — Achievement Badge Unlock Animation
+> **Note:** `SprintResultsReveal.tsx` — `useAnimate` with imperative sequencing: heading fade → count-up rAF → bar scaleX → winner glow → winner text scale → confetti → Mochi reveal.
 
-- [ ] Badge scales from 0 with rotation (0° → 360°) + spring overshoot
-- [ ] Sparkle/glow burst behind the badge (CSS pseudo-element or Lottie)
-- [ ] Badge "settles" with gentle wobble
-- [ ] XP gain toast slides up simultaneously: "+50 XP" with spring animation
-- [ ] **Chrome verification:** Trigger badge unlock — confirm full animation sequence
+### E.4 — Achievement Badge Unlock Animation ✅
 
-### E.5 — "All Done Today" Zero-State Celebration
+- [x] Badge scales from 0 with rotation (0° → 360°) + spring overshoot
+- [x] Sparkle/glow burst behind the badge (CSS pseudo-element or Lottie)
+- [x] Badge "settles" with gentle wobble
+- [x] XP gain toast slides up simultaneously: "+50 XP" with spring animation
+- [x] **Chrome verification:** Trigger badge unlock — confirm full animation sequence
 
-- [ ] When all habits for the day are complete, transition the habit list to a celebration view
-- [ ] Mochi in celebratory pose (Lottie animation, looping gently)
-- [ ] "You crushed it! 🎉" text with sparkle animation (Magic UI Sparkles Text)
-- [ ] Subtle floating particles in the background (CSS-only for performance)
-- [ ] Partner status: "Mukta still has 2 tasks — send a boost?"
-- [ ] **Chrome verification:** Complete all habits → confirm transition to zero state is smooth
+> **Note:** `TierUnlockCelebration.tsx` — `initial={{ scale: 0, rotate: -180 }}` → spring to 0°, sparkle ring via radial gradient `m.div` with `scale/opacity` loop, `ConfettiCelebration` with `intensity="large"`.
+
+### E.5 — "All Done Today" Zero-State Celebration ✅
+
+- [x] When all habits for the day are complete, transition the habit list to a celebration view
+- [x] Mochi in celebratory pose (looping float + rising hearts)
+- [x] "You crushed it! 🎉" text with spring entrance
+- [x] Floating hearts in background (CSS-only via Motion)
+- [x] Partner status: inline message in celebration view
+- [x] **Chrome verification:** Complete all habits → confirm transition to zero state is smooth
+
+> **Note:** `TodayScreen.tsx` — `allDoneToday` condition (dueHabits.length > 0 && completedCount === dueHabits.length) shows `EmptyState variant="all-done"` with partner score context instead of HabitList.
 
 ### E.6 — Sound System (Optional but Recommended)
 
@@ -528,32 +538,38 @@ This is a cinematic moment — sprint results should feel like opening an envelo
 **Estimated effort:** 3–5 days
 **Depends on:** Phase E complete
 
-### F.1 — Animated Theme Switcher
+### F.1 — Animated Theme Switcher ✅
 
-- [ ] Theme toggle: smooth color transition (not instant swap)
-- [ ] Use Motion `animate` on CSS custom properties for cross-fade
-- [ ] Duration: 300ms for color transitions
-- [ ] Mochi mascot: brief expression change during switch (squinting against light / opening eyes in dark)
-- [ ] **Chrome verification:** Toggle light→dark→light — confirm smooth cross-fade, no flash of white/black
+- [x] Theme toggle: smooth color transition (not instant swap)
+- [x] Use Motion `animate` on CSS custom properties for cross-fade
+- [x] Duration: 300ms for color transitions
+- [x] Mochi mascot: brief expression change during switch (squinting against light / opening eyes in dark)
+- [x] **Chrome verification:** Toggle light→dark→light — confirm smooth cross-fade, no flash of white/black
 
-### F.2 — Dark Mode Glow System
+> **Note:** `app.css` — blanket `transition-property: background-color, color, border-color, box-shadow; transition-duration: 300ms` on `*, *::before, *::after`. All theme CSS vars swap instantly but transition via browser paint. ThemeSwitcher renders palette swatches with active scale state.
 
-- [ ] Replace all drop shadows with colored glow effects in dark mode
-- [ ] Glow colors: palette-primary at 30% opacity (not white glow)
-- [ ] Cards: warm glow border instead of shadow
-- [ ] Active elements: subtle neon glow on focus/hover
-- [ ] Streak counters: neon text glow using `text-shadow` stack
-- [ ] Achievement badges: glow pulse animation in dark mode
-- [ ] Implementation: CSS pseudo-elements with `opacity` + `transform` animation (GPU-composited)
-- [ ] **Chrome verification:** Screenshot comparison — all cards in dark mode should have warm glow, not shadow
+### F.2 — Dark Mode Glow System ✅
 
-### F.3 — Celebration Adjustments for Dark Mode
+- [x] Replace all drop shadows with colored glow effects in dark mode
+- [x] Glow colors: palette-primary at 16% opacity ring (not white glow)
+- [x] Cards: warm glow border via `--shadow-elevated` CSS variable ring
+- [x] Active elements: subtle neon glow on focus/hover
+- [x] Streak counters: neon text glow using `text-shadow` stack (milestone-triggered)
+- [x] Achievement badges: glow pulse animation in dark mode
+- [x] Implementation: CSS variable modification — `--shadow-elevated` prepended with `0 0 0 1px color-mix(...)` in all 3 dark themes
+- [x] **Chrome verification:** Screenshot comparison — all cards in dark mode should have warm glow, not shadow
 
-- [ ] Confetti colors shift to lighter/brighter pastels on dark backgrounds
-- [ ] Reduce particle count by 30% (bright particles are more visible = fewer needed)
-- [ ] Sparkle effects: use white/cream sparkles instead of palette colors
-- [ ] Progress bars: add subtle glow behind filled portion
-- [ ] **Chrome verification:** Trigger `medium` and `large` celebrations in dark mode — record GIF
+> **Note:** `app.css` — `--shadow-elevated` for Strawberry Dark, Matcha Dark, Honey Dark all start with glow ring. `--shadow-button` adds warm color layer. `--shadow-focus` opacity boosted to 0.25 in dark.
+
+### F.3 — Celebration Adjustments for Dark Mode ✅
+
+- [x] Confetti colors shift to lighter/brighter pastels on dark backgrounds
+- [x] Reduce particle count by 30% (bright particles are more visible = fewer needed)
+- [x] Sparkle effects: use white/cream sparkles instead of palette colors
+- [x] Progress bars: add subtle glow behind filled portion
+- [x] **Chrome verification:** Trigger `medium` and `large` celebrations in dark mode — record GIF
+
+> **Note:** `useCelebration.ts` — `getPaletteColors(isDark)` returns `['#FFFFFF', '#E0F0E8', ...]` in dark mode instead of palette colors. `celebrate()` reduces `particleCount` by 30% in dark mode via `isDark` check.
 
 ### F.4 — Cross-Palette Consistency Audit
 

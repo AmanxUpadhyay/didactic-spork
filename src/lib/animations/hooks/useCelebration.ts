@@ -24,12 +24,14 @@ export function useCelebration() {
     const confetti = (await import('canvas-confetti')).default
     const isDark = document.documentElement.classList.contains('dark')
     const colors = getPaletteColors(isDark)
+    // Bright particles are more visible in dark mode — reduce count by 30%
+    const scale = isDark ? 0.7 : 1
 
     switch (intensity) {
       case 'micro':
         haptics.light()
         confetti({
-          particleCount: 12,
+          particleCount: Math.round(12 * scale),
           spread: 50,
           colors,
           origin: { y: 0.55 },
@@ -39,23 +41,23 @@ export function useCelebration() {
         break
       case 'small':
         haptics.success()
-        confetti({ particleCount: 30, spread: 60, colors, origin: { y: 0.6 } })
+        confetti({ particleCount: Math.round(30 * scale), spread: 60, colors, origin: { y: 0.6 } })
         break
       case 'medium':
         haptics.success()
-        confetti({ particleCount: 80, spread: 90, colors, origin: { y: 0.6 } })
+        confetti({ particleCount: Math.round(80 * scale), spread: 90, colors, origin: { y: 0.6 } })
         break
       case 'large':
         haptics.celebration()
-        confetti({ particleCount: 60, spread: 70, colors, origin: { y: 0.6 }, angle: 60 })
-        confetti({ particleCount: 60, spread: 70, colors, origin: { y: 0.6 }, angle: 120 })
+        confetti({ particleCount: Math.round(60 * scale), spread: 70, colors, origin: { y: 0.6 }, angle: 60 })
+        confetti({ particleCount: Math.round(60 * scale), spread: 70, colors, origin: { y: 0.6 }, angle: 120 })
         break
       case 'epic': {
         haptics.celebration()
         const end = Date.now() + 3000
         const frame = () => {
-          confetti({ particleCount: 5, angle: 60, spread: 55, colors, origin: { x: 0 } })
-          confetti({ particleCount: 5, angle: 120, spread: 55, colors, origin: { x: 1 } })
+          confetti({ particleCount: Math.round(5 * scale), angle: 60, spread: 55, colors, origin: { x: 0 } })
+          confetti({ particleCount: Math.round(5 * scale), angle: 120, spread: 55, colors, origin: { x: 1 } })
           if (Date.now() < end) requestAnimationFrame(frame)
         }
         frame()

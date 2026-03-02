@@ -241,6 +241,16 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
           title="Nothing due today"
           description="Enjoy your day off!"
         />
+      ) : completedCount === dueHabits.length ? (
+        <EmptyState
+          variant="all-done"
+          title="You crushed it! 🎉"
+          description={
+            partnerBreakdown && partnerBreakdown.total > 0
+              ? "Your partner is still going — lead by example!"
+              : "A perfect day. Come back tomorrow!"
+          }
+        />
       ) : (
         <div data-no-tab-swipe>
           <PullToRefresh onRefresh={async () => { await refetchHabits() }}>
@@ -255,16 +265,6 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
               onReorder={reorderHabits}
             />
           </PullToRefresh>
-        </div>
-      )}
-
-      {dueHabits.length > 0 && completedCount === dueHabits.length && (
-        <div className="mt-6">
-          <EmptyState
-            variant="all-done"
-            title="All done for today!"
-            description="You crushed it 🎉"
-          />
         </div>
       )}
 
