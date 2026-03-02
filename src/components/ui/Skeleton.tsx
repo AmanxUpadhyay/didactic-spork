@@ -11,7 +11,7 @@ interface SkeletonProps {
 
 export function Skeleton({ variant = 'line', className, width, height }: SkeletonProps) {
   // Uses --color-border for the shimmer base (palette-adaptive, always a muted variant of surface)
-  const base = 'relative overflow-hidden bg-[var(--color-border)] rounded-[var(--radius-pill)] animate-pulse'
+  const base = 'relative overflow-hidden skeleton-shimmer rounded-[var(--radius-pill)]'
 
   if (variant === 'circle') {
     return (
@@ -27,7 +27,7 @@ export function Skeleton({ variant = 'line', className, width, height }: Skeleto
     return (
       <div
         className={cn(
-          'rounded-[var(--radius-card)] bg-[var(--color-border)] animate-pulse',
+          'rounded-[var(--radius-card)] skeleton-shimmer',
           className,
         )}
         style={{ minHeight: height ?? 120, width: width ?? '100%' }}
