@@ -24,7 +24,7 @@ import { getTodayInTimezone, formatDateDisplay, isHabitDueToday, getDaysRemainin
 import { DecayingPointBank } from '@/components/psych/DecayingPointBank'
 import { MondayHeadStart } from '@/components/psych/MondayHeadStart'
 import { TomorrowTeaser } from '@/components/psych/TomorrowTeaser'
-import { StreakHostageDisplay } from '@/components/psych/StreakHostageDisplay'
+import { usePairing } from '@/contexts/PairingContext'
 import { useDecayingPoints } from '@/hooks/useDecayingPoints'
 import { useFreshStart } from '@/hooks/useFreshStart'
 import { m } from 'motion/react'
@@ -44,6 +44,7 @@ interface TodayScreenProps {
 
 export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }: TodayScreenProps) {
   const { profile } = useAuth()
+  const { partnerProfile } = usePairing()
   const tz = profile?.timezone || 'UTC'
   const { habits, loading: habitsLoading, archiveHabit, reorderHabits, refetch: refetchHabits } = useHabits(profile?.id)
   const { isCompletedToday, toggleCompletion } = useCompletions(profile?.id, tz)
@@ -198,13 +199,8 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
 
       {/* Couple streak banner */}
       {bestCoupleStreak && (
-        <CoupleStreakBanner streak={bestCoupleStreak} />
-      )}
-
-      {/* Streak hostage display */}
-      {bestCoupleStreak && bestCoupleStreak.current_days > 0 && (
-        <StreakHostageDisplay
-          streak={bestCoupleStreak.current_days}
+        <CoupleStreakBanner
+          streak={bestCoupleStreak}
           atRisk={completedCount === 0 && dueHabits.length > 0}
         />
       )}
@@ -214,6 +210,8 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
         <SprintStatusBanner
           myScore={myBreakdown?.total ?? 0}
           partnerScore={partnerBreakdown?.total ?? 0}
+          myName={profile?.name || 'You'}
+          partnerName={partnerProfile?.name || 'Partner'}
           daysRemaining={getDaysRemainingInSprint(sprint.week_start, tz)}
           onTap={onNavigateToSprint}
         />
@@ -259,14 +257,15 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
       ) : (
         <div data-no-tab-swipe>
           {completedCount === dueHabits.length && (
-            <m.p
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
+            <m.div
+              initial={{ opacity: 0, scale: 0.8, y: -8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={kawaiiSpring}
-              className="text-center text-sm font-semibold text-primary mb-3 tracking-wide"
+              className="text-center mb-4"
             >
-              All done today ✓
-            </m.p>
+              <p className="font-accent text-2xl font-bold text-primary">All done today! ✨</p>
+              <p className="text-xs text-text-secondary mt-0.5">You're on a roll</p>
+            </m.div>
           )}
           <PullToRefresh onRefresh={async () => { await refetchHabits() }}>
             <ScrollPhysicsContainer>

@@ -118,7 +118,7 @@ export function ActiveSprintView({
   return (
     <m.div
       className="space-y-4"
-      variants={staggerContainer(0.08)}
+      variants={staggerContainer(0.05)}
       initial="hidden"
       animate="visible"
     >

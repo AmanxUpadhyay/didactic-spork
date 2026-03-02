@@ -115,14 +115,13 @@ export function SprintScreen({ onTabChange }: SprintScreenProps) {
           partnerBreakdown={partnerBreakdown}
           timezone={tz}
         />
-        <div className="mt-4">
-          <CompetitiveScoreGap
-            myScore={myBreakdown?.total ?? 0}
-            partnerScore={partnerBreakdown?.total ?? 0}
-            myName={myName}
-            partnerName={partnerName}
-          />
-        </div>
+        <CompetitiveScoreGap
+          myScore={myBreakdown?.total ?? 0}
+          partnerScore={partnerBreakdown?.total ?? 0}
+          myName={myName}
+          partnerName={partnerName}
+          className="mt-2"
+        />
         <div className="mt-4">
           <SunkCostTimeline />
         </div>

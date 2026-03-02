@@ -49,8 +49,8 @@ export const staggerContainer = (delay = 0.08): Variants => ({
 })
 
 export const staggerItem: Variants = {
-  hidden: { opacity: 0, y: 16, scale: 0.96 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: kawaiiSpring },
+  hidden: { opacity: 0, y: 12, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: gentleSpring },
 }
 
 export const cardEnter: Variants = {

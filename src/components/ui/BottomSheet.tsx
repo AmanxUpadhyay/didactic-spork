@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { AnimatePresence, m } from 'motion/react'
 import { cn } from '@/lib/cn'
 
@@ -51,7 +52,7 @@ export function BottomSheet({ open, onClose, children, className }: BottomSheetP
     }
   }, [open, handleKeyDown])
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <div className="fixed inset-0 z-50">
@@ -96,6 +97,7 @@ export function BottomSheet({ open, onClose, children, className }: BottomSheetP
           </m.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   )
 }

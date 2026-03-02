@@ -5,6 +5,8 @@ import { kawaiiSpring, haptics } from '@/lib/animations'
 interface SprintStatusBannerProps {
   myScore: number
   partnerScore: number
+  myName?: string
+  partnerName?: string
   daysRemaining: number
   onTap?: () => void
   className?: string
@@ -13,6 +15,8 @@ interface SprintStatusBannerProps {
 export function SprintStatusBanner({
   myScore,
   partnerScore,
+  myName,
+  partnerName,
   daysRemaining,
   onTap,
   className,
@@ -36,12 +40,28 @@ export function SprintStatusBanner({
       <div className="flex items-center gap-2">
         <span className="text-sm">⚡</span>
         <div>
-          <p className="text-xs text-text-secondary leading-none mb-0.5">Sprint Week</p>
-          <p className="font-accent font-bold text-lg text-text-primary tabular-nums leading-none">
-            <span className={iAmAhead ? 'text-primary' : 'text-text-primary'}>{myScore.toFixed(1)}</span>
-            <span className="text-text-tertiary mx-1.5 font-normal text-base">vs</span>
-            <span className={!iAmAhead ? 'text-primary' : 'text-text-primary'}>{partnerScore.toFixed(1)}</span>
-          </p>
+          <p className="text-xs text-text-secondary leading-none mb-1">Sprint Week</p>
+          <div className="flex items-center gap-2">
+            <div className="text-center">
+              <p className="text-[10px] text-text-tertiary leading-none mb-0.5 truncate max-w-[64px]">
+                {myName || 'You'}
+              </p>
+              <span className={cn('font-accent font-bold text-lg tabular-nums leading-none',
+                iAmAhead ? 'text-primary' : 'text-text-secondary')}>
+                {myScore.toFixed(1)}
+              </span>
+            </div>
+            <span className="text-text-tertiary font-normal text-base">vs</span>
+            <div className="text-center">
+              <p className="text-[10px] text-text-tertiary leading-none mb-0.5 truncate max-w-[64px]">
+                {partnerName || 'Partner'}
+              </p>
+              <span className={cn('font-accent font-bold text-lg tabular-nums leading-none',
+                !iAmAhead ? 'text-primary' : 'text-text-secondary')}>
+                {partnerScore.toFixed(1)}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
       <div className="text-right">
