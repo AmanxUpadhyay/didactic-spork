@@ -2,8 +2,6 @@ import { type ReactNode } from 'react'
 import { m, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/cn'
 import { kawaiiSpring, haptics } from '@/lib/animations'
-import { MagneticDot } from './MagneticDot'
-
 interface NavItem {
   icon: ReactNode
   label: string
@@ -119,9 +117,15 @@ function NavBarItem({ icon, label, active, onClick, tabIndex, onTabChange, flash
       </span>
       <span className="text-[10px] font-medium leading-none">{label}</span>
 
-      {/* Magnetic dot indicator */}
-      <div className="mt-0.5">
-        <MagneticDot isActive={!!active} size={6} />
+      {/* Sliding indicator — layoutId causes Motion to animate position between active tabs */}
+      <div className="mt-0.5 h-1.5 w-6 flex items-center justify-center">
+        {active && (
+          <m.div
+            layoutId="tab-indicator"
+            className="w-1.5 h-1.5 rounded-full bg-primary"
+            transition={kawaiiSpring}
+          />
+        )}
       </div>
     </m.button>
   )
