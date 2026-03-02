@@ -3,7 +3,7 @@ import { m, useMotionValue, useTransform, animate } from 'motion/react'
 import { cn } from '@/lib/cn'
 import { StreakCounter } from '@/components/ui/StreakCounter'
 import { AnimatedCheckbox } from '@/components/ui/AnimatedCheckbox'
-import { kawaiiSpring, haptics } from '@/lib/animations'
+import { kawaiiSpring, deleteSnapSpring, haptics } from '@/lib/animations'
 import type { DifficultyLevel, Streak } from '@/types/habits'
 
 const DIFFICULTY_STYLES: Record<DifficultyLevel, string> = {
@@ -29,6 +29,9 @@ interface HabitCardProps {
   onToggle: () => void
   onComplete?: () => void
   onLongPress?: () => void
+  onDelete?: () => void
+  isFocused?: boolean
+  isDimmed?: boolean
   ifTrigger?: string
   thenAction?: string
 }
@@ -42,6 +45,9 @@ export function HabitCard({
   onToggle,
   onComplete,
   onLongPress,
+  onDelete,
+  isFocused,
+  isDimmed,
   ifTrigger,
   thenAction,
 }: HabitCardProps) {
@@ -51,8 +57,14 @@ export function HabitCard({
 
   // Swipe gesture values
   const x = useMotionValue(0)
+
+  // Swipe RIGHT — complete
   const checkOpacity = useTransform(x, [0, 80, 200], [0, 0.4, 1])
   const successOpacity = useTransform(x, [0, 100, 200], [0, 0.3, 0.85])
+
+  // Swipe LEFT — delete
+  const deleteOpacity = useTransform(x, [-60, -180], [0, 1])
+  const deleteIconScale = useTransform(x, [-100, -180], [0.8, 1.2])
 
   function handlePointerDown() {
     haptics.light()
@@ -86,16 +98,27 @@ export function HabitCard({
 
   return (
     <m.div
-      style={{ x, touchAction: 'pan-y', position: 'relative', overflow: 'hidden' }}
+      style={{
+        x,
+        touchAction: 'pan-y',
+        position: 'relative',
+        overflow: 'hidden',
+        opacity: isDimmed ? 0.5 : 1,
+        scale: isFocused ? 1.04 : 1,
+      }}
+      animate={{
+        opacity: isDimmed ? 0.5 : 1,
+        scale: isFocused ? 1.04 : 1,
+      }}
+      transition={kawaiiSpring}
       className={cn(
         'w-full rounded-[var(--radius-card)] overflow-hidden',
         !isDueToday && 'opacity-40',
       )}
       drag={isDueToday && !completed ? 'x' : false}
-      dragConstraints={{ left: -60, right: 220 }}
-      dragElastic={{ left: 0.1, right: 0.25 }}
+      dragConstraints={{ left: -220, right: 220 }}
+      dragElastic={{ left: 0.2, right: 0.25 }}
       whileTap={isDueToday && !completed ? { scale: 0.98 } : undefined}
-      transition={kawaiiSpring}
       onDragStart={() => {
         didDrag.current = true
         if (longPressTimer.current) {
@@ -103,19 +126,50 @@ export function HabitCard({
           longPressTimer.current = null
         }
       }}
+      onDrag={(_, info) => {
+        // Haptic warning at delete threshold
+        if (info.offset.x < -120 && info.offset.x > -125) {
+          haptics.light()
+        }
+      }}
       onDragEnd={(_, info) => {
         if (info.offset.x > 200 || info.velocity.x > 500) {
+          // Swipe right — complete
           haptics.success()
           onToggle()
           onComplete?.()
+          animate(x, 0, { type: 'spring', stiffness: 400, damping: 25, mass: 0.8 })
+        } else if (info.offset.x < -180 || info.velocity.x < -500) {
+          // Swipe left — delete
+          haptics.error()
+          animate(x, -window.innerWidth, {
+            ...deleteSnapSpring,
+            onComplete: () => { onDelete?.() },
+          })
+        } else {
+          animate(x, 0, kawaiiSpring)
         }
-        animate(x, 0, { type: 'spring', stiffness: 400, damping: 25, mass: 0.8 })
       }}
       onClick={handleClick}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
     >
+      {/* Delete zone — positioned behind card, left side */}
+      <m.div
+        className="absolute inset-y-0 left-0 right-0 rounded-[var(--radius-card)] flex items-center pl-5 pointer-events-none"
+        style={{
+          backgroundColor: 'var(--color-error, #ef4444)',
+          opacity: deleteOpacity,
+        }}
+      >
+        <m.div style={{ scale: deleteIconScale }} className="text-white">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="24" height="24">
+            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+          </svg>
+        </m.div>
+      </m.div>
+
       {/* Success overlay — reveals on swipe right */}
       <m.div
         className="absolute inset-0 rounded-[var(--radius-card)] flex items-center pl-4 pointer-events-none"

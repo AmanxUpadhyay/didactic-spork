@@ -1,13 +1,15 @@
 import { type ReactNode } from 'react'
-import { m, AnimatePresence } from 'motion/react'
+import { m } from 'motion/react'
 import { cn } from '@/lib/cn'
-import { kawaiiSpring, snappySpring, haptics } from '@/lib/animations'
+import { kawaiiSpring, haptics } from '@/lib/animations'
+import { MagneticDot } from './MagneticDot'
 
 interface NavItem {
   icon: ReactNode
   label: string
   active?: boolean
   onClick?: () => void
+  onClickWithCoords?: (x: number, y: number) => void
 }
 
 interface NavBarProps {
@@ -15,9 +17,10 @@ interface NavBarProps {
   fabIcon?: ReactNode
   onFabClick?: () => void
   className?: string
+  onTabChange?: (tabId: string, x: number, y: number) => void
 }
 
-export function NavBar({ items, fabIcon, onFabClick, className }: NavBarProps) {
+export function NavBar({ items, fabIcon, onFabClick, className, onTabChange }: NavBarProps) {
   const midpoint = Math.floor(items.length / 2)
   const leftItems = items.slice(0, midpoint)
   const rightItems = items.slice(midpoint)
@@ -34,7 +37,7 @@ export function NavBar({ items, fabIcon, onFabClick, className }: NavBarProps) {
     >
       <div className="flex items-center justify-around h-16 px-2 relative">
         {leftItems.map((item, i) => (
-          <NavBarItem key={i} {...item} />
+          <NavBarItem key={i} {...item} tabIndex={i} onTabChange={onTabChange} />
         ))}
 
         {/* Center FAB */}
@@ -58,18 +61,30 @@ export function NavBar({ items, fabIcon, onFabClick, className }: NavBarProps) {
         )}
 
         {rightItems.map((item, i) => (
-          <NavBarItem key={midpoint + i} {...item} />
+          <NavBarItem key={midpoint + i} {...item} tabIndex={midpoint + i} onTabChange={onTabChange} />
         ))}
       </div>
     </nav>
   )
 }
 
-function NavBarItem({ icon, label, active, onClick }: NavItem) {
+interface NavBarItemInternalProps extends NavItem {
+  tabIndex: number
+  onTabChange?: (tabId: string, x: number, y: number) => void
+}
+
+function NavBarItem({ icon, label, active, onClick, tabIndex, onTabChange }: NavBarItemInternalProps) {
+  function handleClick(e: React.MouseEvent) {
+    haptics.light()
+    if (onTabChange) {
+      onTabChange(String(tabIndex), e.clientX, e.clientY)
+    }
+    onClick?.()
+  }
+
   return (
     <m.button
-      onClick={onClick}
-      onPointerDown={() => haptics.light()}
+      onClick={handleClick}
       whileTap={{ scale: 0.88 }}
       transition={kawaiiSpring}
       className={cn(
@@ -78,28 +93,22 @@ function NavBarItem({ icon, label, active, onClick }: NavItem) {
         active ? 'text-primary' : 'text-text-secondary',
       )}
     >
-      <span className="relative flex items-center justify-center w-10 h-8">
-        {/* Sliding background indicator using layoutId */}
-        <AnimatePresence>
-          {active && (
-            <m.span
-              layoutId="tab-indicator"
-              className="absolute inset-0 rounded-[var(--radius-pill)] bg-primary/10"
-              transition={snappySpring}
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Icon with scale spring */}
+      {/* Icon with scale spring */}
+      <span className="flex items-center justify-center w-10 h-8">
         <m.span
           animate={{ scale: active ? 1.1 : 1 }}
           transition={kawaiiSpring}
-          className="relative z-10 flex items-center justify-center"
+          className="flex items-center justify-center"
         >
           {icon}
         </m.span>
       </span>
       <span className="text-[10px] font-medium leading-none">{label}</span>
+
+      {/* Magnetic dot indicator */}
+      <div className="mt-0.5">
+        <MagneticDot isActive={!!active} size={6} />
+      </div>
     </m.button>
   )
 }

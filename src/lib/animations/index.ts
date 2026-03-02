@@ -7,6 +7,9 @@ export * from './variants'
 // Haptic feedback
 export * from './haptics'
 
+// Scroll physics hook
+export * from './useScrollPhysics'
+
 // Hooks
 export * from './hooks/useReducedMotion'
 export * from './hooks/useAnimatedCounter'

@@ -1,5 +1,7 @@
-import { m } from 'motion/react'
+import { useEffect } from 'react'
+import { m, useSpring, useTransform, useMotionValue } from 'motion/react'
 import { cn } from '@/lib/cn'
+import { kawaiiSpring } from '@/lib/animations'
 
 interface ProgressRingProps {
   progress: number
@@ -16,9 +18,21 @@ export function ProgressRing({
 }: ProgressRingProps) {
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
-  const offset = circumference * (1 - Math.min(Math.max(progress, 0), 1))
-  const percentage = Math.round(progress * 100)
+  const clampedProgress = Math.min(Math.max(progress, 0), 1)
+  const targetOffset = circumference * (1 - clampedProgress)
+  const percentage = Math.round(clampedProgress * 100)
   const isComplete = percentage >= 100
+
+  // Spring-driven dashoffset for elastic overshoot on habit completion
+  const progressMv = useMotionValue(targetOffset)
+  const springOffset = useSpring(progressMv, kawaiiSpring)
+
+  useEffect(() => {
+    progressMv.set(targetOffset)
+  }, [targetOffset, progressMv])
+
+  // Convert MotionValue<number> to a string for strokeDashoffset
+  const dashoffset = useTransform(springOffset, (v) => String(v))
 
   return (
     <m.div
@@ -42,8 +56,8 @@ export function ProgressRing({
           stroke="var(--color-border)"
           strokeWidth={strokeWidth}
         />
-        {/* Progress circle */}
-        <circle
+        {/* Progress circle — spring-animated dashoffset */}
+        <m.circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
@@ -52,8 +66,7 @@ export function ProgressRing({
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          className="transition-[stroke-dashoffset] duration-500 ease-[var(--ease-layout)]"
+          strokeDashoffset={dashoffset}
         />
       </svg>
       <m.span
