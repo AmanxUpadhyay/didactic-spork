@@ -1548,6 +1548,7 @@ export type Database = {
         | "sprint_start"
         | "nudge"
         | "celebration"
+        | "boost"
       notif_status:
         | "scheduled"
         | "pending"
@@ -1735,6 +1736,7 @@ export const Constants = {
         "sprint_start",
         "nudge",
         "celebration",
+        "boost",
       ],
       notif_status: [
         "scheduled",

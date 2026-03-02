@@ -54,7 +54,11 @@ export function useSprint(userId: string | undefined) {
       .eq('active', true)
       .or(`user_a.eq.${userId},user_b.eq.${userId}`)
       .limit(1)
-      .single()
+      .maybeSingle()
+
+    if (!pair) {
+      console.warn('[useSprint] No active partner pair found for user', userId)
+    }
 
     const isUserA = pair?.user_a === userId
 

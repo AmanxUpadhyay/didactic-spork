@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { m, useMotionValue, useTransform } from 'motion/react'
+import { m, useMotionValue, useTransform, animate } from 'motion/react'
 import { cn } from '@/lib/cn'
 import { StreakCounter } from '@/components/ui/StreakCounter'
 import { AnimatedCheckbox } from '@/components/ui/AnimatedCheckbox'
@@ -96,14 +96,20 @@ export function HabitCard({
       dragElastic={{ left: 0.1, right: 0.25 }}
       whileTap={isDueToday && !completed ? { scale: 0.98 } : undefined}
       transition={kawaiiSpring}
-      onDragStart={() => { didDrag.current = true }}
+      onDragStart={() => {
+        didDrag.current = true
+        if (longPressTimer.current) {
+          clearTimeout(longPressTimer.current)
+          longPressTimer.current = null
+        }
+      }}
       onDragEnd={(_, info) => {
         if (info.offset.x > 200 || info.velocity.x > 500) {
           haptics.success()
           onToggle()
           onComplete?.()
         }
-        x.set(0)
+        animate(x, 0, { type: 'spring', stiffness: 400, damping: 25, mass: 0.8 })
       }}
       onClick={handleClick}
       onPointerDown={handlePointerDown}

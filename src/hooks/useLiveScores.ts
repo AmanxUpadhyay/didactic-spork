@@ -36,6 +36,9 @@ export function useLiveScores(
     const scores = data as unknown as { user_a: LiveScoreUser; user_b: LiveScoreUser }
 
     // Determine which user we are
+    if (!scores.user_a?.user_id || !scores.user_b?.user_id) {
+      console.warn('[useLiveScores] RPC result missing user_id fields', scores)
+    }
     if (scores.user_a?.user_id === userId) {
       setMyBreakdown(scores.user_a)
       setPartnerBreakdown(scores.user_b)

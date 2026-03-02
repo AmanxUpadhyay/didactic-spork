@@ -33,8 +33,7 @@ export function HabitList({ habits, isCompletedToday, isDueToday, getStreak, onT
       return 0
     })
     setOrderedHabits(sorted)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [habits.length])
+  }, [habits, isCompletedToday, isDueToday])
 
   function handleReorder(newOrder: Task[]) {
     setOrderedHabits(newOrder)

@@ -1,12 +1,13 @@
-import { useState, type ReactNode } from 'react'
+import { useState, useRef, type ReactNode } from 'react'
 import { m } from 'motion/react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Plant01Icon, PartyIcon, FireIcon, SleepingIcon, MailLove01Icon } from '@hugeicons/core-free-icons'
+import { Plant01Icon, PartyIcon, FireIcon, SleepingIcon, MailLove01Icon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import { useAuth } from '@/hooks/useAuth'
 import { usePairing } from '@/contexts/PairingContext'
 import { usePartnerHabits } from '@/hooks/usePartnerHabits'
 import { useStreaks } from '@/hooks/useStreaks'
 import { EmptyState } from '@/components/ui'
+import { useToast } from '@/components/ui/ToastProvider'
 import { PartnerHabitCard } from '@/components/partner/PartnerHabitCard'
 import { HabitCardSkeleton } from '@/components/habits/HabitCardSkeleton'
 import { isHabitDueToday } from '@/lib/dates'
@@ -30,11 +31,16 @@ export function PartnerScreen() {
   const partnerTz = partnerProfile?.timezone || 'UTC'
   const { habits, loading, isPartnerCompletedToday } = usePartnerHabits(partnerId, partnerTz)
   const { bestCoupleStreak } = useStreaks(profile?.id)
+  const { toast } = useToast()
   const [boostSentToday, setBoostSentToday] = useState(() => {
     const today = new Date().toISOString().slice(0, 10)
     return localStorage.getItem(`boost_sent_${today}`) === '1'
   })
   const [mochiDancing, setMochiDancing] = useState(false)
+  const [boostComposing, setBoostComposing] = useState(false)
+  const [boostMessage, setBoostMessage] = useState('')
+  const [boostSending, setBoostSending] = useState(false)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const dueHabits = habits.filter((h) =>
     isHabitDueToday(h.recurrence, h.custom_days, partnerTz),
@@ -61,25 +67,43 @@ export function PartnerScreen() {
     return { src: '/image/mochi-sleep.png', message: <span>{partnerName}'s taking it slow today... <HugeiconsIcon icon={SleepingIcon} size={14} className="inline-block align-text-bottom" /></span> }
   }
 
-  async function handleBoost() {
+  function handleBoost() {
     if (boostSentToday || !partnerId || !profile) return
+    setBoostComposing(true)
+    setTimeout(() => textareaRef.current?.focus(), 50)
+  }
+
+  async function handleBoostSend() {
+    if (!partnerId || !profile || boostSending) return
+    setBoostSending(true)
+
+    const senderName = profile.name || 'Your partner'
+    const customMsg = boostMessage.trim()
+    const body = customMsg
+      ? `${senderName}: ${customMsg}`
+      : `${senderName} is cheering you on!`
 
     const today = new Date().toISOString().slice(0, 10)
-    try {
-      await supabase.from('notification_queue').insert({
-        user_id: partnerId,
-        category: 'nudge' as const,
-        title: '💪 Boost from ' + (profile.name || 'your partner'),
-        body: `${profile.name || 'Your partner'} is cheering you on!`,
-        scheduled_for: new Date().toISOString(),
-        status: 'pending',
-      })
-    } catch (_) {
-      // best-effort, don't block UI
+    const { error } = await supabase.from('notification_queue').insert({
+      user_id: partnerId,
+      category: 'boost' as const,
+      title: `💪 Boost from ${senderName}`,
+      body,
+      scheduled_for: new Date().toISOString(),
+      status: 'pending',
+    })
+
+    setBoostSending(false)
+
+    if (error) {
+      toast('Could not send boost. Try again.', 'error')
+      return
     }
 
     localStorage.setItem(`boost_sent_${today}`, '1')
     setBoostSentToday(true)
+    setBoostComposing(false)
+    setBoostMessage('')
     setMochiDancing(true)
     setTimeout(() => setMochiDancing(false), 1000)
   }
@@ -158,18 +182,55 @@ export function PartnerScreen() {
         </div>
       </div>
 
-      {/* Boost button */}
-      <m.button
-        onClick={handleBoost}
-        disabled={boostSentToday}
-        whileTap={!boostSentToday ? { scale: 0.96 } : {}}
-        className="w-full bg-primary text-white rounded-full font-semibold py-3 mb-4 disabled:opacity-50 transition-opacity"
-      >
-        {boostSentToday
-          ? <span className="flex items-center justify-center gap-2"><HugeiconsIcon icon={MailLove01Icon} size={18} /> Boost sent!</span>
-          : <span className="flex items-center justify-center gap-2"><HugeiconsIcon icon={MailLove01Icon} size={18} /> Send a boost</span>
-        }
-      </m.button>
+      {/* Boost button / compose */}
+      {boostComposing ? (
+        <m.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-surface border border-border rounded-[var(--radius-card)] p-4 mb-4 space-y-3"
+        >
+          <textarea
+            ref={textareaRef}
+            value={boostMessage}
+            onChange={(e) => setBoostMessage(e.target.value.slice(0, 280))}
+            placeholder="Add a message... (optional)"
+            rows={3}
+            className="w-full resize-none rounded-xl bg-background border border-border px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary/40"
+          />
+          <div className="flex gap-2">
+            <m.button
+              onClick={handleBoostSend}
+              disabled={boostSending}
+              whileTap={{ scale: 0.96 }}
+              className="flex-1 bg-primary text-white rounded-full font-semibold py-2.5 text-sm disabled:opacity-50"
+            >
+              {boostSending
+                ? 'Sending…'
+                : <span className="flex items-center justify-center gap-2"><HugeiconsIcon icon={MailLove01Icon} size={16} /> Send boost</span>
+              }
+            </m.button>
+            <m.button
+              onClick={() => { setBoostComposing(false); setBoostMessage('') }}
+              whileTap={{ scale: 0.96 }}
+              className="px-4 py-2.5 rounded-full border border-border text-sm text-text-secondary"
+            >
+              <HugeiconsIcon icon={Cancel01Icon} size={16} />
+            </m.button>
+          </div>
+        </m.div>
+      ) : (
+        <m.button
+          onClick={handleBoost}
+          disabled={boostSentToday}
+          whileTap={!boostSentToday ? { scale: 0.96 } : {}}
+          className="w-full bg-primary text-white rounded-full font-semibold py-3 mb-4 disabled:opacity-50 transition-opacity"
+        >
+          {boostSentToday
+            ? <span className="flex items-center justify-center gap-2"><HugeiconsIcon icon={MailLove01Icon} size={18} /> Boost sent!</span>
+            : <span className="flex items-center justify-center gap-2"><HugeiconsIcon icon={MailLove01Icon} size={18} /> Send a boost</span>
+          }
+        </m.button>
+      )}
 
       {/* Habit list */}
       {habits.length === 0 ? (
