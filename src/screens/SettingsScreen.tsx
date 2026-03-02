@@ -49,7 +49,7 @@ export function SettingsScreen({ profile, partnerName, onSignOut }: SettingsScre
       initial="hidden"
       animate="visible"
     >
-      <m.h1 variants={staggerItem} className="font-heading text-2xl font-semibold text-text-primary">Settings</m.h1>
+      <m.h1 variants={staggerItem} className="font-heading text-3xl font-bold tracking-[var(--tracking-display)] text-text-primary">Settings</m.h1>
 
       {/* Tier card — clickable to open TierProgressHub */}
       <Card

@@ -171,7 +171,7 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="font-heading text-4xl font-extrabold tracking-tight text-text-primary">Today</h1>
+          <h1 className="font-heading text-3xl font-bold tracking-[var(--tracking-display)] text-text-primary">Today</h1>
           <p className="text-sm text-text-secondary">{formatDateDisplay(today)}</p>
         </div>
         {dueHabits.length > 0 && (
@@ -179,20 +179,21 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
         )}
       </div>
 
+      <div className="space-y-4">
       {/* Streak rescue prompt (if partner's streak is broken) */}
       <FeatureGate feature="couple_rescue">
-        <StreakRescuePrompt className="mb-4" />
+        <StreakRescuePrompt />
       </FeatureGate>
 
       {/* Grace period banner (self-contained) */}
-      <GracePeriodBanner className="mb-4" />
+      <GracePeriodBanner />
 
       {/* Catch-up indicator (trailing partner only) */}
-      {catchUpTier > 0 && <CatchUpIndicator className="mb-4" />}
+      {catchUpTier > 0 && <CatchUpIndicator />}
 
       {/* Couple streak banner */}
       {bestCoupleStreak && (
-        <CoupleStreakBanner streak={bestCoupleStreak} className="mb-4" />
+        <CoupleStreakBanner streak={bestCoupleStreak} />
       )}
 
       {/* Streak hostage display */}
@@ -200,7 +201,6 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
         <StreakHostageDisplay
           streak={bestCoupleStreak.current_days}
           atRisk={completedCount === 0 && dueHabits.length > 0}
-          className="mb-4"
         />
       )}
 
@@ -211,7 +211,6 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
           partnerScore={partnerBreakdown?.total ?? 0}
           daysRemaining={getDaysRemainingInSprint(sprint.week_start, tz)}
           onTap={onNavigateToSprint}
-          className="mb-4"
         />
       )}
 
@@ -220,7 +219,6 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
         <MochiMoodStrip
           progress={progress}
           remaining={dueHabits.length - completedCount}
-          className="mb-4"
           onMicroCelebrate={() => celebrate('micro' as any)}
         />
       )}
@@ -231,7 +229,6 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
           currentPoints={bank.currentPoints}
           initialPoints={bank.initialPoints}
           floorPoints={bank.floorPoints}
-          className="mb-4"
         />
       )}
 
@@ -240,7 +237,6 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
         <MondayHeadStart
           bonusPoints={bonus.bonusPoints}
           reason={bonus.reason}
-          className="mb-4"
         />
       )}
 
@@ -283,7 +279,7 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
       )}
 
       {/* Tomorrow teaser (after 9PM) */}
-      {isEvening && <TomorrowTeaser tomorrowTaskCount={tomorrowTaskCount} className="mt-4" />}
+      {isEvening && <TomorrowTeaser tomorrowTaskCount={tomorrowTaskCount} />}
 
       {/* Mood check-in entry point */}
       <m.button
@@ -291,11 +287,12 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
         whileTap={{ scale: 0.96 }}
         transition={kawaiiSpring}
         onPointerDown={() => haptics.light()}
-        className="w-full flex items-center gap-3 mt-4 px-4 py-3 rounded-2xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors"
+        className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors"
       >
         <KiraAvatar mood="empathetic" size="sm" />
         <span className="text-sm font-medium text-primary">Mood check-in</span>
       </m.button>
+      </div>{/* end space-y-4 */}
 
       <HabitActionMenu
         open={!!actionHabit && !confirmArchive}

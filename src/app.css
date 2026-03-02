@@ -55,23 +55,31 @@ input:not(:-webkit-autofill) {
   --radius-small: 8px;
 
   /* ---------- Colors — Strawberry Milk Light (default) ---------- */
-  --color-primary: #E8878F;
-  --color-secondary: #F2B8A2;
-  --color-accent: #C4706E;
-  --color-bg: #FFF8F3;
-  --color-surface: #FFF3EE;
-  --color-text-primary: #3D2C2E;
-  --color-text-secondary: #7A5C5E;
-  --color-error: #D4645A;
-  --color-success: #7DB8A0;
-  --color-warning: #E5A84B;
-  --color-border: #F0DDD8;
-  --color-decorative-1: #F7D1D1;
-  --color-decorative-2: #F5DCC4;
-  --color-decorative-3: #A85360;
-  --color-chart-a: #F0A0A0;
-  --color-chart-b: #F2C4A0;
-  --color-chart-shared: #A8CDB8;
+  --color-primary:        oklch(0.71 0.09 10);
+  --color-secondary:      oklch(0.80 0.07 35);
+  --color-accent:         oklch(0.60 0.10 12);
+  --color-bg:             oklch(0.99 0.01 50);
+  --color-surface:        oklch(0.98 0.02 50);
+  --color-text-primary:   oklch(0.28 0.03 15);
+  --color-text-secondary: oklch(0.51 0.04 12);
+  --color-text-tertiary:  oklch(0.67 0.03 12);
+  --color-error:          oklch(0.59 0.12 20);
+  --color-success:        oklch(0.72 0.07 162);
+  --color-warning:        oklch(0.77 0.12 72);
+  --color-border:         oklch(0.92 0.02 35);
+  --color-decorative-1:   oklch(0.89 0.04 12);
+  --color-decorative-2:   oklch(0.89 0.04 55);
+  --color-decorative-3:   oklch(0.48 0.12 358);
+  --color-chart-a:        oklch(0.77 0.07 15);
+  --color-chart-b:        oklch(0.82 0.07 55);
+  --color-chart-shared:   oklch(0.82 0.05 158);
+
+  /* ---------- Background gradient ---------- */
+  --bg-gradient: radial-gradient(
+    ellipse 80% 40% at 50% -10%,
+    color-mix(in oklch, var(--color-primary) 6%, transparent),
+    transparent
+  );
 
   /* ---------- Shadows ---------- */
   --shadow-elevated: 0 4px 20px -2px rgba(232, 135, 143, 0.18),
@@ -159,23 +167,24 @@ input:not(:-webkit-autofill) {
 
 /* Strawberry Milk Dark */
 [data-theme="strawberry-milk-dark"] {
-  --color-primary: #D4868E;
-  --color-secondary: #D9A892;
-  --color-accent: #C47878;
-  --color-bg: #1E1618;
-  --color-surface: #2C2224;
-  --color-text-primary: #F2E6E0;
-  --color-text-secondary: #A08888;
-  --color-error: #D06058;
-  --color-success: #7CC49A;
-  --color-warning: #D9A040;
-  --color-border: #3D2E30;
-  --color-decorative-1: #543838;
-  --color-decorative-2: #4A3830;
-  --color-decorative-3: #8A3E48;
-  --color-chart-a: #C48888;
-  --color-chart-b: #C4A080;
-  --color-chart-shared: #80B098;
+  --color-primary:        oklch(0.68 0.11 10);
+  --color-secondary:      oklch(0.77 0.09 35);
+  --color-accent:         oklch(0.57 0.12 12);
+  --color-bg:             oklch(0.14 0.03 15);
+  --color-surface:        oklch(0.19 0.03 12);
+  --color-text-primary:   oklch(0.92 0.02 30);
+  --color-text-secondary: oklch(0.62 0.03 12);
+  --color-text-tertiary:  oklch(0.64 0.05 12);
+  --color-error:          oklch(0.56 0.14 20);
+  --color-success:        oklch(0.69 0.09 162);
+  --color-warning:        oklch(0.74 0.14 72);
+  --color-border:         oklch(0.22 0.03 358);
+  --color-decorative-1:   oklch(0.36 0.05 12);
+  --color-decorative-2:   oklch(0.33 0.05 40);
+  --color-decorative-3:   oklch(0.36 0.09 358);
+  --color-chart-a:        oklch(0.63 0.07 12);
+  --color-chart-b:        oklch(0.68 0.06 55);
+  --color-chart-shared:   oklch(0.69 0.06 158);
   --shadow-elevated: 0 0 0 1px color-mix(in srgb, var(--color-primary) 16%, transparent),
                      0 4px 20px -2px rgba(212, 134, 142, 0.22),
                      0 2px 6px -1px rgba(212, 134, 142, 0.12);
@@ -185,23 +194,24 @@ input:not(:-webkit-autofill) {
 
 /* Matcha Latte Light */
 [data-theme="matcha-latte"] {
-  --color-primary: #8BBF9F;
-  --color-secondary: #F2A896;
-  --color-accent: #5A9E82;
-  --color-bg: #FBF7F0;
-  --color-surface: #F5FAF2;
-  --color-text-primary: #2D3B30;
-  --color-text-secondary: #6B7C6E;
-  --color-error: #D4716A;
-  --color-success: #6BAF82;
-  --color-warning: #DFA24B;
-  --color-border: #E2EDDF;
-  --color-decorative-1: #C8E6D0;
-  --color-decorative-2: #F7D4CC;
-  --color-decorative-3: #4A7F62;
-  --color-chart-a: #A8D8B9;
-  --color-chart-b: #F2B0A0;
-  --color-chart-shared: #C4A882;
+  --color-primary:        oklch(0.74 0.08 148);
+  --color-secondary:      oklch(0.76 0.08 25);
+  --color-accent:         oklch(0.63 0.09 148);
+  --color-bg:             oklch(0.98 0.01 80);
+  --color-surface:        oklch(0.97 0.02 140);
+  --color-text-primary:   oklch(0.26 0.04 148);
+  --color-text-secondary: oklch(0.51 0.03 148);
+  --color-text-tertiary:  oklch(0.67 0.02 148);
+  --color-error:          oklch(0.60 0.11 20);
+  --color-success:        oklch(0.68 0.09 148);
+  --color-warning:        oklch(0.76 0.12 78);
+  --color-border:         oklch(0.92 0.03 148);
+  --color-decorative-1:   oklch(0.88 0.05 148);
+  --color-decorative-2:   oklch(0.88 0.05 25);
+  --color-decorative-3:   oklch(0.53 0.09 148);
+  --color-chart-a:        oklch(0.84 0.06 148);
+  --color-chart-b:        oklch(0.77 0.07 25);
+  --color-chart-shared:   oklch(0.75 0.06 75);
   --shadow-elevated: 0 4px 20px -2px rgba(139, 191, 159, 0.18),
                      0 2px 6px -1px rgba(139, 191, 159, 0.10);
   --shadow-button: 0 4px 0 #5A9E82, 0 6px 12px rgba(0, 0, 0, 0.1);
@@ -211,23 +221,24 @@ input:not(:-webkit-autofill) {
 
 /* Matcha Latte Dark */
 [data-theme="matcha-latte-dark"] {
-  --color-primary: #82B096;
-  --color-secondary: #D09888;
-  --color-accent: #5CA880;
-  --color-bg: #181C18;
-  --color-surface: #242A24;
-  --color-text-primary: #EDE8DF;
-  --color-text-secondary: #8A9888;
-  --color-error: #CC6860;
-  --color-success: #68B880;
-  --color-warning: #CCA040;
-  --color-border: #303830;
-  --color-decorative-1: #2A4038;
-  --color-decorative-2: #4A3430;
-  --color-decorative-3: #2A5040;
-  --color-chart-a: #88C4A0;
-  --color-chart-b: #C49888;
-  --color-chart-shared: #A89068;
+  --color-primary:        oklch(0.71 0.10 148);
+  --color-secondary:      oklch(0.73 0.10 25);
+  --color-accent:         oklch(0.60 0.11 148);
+  --color-bg:             oklch(0.13 0.02 148);
+  --color-surface:        oklch(0.18 0.02 148);
+  --color-text-primary:   oklch(0.92 0.02 80);
+  --color-text-secondary: oklch(0.60 0.03 148);
+  --color-text-tertiary:  oklch(0.64 0.04 148);
+  --color-error:          oklch(0.57 0.13 20);
+  --color-success:        oklch(0.65 0.11 148);
+  --color-warning:        oklch(0.73 0.14 78);
+  --color-border:         oklch(0.22 0.03 148);
+  --color-decorative-1:   oklch(0.27 0.05 148);
+  --color-decorative-2:   oklch(0.31 0.04 40);
+  --color-decorative-3:   oklch(0.33 0.07 148);
+  --color-chart-a:        oklch(0.75 0.07 148);
+  --color-chart-b:        oklch(0.68 0.06 40);
+  --color-chart-shared:   oklch(0.69 0.07 80);
   --shadow-elevated: 0 0 0 1px color-mix(in srgb, var(--color-primary) 16%, transparent),
                      0 4px 20px -2px rgba(130, 176, 150, 0.22),
                      0 2px 6px -1px rgba(130, 176, 150, 0.12);
@@ -238,23 +249,24 @@ input:not(:-webkit-autofill) {
 
 /* Honey Biscuit Light */
 [data-theme="honey-biscuit"] {
-  --color-primary: #E8B84B;
-  --color-secondary: #E8A8A0;
-  --color-accent: #C4883A;
-  --color-bg: #FFF9EE;
-  --color-surface: #FFFBF0;
-  --color-text-primary: #3A2D20;
-  --color-text-secondary: #7A6B58;
-  --color-error: #C9605A;
-  --color-success: #7AAF6B;
-  --color-warning: #D9923A;
-  --color-border: #EEE4D0;
-  --color-decorative-1: #F5E6B8;
-  --color-decorative-2: #F8D4C0;
-  --color-decorative-3: #8F6830;
-  --color-chart-a: #F0C870;
-  --color-chart-b: #E8B0A8;
-  --color-chart-shared: #A0C490;
+  --color-primary:        oklch(0.77 0.13 83);
+  --color-secondary:      oklch(0.77 0.07 20);
+  --color-accent:         oklch(0.62 0.12 65);
+  --color-bg:             oklch(0.99 0.01 80);
+  --color-surface:        oklch(0.99 0.01 80);
+  --color-text-primary:   oklch(0.26 0.05 55);
+  --color-text-secondary: oklch(0.50 0.05 65);
+  --color-text-tertiary:  oklch(0.66 0.04 82);
+  --color-error:          oklch(0.58 0.11 20);
+  --color-success:        oklch(0.70 0.09 142);
+  --color-warning:        oklch(0.69 0.13 60);
+  --color-border:         oklch(0.92 0.03 65);
+  --color-decorative-1:   oklch(0.92 0.06 83);
+  --color-decorative-2:   oklch(0.88 0.05 40);
+  --color-decorative-3:   oklch(0.52 0.10 65);
+  --color-chart-a:        oklch(0.83 0.10 83);
+  --color-chart-b:        oklch(0.79 0.06 20);
+  --color-chart-shared:   oklch(0.78 0.07 145);
   --shadow-elevated: 0 4px 20px -2px rgba(232, 184, 75, 0.18),
                      0 2px 6px -1px rgba(232, 184, 75, 0.10);
   --shadow-button: 0 4px 0 #C4883A, 0 6px 12px rgba(0, 0, 0, 0.1);
@@ -264,23 +276,24 @@ input:not(:-webkit-autofill) {
 
 /* Honey Biscuit Dark */
 [data-theme="honey-biscuit-dark"] {
-  --color-primary: #D0A040;
-  --color-secondary: #C49088;
-  --color-accent: #B8782E;
-  --color-bg: #1C1810;
-  --color-surface: #2A2418;
-  --color-text-primary: #F0E8D8;
-  --color-text-secondary: #9A8A70;
-  --color-error: #C05850;
-  --color-success: #78A868;
-  --color-warning: #C89030;
-  --color-border: #383020;
-  --color-decorative-1: #3A3018;
-  --color-decorative-2: #483028;
-  --color-decorative-3: #6A4820;
-  --color-chart-a: #C8A858;
-  --color-chart-b: #C09888;
-  --color-chart-shared: #88A870;
+  --color-primary:        oklch(0.74 0.15 83);
+  --color-secondary:      oklch(0.74 0.09 20);
+  --color-accent:         oklch(0.59 0.14 65);
+  --color-bg:             oklch(0.14 0.04 55);
+  --color-surface:        oklch(0.18 0.04 65);
+  --color-text-primary:   oklch(0.92 0.03 80);
+  --color-text-secondary: oklch(0.62 0.04 65);
+  --color-text-tertiary:  oklch(0.63 0.06 82);
+  --color-error:          oklch(0.55 0.13 20);
+  --color-success:        oklch(0.67 0.11 142);
+  --color-warning:        oklch(0.66 0.15 60);
+  --color-border:         oklch(0.25 0.04 65);
+  --color-decorative-1:   oklch(0.26 0.05 65);
+  --color-decorative-2:   oklch(0.32 0.05 45);
+  --color-decorative-3:   oklch(0.37 0.07 55);
+  --color-chart-a:        oklch(0.74 0.10 83);
+  --color-chart-b:        oklch(0.68 0.05 20);
+  --color-chart-shared:   oklch(0.72 0.07 142);
   --shadow-elevated: 0 0 0 1px color-mix(in srgb, var(--color-primary) 16%, transparent),
                      0 4px 20px -2px rgba(208, 160, 64, 0.22),
                      0 2px 6px -1px rgba(208, 160, 64, 0.12);
@@ -292,23 +305,24 @@ input:not(:-webkit-autofill) {
 /* ---------- Auto dark mode for system preference ---------- */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --color-primary: #D4868E;
-    --color-secondary: #D9A892;
-    --color-accent: #C47878;
-    --color-bg: #1E1618;
-    --color-surface: #2C2224;
-    --color-text-primary: #F2E6E0;
-    --color-text-secondary: #A08888;
-    --color-error: #D06058;
-    --color-success: #7CC49A;
-    --color-warning: #D9A040;
-    --color-border: #3D2E30;
-    --color-decorative-1: #543838;
-    --color-decorative-2: #4A3830;
-    --color-decorative-3: #8A3E48;
-    --color-chart-a: #C48888;
-    --color-chart-b: #C4A080;
-    --color-chart-shared: #80B098;
+    --color-primary:        oklch(0.68 0.11 10);
+    --color-secondary:      oklch(0.77 0.09 35);
+    --color-accent:         oklch(0.57 0.12 12);
+    --color-bg:             oklch(0.14 0.03 15);
+    --color-surface:        oklch(0.19 0.03 12);
+    --color-text-primary:   oklch(0.92 0.02 30);
+    --color-text-secondary: oklch(0.62 0.03 12);
+    --color-text-tertiary:  oklch(0.64 0.05 12);
+    --color-error:          oklch(0.56 0.14 20);
+    --color-success:        oklch(0.69 0.09 162);
+    --color-warning:        oklch(0.74 0.14 72);
+    --color-border:         oklch(0.22 0.03 358);
+    --color-decorative-1:   oklch(0.36 0.05 12);
+    --color-decorative-2:   oklch(0.33 0.05 40);
+    --color-decorative-3:   oklch(0.36 0.09 358);
+    --color-chart-a:        oklch(0.63 0.07 12);
+    --color-chart-b:        oklch(0.68 0.06 55);
+    --color-chart-shared:   oklch(0.69 0.06 158);
     --shadow-elevated: 0 0 0 1px color-mix(in srgb, var(--color-primary) 16%, transparent),
                        0 4px 20px -2px rgba(212, 134, 142, 0.22),
                        0 2px 6px -1px rgba(212, 134, 142, 0.12);

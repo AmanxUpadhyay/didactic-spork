@@ -15,7 +15,11 @@ import { MercyRulePrompt } from '@/components/sprint/MercyRulePrompt'
 import { CompetitiveScoreGap } from '@/components/psych/CompetitiveScoreGap'
 import { SunkCostTimeline } from '@/components/psych/SunkCostTimeline'
 
-export function SprintScreen() {
+interface SprintScreenProps {
+  onTabChange?: (tab: string) => void
+}
+
+export function SprintScreen({ onTabChange }: SprintScreenProps) {
   const { profile } = useAuth()
   const { partnerId, partnerProfile } = usePairing()
   const tz = profile?.timezone || 'UTC'
@@ -46,8 +50,10 @@ export function SprintScreen() {
     return (
       <div className="px-5 pt-6 pb-24">
         <EmptyState
+          variant="no-data"
           title="No sprint yet"
           description="Sprints start automatically every Monday. Check back soon!"
+          action={{ label: 'Go to Settings', onClick: () => onTabChange?.('settings') }}
         />
       </div>
     )

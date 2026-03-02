@@ -150,7 +150,8 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
 
   return (
     <div
-      className="min-h-dvh bg-background overflow-hidden"
+      className="min-h-dvh overflow-hidden"
+      style={{ background: 'var(--bg-gradient), var(--color-bg)' }}
       onTouchStart={handleSwipeStart}
       onTouchEnd={handleSwipeEnd}
     >
@@ -197,7 +198,7 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
               onHabitComplete={rollMysteryBox}
             />
           )}
-          {activeTab === 'sprint' && <SprintScreen />}
+          {activeTab === 'sprint' && <SprintScreen onTabChange={(tab) => setActiveTab(tab as Tab)} />}
           {activeTab === 'partner' && <PartnerScreen />}
           {activeTab === 'settings' && (
             <SettingsScreen

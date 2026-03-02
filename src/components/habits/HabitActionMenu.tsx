@@ -94,7 +94,7 @@ export function HabitActionMenu({
         <button
           type="button"
           onClick={handleEdit}
-          className="w-full text-left px-4 py-3 rounded-[var(--radius-card)] hover:bg-primary/5 flex items-center gap-3 text-text-primary font-medium"
+          className="w-full text-left px-4 py-3 rounded-[var(--radius-small)] hover:bg-primary/5 flex items-center gap-3 text-text-primary font-medium"
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="flex-shrink-0">
             <path
@@ -111,7 +111,7 @@ export function HabitActionMenu({
           <button
             type="button"
             onClick={handleExcuse}
-            className="w-full text-left px-4 py-3 rounded-[var(--radius-card)] hover:bg-primary/5 flex items-center gap-3 text-primary font-medium"
+            className="w-full text-left px-4 py-3 rounded-[var(--radius-small)] hover:bg-primary/5 flex items-center gap-3 text-primary font-medium"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="flex-shrink-0">
               <path
@@ -135,7 +135,7 @@ export function HabitActionMenu({
           onPointerCancel={cancelHold}
           animate={{ backgroundColor: holding ? 'color-mix(in srgb, var(--color-error) 8%, transparent)' : 'transparent' }}
           transition={{ duration: 0.15 }}
-          className="w-full text-left px-4 py-3 rounded-[var(--radius-card)] flex items-center gap-3 text-error font-medium select-none touch-none"
+          className="w-full text-left px-4 py-3 rounded-[var(--radius-small)] flex items-center gap-3 text-error font-medium select-none touch-none"
           style={{ WebkitUserSelect: 'none' }}
         >
           {/* Progress ring wrapper */}

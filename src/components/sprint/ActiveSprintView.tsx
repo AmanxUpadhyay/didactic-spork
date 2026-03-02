@@ -125,7 +125,7 @@ export function ActiveSprintView({
       {/* Header */}
       <m.div variants={staggerItem} className="flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-4xl font-extrabold tracking-tight text-text-primary">Sprint</h1>
+          <h1 className="font-heading text-3xl font-bold tracking-[var(--tracking-display)] text-text-primary">Sprint</h1>
           <p className="text-sm text-text-secondary">{formatWeekRange(weekStart)}</p>
         </div>
         <div className="text-right">

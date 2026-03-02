@@ -1,12 +1,12 @@
 import { useState, useRef, type ReactNode } from 'react'
 import { m } from 'motion/react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Plant01Icon, PartyIcon, FireIcon, SleepingIcon, MailLove01Icon, Cancel01Icon } from '@hugeicons/core-free-icons'
+import { Plant01Icon, PartyIcon, FireIcon, SleepingIcon, MailLove01Icon } from '@hugeicons/core-free-icons'
 import { useAuth } from '@/hooks/useAuth'
 import { usePairing } from '@/contexts/PairingContext'
 import { usePartnerHabits } from '@/hooks/usePartnerHabits'
 import { useStreaks } from '@/hooks/useStreaks'
-import { EmptyState } from '@/components/ui'
+import { EmptyState, Button, Card } from '@/components/ui'
 import { useToast } from '@/components/ui/ToastProvider'
 import { PartnerHabitCard } from '@/components/partner/PartnerHabitCard'
 import { HabitCardSkeleton } from '@/components/habits/HabitCardSkeleton'
@@ -140,7 +140,7 @@ export function PartnerScreen() {
   return (
     <div className="px-5 pt-6 pb-24">
       {/* Header */}
-      <h1 className="font-heading text-4xl font-extrabold tracking-tight text-text-primary mb-4">
+      <h1 className="font-heading text-3xl font-bold tracking-[var(--tracking-display)] text-text-primary mb-4">
         Partner
       </h1>
 
@@ -172,14 +172,14 @@ export function PartnerScreen() {
 
       {/* Stats strip — asymmetric: streak wide, last active narrow */}
       <div className="flex gap-3 mb-4">
-        <div className="flex-[2] bg-surface rounded-[var(--radius-card)] p-3 text-center border border-border">
+        <Card className="flex-[2] p-3 text-center">
           <p className="font-accent font-bold text-2xl text-primary flex items-center justify-center gap-1"><HugeiconsIcon icon={FireIcon} size={20} /> {coupleStreak}</p>
           <p className="text-xs font-heading text-text-secondary tracking-wide">couple streak</p>
-        </div>
-        <div className="flex-[1] bg-surface rounded-[var(--radius-card)] p-3 text-center border border-border">
+        </Card>
+        <Card className="flex-[1] p-3 text-center">
           <p className="font-accent font-bold text-base text-secondary">{lastActiveText}</p>
           <p className="text-xs font-heading text-text-secondary tracking-wide">last active</p>
-        </div>
+        </Card>
       </div>
 
       {/* Boost button / compose */}
@@ -195,7 +195,7 @@ export function PartnerScreen() {
             onChange={(e) => setBoostMessage(e.target.value.slice(0, 280))}
             placeholder="Add a message... (optional)"
             rows={3}
-            className="w-full resize-none rounded-xl bg-background border border-border px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="w-full resize-none rounded-[var(--radius-input)] bg-background border-2 border-border px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary/40"
           />
           <div className="flex gap-2">
             <m.button
@@ -209,13 +209,10 @@ export function PartnerScreen() {
                 : <span className="flex items-center justify-center gap-2"><HugeiconsIcon icon={MailLove01Icon} size={16} /> Send boost</span>
               }
             </m.button>
-            <m.button
-              onClick={() => { setBoostComposing(false); setBoostMessage('') }}
-              whileTap={{ scale: 0.96 }}
-              className="px-4 py-2.5 rounded-full border border-border text-sm text-text-secondary"
-            >
-              <HugeiconsIcon icon={Cancel01Icon} size={16} />
-            </m.button>
+            <Button variant="secondary" size="sm"
+              onClick={() => { setBoostComposing(false); setBoostMessage('') }}>
+              Cancel
+            </Button>
           </div>
         </m.div>
       ) : (
