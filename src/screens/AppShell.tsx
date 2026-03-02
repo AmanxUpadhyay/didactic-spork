@@ -145,6 +145,9 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
     },
   ]
 
+  // Background zoom-out when any bottom sheet is open (physics-of-touch pattern)
+  const anySheetOpen = habitSheetOpen || notifCenterOpen
+
   return (
     <div
       className="min-h-dvh bg-background overflow-hidden"
@@ -170,6 +173,13 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
       {activeTab === 'today' && <InstallPrompt />}
       {activeTab === 'today' && <NotificationOptIn />}
 
+      {/* Background zoom-out wrapper — springs back when sheet opens (physics-of-touch pattern) */}
+      <m.div
+        initial={false}
+        animate={{ scale: anySheetOpen ? 0.96 : 1 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 40, mass: 0.8 }}
+        style={{ transformOrigin: 'top center' }}
+      >
       {/* Direction-aware tab transitions */}
       <AnimatePresence mode="wait" initial={false}>
         <m.div
@@ -204,6 +214,7 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
         fabIcon={<HugeiconsIcon icon={Add01Icon} size={24} />}
         onFabClick={handleFabClick}
       />
+      </m.div>{/* end background zoom wrapper */}
 
       <BottomSheet open={habitSheetOpen} onClose={handleSheetClose}>
         <HabitSheet

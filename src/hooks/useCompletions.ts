@@ -55,23 +55,48 @@ export function useCompletions(userId: string | undefined, timezone: string) {
     const existing = completions.find((c) => c.task_id === taskId)
 
     if (existing) {
-      // Undo completion
-      await supabase.from('habit_completions').delete().eq('id', existing.id)
+      // Optimistically remove before server call
       setCompletions((prev) => prev.filter((c) => c.id !== existing.id))
-      // Update streak
+      const { error } = await supabase.from('habit_completions').delete().eq('id', existing.id)
+      if (error) {
+        // Rollback
+        setCompletions((prev) => [...prev, existing])
+        return { completed: true }
+      }
       await supabase.rpc('update_streak_for_task', { p_task_id: taskId })
       return { completed: false }
     } else {
-      // Complete
-      const { data } = await supabase
+      // Optimistically add temp entry — UI responds instantly
+      const now = new Date().toISOString()
+      const optimistic: HabitCompletion = {
+        id: `optimistic-${taskId}-${Date.now()}`,
+        user_id: userId,
+        task_id: taskId,
+        completed_date: today,
+        completed_at: now,
+        created_at: now,
+        notes: null,
+      }
+      setCompletions((prev) => [...prev, optimistic])
+
+      const { data, error } = await supabase
         .from('habit_completions')
-        .insert({ user_id: userId, task_id: taskId, completed_date: today, completed_at: new Date().toISOString() })
+        .insert({ user_id: userId, task_id: taskId, completed_date: today, completed_at: now })
         .select()
         .single()
-      if (data) {
-        setCompletions((prev) => [...prev, data])
+
+      if (error) {
+        // Rollback
+        setCompletions((prev) => prev.filter((c) => c.id !== optimistic.id))
+        return { completed: false }
       }
-      // Update streak and get result
+
+      if (data) {
+        // Replace optimistic entry with real server row
+        setCompletions((prev) => prev.map((c) => (c.id === optimistic.id ? data : c)))
+      }
+
+      // Update streak and get result (background — UI already updated)
       const { data: streakResult } = await supabase.rpc('update_streak_for_task', { p_task_id: taskId })
       const result = streakResult as { success: boolean; current_days?: number } | null
       const days = result?.current_days ?? 0
