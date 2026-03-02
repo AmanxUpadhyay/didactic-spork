@@ -13,7 +13,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary: [
-    'bg-primary text-white font-semibold',
+    'bg-primary text-text-primary font-semibold',
     'shadow-[var(--shadow-button)] active:shadow-[var(--shadow-button-active)]',
   ].join(' '),
   secondary: [

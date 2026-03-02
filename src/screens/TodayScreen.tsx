@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useHabits } from '@/hooks/useHabits'
 import { useCompletions } from '@/hooks/useCompletions'
@@ -66,6 +66,19 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
   const { celebrate } = useCelebration()
   const { tier: catchUpTier } = useCatchUp()
 
+  // Entry-point confetti: fire once on load if already all-done
+  const entryConfettiFiredRef = useRef(false)
+  useEffect(() => {
+    if (!habitsLoading && !entryConfettiFiredRef.current) {
+      entryConfettiFiredRef.current = true
+      if (dueHabits.length > 0 && completedCount === dueHabits.length) {
+        celebrate('large')
+        setShowConfetti(true)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [habitsLoading])
+
   const dismissConfetti = useCallback(() => setShowConfetti(false), [])
 
   const today = getTodayInTimezone(tz)
@@ -109,7 +122,8 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
       // Check if all habits now complete
       const newCompleted = completedCount + 1
       if (newCompleted === dueHabits.length && dueHabits.length > 1) {
-        celebrate('small')
+        entryConfettiFiredRef.current = true  // prevent double-fire from entry effect
+        celebrate('large')
         setShowConfetti(true)
         toast('All done for today!', 'success')
       }
