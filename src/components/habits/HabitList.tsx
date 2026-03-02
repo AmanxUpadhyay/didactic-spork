@@ -12,10 +12,12 @@ interface HabitListProps {
   onToggle: (taskId: string) => void
   onComplete?: (taskId: string) => void
   onLongPress?: (habit: Task) => void
+  onDelete?: (habitId: string) => void
   onReorder?: (orderedHabits: Task[]) => void
+  focusedHabitId?: string | null
 }
 
-export function HabitList({ habits, isCompletedToday, isDueToday, getStreak, onToggle, onComplete, onLongPress, onReorder }: HabitListProps) {
+export function HabitList({ habits, isCompletedToday, isDueToday, getStreak, onToggle, onComplete, onLongPress, onDelete, onReorder, focusedHabitId }: HabitListProps) {
   // Local order state for drag-to-reorder
   const [orderedHabits, setOrderedHabits] = useState<Task[]>([])
 
@@ -60,6 +62,9 @@ export function HabitList({ habits, isCompletedToday, isDueToday, getStreak, onT
               onToggle={() => onToggle(habit.id)}
               onComplete={onComplete ? () => onComplete(habit.id) : undefined}
               onLongPress={onLongPress ? () => onLongPress(habit) : undefined}
+              onDelete={onDelete ? () => onDelete(habit.id) : undefined}
+              isFocused={focusedHabitId === habit.id}
+              isDimmed={focusedHabitId != null && focusedHabitId !== habit.id}
               ifTrigger={habit.if_trigger ?? undefined}
               thenAction={habit.then_action ?? undefined}
             />
@@ -99,6 +104,9 @@ export function HabitList({ habits, isCompletedToday, isDueToday, getStreak, onT
             onToggle={() => onToggle(habit.id)}
             onComplete={onComplete ? () => onComplete(habit.id) : undefined}
             onLongPress={onLongPress ? () => onLongPress(habit) : undefined}
+            onDelete={onDelete ? () => onDelete(habit.id) : undefined}
+            isFocused={focusedHabitId === habit.id}
+            isDimmed={focusedHabitId != null && focusedHabitId !== habit.id}
             ifTrigger={habit.if_trigger ?? undefined}
             thenAction={habit.then_action ?? undefined}
           />

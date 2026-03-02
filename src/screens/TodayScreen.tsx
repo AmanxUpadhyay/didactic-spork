@@ -33,6 +33,7 @@ import { useCatchUp } from '@/hooks/useCatchUp'
 import { GracePeriodBanner } from '@/components/guardrails/GracePeriodBanner'
 import { CatchUpIndicator } from '@/components/sprint/CatchUpIndicator'
 import { MochiMoodStrip } from '@/components/ui/MochiMoodStrip'
+import { ScrollPhysicsContainer } from '@/components/ui/ScrollPhysicsContainer'
 import type { Task } from '@/types/habits'
 
 interface TodayScreenProps {
@@ -264,6 +265,7 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
       ) : (
         <div data-no-tab-swipe>
           <PullToRefresh onRefresh={async () => { await refetchHabits() }}>
+            <ScrollPhysicsContainer>
             <HabitList
               habits={habits}
               isCompletedToday={isCompletedToday}
@@ -273,7 +275,10 @@ export function TodayScreen({ onEditHabit, onNavigateToSprint, onHabitComplete }
               onLongPress={handleLongPress}
               onComplete={onHabitComplete}
               onReorder={reorderHabits}
+              onDelete={(id) => { archiveHabit(id); toast('Habit removed', 'success') }}
+              focusedHabitId={actionHabit?.id}
             />
+            </ScrollPhysicsContainer>
           </PullToRefresh>
         </div>
       )}

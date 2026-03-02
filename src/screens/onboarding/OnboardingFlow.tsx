@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { AnimatePresence, m } from 'motion/react'
 import { pageTransitionSpring } from '@/lib/animations'
+import { MagneticDot } from '@/components/ui/MagneticDot'
 import { WelcomeScreen } from './WelcomeScreen'
 import { HowItWorksScreen } from './HowItWorksScreen'
 import { GoalSetupScreen } from './GoalSetupScreen'
@@ -63,14 +64,10 @@ export function OnboardingFlow({ userId, onComplete }: OnboardingFlowProps) {
       {/* Progress dots */}
       <div className="flex justify-center gap-2 pt-12 pb-2 shrink-0">
         {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-          <m.div
+          <MagneticDot
             key={i}
-            className="h-2 rounded-full bg-primary"
-            animate={{
-              width: i === step ? 20 : 8,
-              opacity: i === step ? 1 : i < step ? 0.5 : 0.2,
-            }}
-            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+            isActive={i === step}
+            size={8}
           />
         ))}
       </div>

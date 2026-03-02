@@ -113,7 +113,7 @@ export function SprintTaskStack({ weekStart, className }: SprintTaskStackProps) 
             </div>
           </m.div>
         ) : (
-          <div className="relative h-40">
+          <div className="relative h-40" style={{ perspective: '800px', perspectiveOrigin: 'center center' }}>
             {/* Stack peek — next 2 cards shown behind */}
             {[2, 1].map((offset) => {
               const idx = currentIdx + offset

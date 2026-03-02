@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { AnimatePresence, m } from 'motion/react'
 import { NavBar, BottomSheet } from '@/components/ui'
+import { GeometricMask } from '@/components/ui/GeometricMask'
 import { usePairing } from '@/contexts/PairingContext'
 import { useTierUnlocks } from '@/hooks/useTierUnlocks'
 import { useMysteryBox } from '@/hooks/useMysteryBox'
@@ -23,7 +24,7 @@ import { NotificationOptIn } from '@/components/notifications/NotificationOptIn'
 import { NotificationBadge } from '@/components/notifications/NotificationBadge'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
 import { InAppNotificationToast } from '@/components/notifications/InAppNotificationToast'
-import { pageEnterRight, pageEnterLeft } from '@/lib/animations'
+import { kawaiiSpring, pageEnterRight, pageEnterLeft } from '@/lib/animations'
 import { unlockAudio } from '@/lib/sounds'
 import {
   Home03Icon,
@@ -49,6 +50,9 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
   const [habitSheetOpen, setHabitSheetOpen] = useState(false)
   const [editingHabit, setEditingHabit] = useState<Task | null>(null)
   const [notifCenterOpen, setNotifCenterOpen] = useState(false)
+  const [tapOrigin, setTapOrigin] = useState({ x: 195, y: 780 })
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const pendingTab = useRef<Tab>('today')
   const prevTabRef = useRef<Tab>('today')
   // Swipe gesture tracking
   const swipeStartX = useRef(0)
@@ -82,6 +86,21 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
     swipeTarget.current = e.target
   }, [])
 
+  const handleTabChange = useCallback((tabId: string, x: number, y: number) => {
+    // tabId is either a TAB_ORDER index (from NavBar) or the actual Tab value (from swipe/SprintScreen)
+    const tabByIndex = TAB_ORDER[parseInt(tabId)]
+    const tab: Tab = (tabByIndex ?? tabId) as Tab
+    if (tab === activeTab || isTransitioning) return
+    setTapOrigin({ x, y })
+    pendingTab.current = tab
+    setIsTransitioning(true)
+  }, [activeTab, isTransitioning])
+
+  const handleMaskComplete = useCallback(() => {
+    setActiveTab(pendingTab.current)
+    setIsTransitioning(false)
+  }, [])
+
   const handleSwipeEnd = useCallback((e: React.TouchEvent) => {
     const dx = (e.changedTouches[0]?.clientX ?? 0) - swipeStartX.current
     const dy = (e.changedTouches[0]?.clientY ?? 0) - swipeStartY.current
@@ -91,12 +110,14 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
     const el = swipeTarget.current as HTMLElement | null
     if (el?.closest('[data-no-tab-swipe]')) return
     const idx = TAB_ORDER.indexOf(activeTab)
+    const screenCenterX = window.innerWidth / 2
+    const screenCenterY = window.innerHeight / 2
     if (dx < 0 && idx < TAB_ORDER.length - 1) {
-      setActiveTab(TAB_ORDER[idx + 1]!)
+      handleTabChange(TAB_ORDER[idx + 1]!, screenCenterX, screenCenterY)
     } else if (dx > 0 && idx > 0) {
-      setActiveTab(TAB_ORDER[idx - 1]!)
+      handleTabChange(TAB_ORDER[idx - 1]!, screenCenterX, screenCenterY)
     }
-  }, [activeTab])
+  }, [activeTab, handleTabChange])
 
   function handleFabClick() {
     setEditingHabit(null)
@@ -113,24 +134,34 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
     setEditingHabit(null)
   }
 
+  const TAB_COLORS: Record<Tab, string> = {
+    today: 'color-mix(in srgb, var(--color-primary) 80%, white)',
+    sprint: 'color-mix(in srgb, var(--color-secondary) 80%, white)',
+    partner: 'color-mix(in srgb, var(--color-accent, var(--color-primary)) 80%, white)',
+    settings: 'color-mix(in srgb, var(--color-text-secondary) 60%, white)',
+  }
+
   const navItems = [
     {
       icon: <HugeiconsIcon icon={Home03Icon} size={22} />,
       label: 'Today',
       active: activeTab === 'today',
-      onClick: () => setActiveTab('today'),
+      onClick: () => {},
+      onClickWithCoords: (x: number, y: number) => handleTabChange('today', x, y),
     },
     {
       icon: <HugeiconsIcon icon={Award01Icon} size={22} />,
       label: 'Sprint',
       active: activeTab === 'sprint',
-      onClick: () => setActiveTab('sprint'),
+      onClick: () => {},
+      onClickWithCoords: (x: number, y: number) => handleTabChange('sprint', x, y),
     },
     {
       icon: <HugeiconsIcon icon={UserIcon} size={22} />,
       label: 'Partner',
       active: activeTab === 'partner',
-      onClick: () => setActiveTab('partner'),
+      onClick: () => {},
+      onClickWithCoords: (x: number, y: number) => handleTabChange('partner', x, y),
     },
     {
       icon: (
@@ -141,7 +172,8 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
       ),
       label: 'Settings',
       active: activeTab === 'settings',
-      onClick: () => setActiveTab('settings'),
+      onClick: () => {},
+      onClickWithCoords: (x: number, y: number) => handleTabChange('settings', x, y),
     },
   ]
 
@@ -177,8 +209,12 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
       {/* Background zoom-out wrapper — springs back when sheet opens (physics-of-touch pattern) */}
       <m.div
         initial={false}
-        animate={{ scale: anySheetOpen ? 0.96 : 1 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 40, mass: 0.8 }}
+        animate={{
+          scale: anySheetOpen ? 0.96 : 1,
+          y: anySheetOpen ? -8 : 0,
+          filter: anySheetOpen ? 'blur(2px)' : 'blur(0px)',
+        }}
+        transition={kawaiiSpring}
         style={{ transformOrigin: 'top center' }}
       >
       {/* Direction-aware tab transitions */}
@@ -194,11 +230,11 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
           {activeTab === 'today' && (
             <TodayScreen
               onEditHabit={handleEditHabit}
-              onNavigateToSprint={() => setActiveTab('sprint')}
+              onNavigateToSprint={() => handleTabChange('sprint', window.innerWidth / 2, window.innerHeight / 2)}
               onHabitComplete={rollMysteryBox}
             />
           )}
-          {activeTab === 'sprint' && <SprintScreen onTabChange={(tab) => setActiveTab(tab as Tab)} />}
+          {activeTab === 'sprint' && <SprintScreen onTabChange={(tab) => handleTabChange(tab, window.innerWidth / 2, window.innerHeight / 2)} />}
           {activeTab === 'partner' && <PartnerScreen />}
           {activeTab === 'settings' && (
             <SettingsScreen
@@ -214,8 +250,18 @@ export function AppShell({ profile, onSignOut }: AppShellProps) {
         items={navItems}
         fabIcon={<HugeiconsIcon icon={Add01Icon} size={24} />}
         onFabClick={handleFabClick}
+        onTabChange={handleTabChange}
       />
       </m.div>{/* end background zoom wrapper */}
+
+      {/* Geometric mask tab transition overlay */}
+      <GeometricMask
+        isTransitioning={isTransitioning}
+        originX={tapOrigin.x}
+        originY={tapOrigin.y}
+        color={TAB_COLORS[pendingTab.current]}
+        onComplete={handleMaskComplete}
+      />
 
       <BottomSheet open={habitSheetOpen} onClose={handleSheetClose}>
         <HabitSheet

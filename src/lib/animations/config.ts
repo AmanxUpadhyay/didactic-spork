@@ -26,6 +26,24 @@ export const pageTransitionSpring = {
   mass: 0.8,
 }
 
+// Magnetic indicator stretch-snap
+export const magneticSpring = {
+  type: 'spring' as const,
+  stiffness: 600,
+  damping: 20,
+  mass: 0.6,
+}
+
+// Geometric expansion (circle expand)
+export const expansionEase = [0.22, 1, 0.36, 1] as const
+
+// Delete swipe snap
+export const deleteSnapSpring = {
+  type: 'spring' as const,
+  stiffness: 500,
+  damping: 30,
+}
+
 // Duration constants (seconds)
 export const duration = {
   instant: 0.1,
