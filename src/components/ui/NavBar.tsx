@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react'
 import { m, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/cn'
-import { kawaiiSpring, haptics } from '@/lib/animations'
+import { kawaiiSpring, gentleSpring, haptics } from '@/lib/animations'
 interface NavItem {
   icon: ReactNode
   label: string
@@ -119,13 +119,15 @@ function NavBarItem({ icon, label, active, onClick, tabIndex, onTabChange, flash
 
       {/* Sliding indicator — layoutId causes Motion to animate position between active tabs */}
       <div className="mt-0.5 h-1.5 w-6 flex items-center justify-center">
-        {active && (
-          <m.div
-            layoutId="tab-indicator"
-            className="w-1.5 h-1.5 rounded-full bg-primary"
-            transition={kawaiiSpring}
-          />
-        )}
+        <AnimatePresence>
+          {active && (
+            <m.div
+              layoutId="tab-indicator"
+              className="w-1.5 h-1.5 rounded-full bg-primary"
+              transition={gentleSpring}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </m.button>
   )
