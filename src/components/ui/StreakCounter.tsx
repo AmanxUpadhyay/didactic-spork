@@ -1,6 +1,9 @@
-import { m } from 'motion/react'
-import { useAnimatedCounter } from '@/lib/animations'
+import { useEffect, useRef, useState } from 'react'
+import { m, useAnimation, useMotionValueEvent } from 'motion/react'
+import { useAnimatedCounter, kawaiiSpring } from '@/lib/animations'
 import { cn } from '@/lib/cn'
+
+const MILESTONES = new Set([7, 14, 21, 30, 60, 100, 200, 365])
 
 interface StreakCounterProps {
   current: number
@@ -14,6 +17,22 @@ interface StreakCounterProps {
 export function StreakCounter({ current, best, showBest = false, freezeAvailable, size = 'md', className }: StreakCounterProps) {
   const flame = current > 0
   const displayValue = useAnimatedCounter(current)
+  const [displayStr, setDisplayStr] = useState(() => Math.round(current).toLocaleString())
+  useMotionValueEvent(displayValue, 'change', setDisplayStr)
+  const controls = useAnimation()
+  const prevRef = useRef(current)
+  const isMilestone = MILESTONES.has(current)
+
+  useEffect(() => {
+    if (current > prevRef.current) {
+      // Incrementing — spring bounce
+      controls.start({
+        scale: [1, 1.25, 0.95, 1.1, 1],
+        transition: { ...kawaiiSpring, duration: 0.5 },
+      })
+    }
+    prevRef.current = current
+  }, [current, controls])
 
   return (
     <div className={cn('flex items-center gap-1.5', className)}>
@@ -24,15 +43,34 @@ export function StreakCounter({ current, best, showBest = false, freezeAvailable
           size === 'sm' ? 'text-base' : 'text-xl',
         )}
       >
-        {flame ? '\uD83D\uDD25' : '\u2764\uFE0F'}
+        {flame ? '🔥' : '❤️'}
       </span>
       <m.span
+        animate={controls}
         className={cn(
-          'font-accent font-bold text-text-primary',
+          'relative font-accent font-bold text-text-primary',
           size === 'sm' ? 'text-base' : 'text-xl',
+          isMilestone && 'text-primary',
         )}
+        style={isMilestone ? {
+          textShadow: `0 0 12px color-mix(in srgb, var(--color-primary) 60%, transparent),
+                       0 0 24px color-mix(in srgb, var(--color-primary) 30%, transparent)`,
+        } : undefined}
       >
-        {displayValue}
+        {displayStr}
+        {isMilestone && (
+          <m.span
+            className="absolute -inset-1.5 rounded-full pointer-events-none"
+            animate={{
+              opacity: [0.6, 0, 0.6],
+              scale: [1, 1.4, 1],
+            }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            style={{
+              background: 'radial-gradient(circle, color-mix(in srgb, var(--color-primary) 35%, transparent), transparent 70%)',
+            }}
+          />
+        )}
       </m.span>
       {freezeAvailable !== undefined && freezeAvailable > 0 && (
         <span

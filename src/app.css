@@ -167,9 +167,11 @@ input:not(:-webkit-autofill) {
   --color-chart-a: #C48888;
   --color-chart-b: #C4A080;
   --color-chart-shared: #80B098;
-  --shadow-elevated: 0 4px 20px -2px rgba(212, 134, 142, 0.22),
+  --shadow-elevated: 0 0 0 1px color-mix(in srgb, var(--color-primary) 16%, transparent),
+                     0 4px 20px -2px rgba(212, 134, 142, 0.22),
                      0 2px 6px -1px rgba(212, 134, 142, 0.12);
-  --shadow-focus: 0 0 0 4px rgba(212, 134, 142, 0.2);
+  --shadow-focus: 0 0 0 4px rgba(212, 134, 142, 0.25);
+  --shadow-button: 0 3px 0 var(--color-accent), 0 4px 16px rgba(212, 134, 142, 0.35);
 }
 
 /* Matcha Latte Light */
@@ -217,11 +219,12 @@ input:not(:-webkit-autofill) {
   --color-chart-a: #88C4A0;
   --color-chart-b: #C49888;
   --color-chart-shared: #A89068;
-  --shadow-elevated: 0 4px 20px -2px rgba(130, 176, 150, 0.22),
+  --shadow-elevated: 0 0 0 1px color-mix(in srgb, var(--color-primary) 16%, transparent),
+                     0 4px 20px -2px rgba(130, 176, 150, 0.22),
                      0 2px 6px -1px rgba(130, 176, 150, 0.12);
-  --shadow-button: 0 4px 0 #5CA880, 0 6px 12px rgba(0, 0, 0, 0.15);
+  --shadow-button: 0 3px 0 #5CA880, 0 4px 16px rgba(130, 176, 150, 0.35);
   --shadow-button-active: 0 1px 0 #5CA880, 0 2px 4px rgba(0, 0, 0, 0.08);
-  --shadow-focus: 0 0 0 4px rgba(130, 176, 150, 0.2);
+  --shadow-focus: 0 0 0 4px rgba(130, 176, 150, 0.25);
 }
 
 /* Honey Biscuit Light */
@@ -269,11 +272,12 @@ input:not(:-webkit-autofill) {
   --color-chart-a: #C8A858;
   --color-chart-b: #C09888;
   --color-chart-shared: #88A870;
-  --shadow-elevated: 0 4px 20px -2px rgba(208, 160, 64, 0.22),
+  --shadow-elevated: 0 0 0 1px color-mix(in srgb, var(--color-primary) 16%, transparent),
+                     0 4px 20px -2px rgba(208, 160, 64, 0.22),
                      0 2px 6px -1px rgba(208, 160, 64, 0.12);
-  --shadow-button: 0 4px 0 #B8782E, 0 6px 12px rgba(0, 0, 0, 0.15);
+  --shadow-button: 0 3px 0 #B8782E, 0 4px 16px rgba(208, 160, 64, 0.35);
   --shadow-button-active: 0 1px 0 #B8782E, 0 2px 4px rgba(0, 0, 0, 0.08);
-  --shadow-focus: 0 0 0 4px rgba(208, 160, 64, 0.2);
+  --shadow-focus: 0 0 0 4px rgba(208, 160, 64, 0.25);
 }
 
 /* ---------- Auto dark mode for system preference ---------- */
@@ -296,9 +300,11 @@ input:not(:-webkit-autofill) {
     --color-chart-a: #C48888;
     --color-chart-b: #C4A080;
     --color-chart-shared: #80B098;
-    --shadow-elevated: 0 4px 20px -2px rgba(212, 134, 142, 0.22),
+    --shadow-elevated: 0 0 0 1px color-mix(in srgb, var(--color-primary) 16%, transparent),
+                       0 4px 20px -2px rgba(212, 134, 142, 0.22),
                        0 2px 6px -1px rgba(212, 134, 142, 0.12);
-    --shadow-focus: 0 0 0 4px rgba(212, 134, 142, 0.2);
+    --shadow-focus: 0 0 0 4px rgba(212, 134, 142, 0.25);
+    --shadow-button: 0 3px 0 var(--color-accent), 0 4px 16px rgba(212, 134, 142, 0.35);
   }
 }
 
@@ -362,16 +368,14 @@ input:-webkit-autofill:focus {
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
-/* ---------- Dark mode card glow ---------- */
+/* ---------- Dark mode warm glow system (F.2) ---------- */
+/*
+  In dark themes, elevated surfaces get a palette-tinted glow ring instead of a plain shadow.
+  This is achieved by adding a glow ring as the first layer of --shadow-elevated.
+  All components using shadow-[var(--shadow-elevated)] automatically pick this up.
+*/
 
-[data-theme="strawberry-milk-dark"] .card,
-[data-theme="matcha-latte-dark"] .card,
-[data-theme="honey-biscuit-dark"] .card {
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 18%, transparent), var(--shadow-elevated);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .card {
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 18%, transparent), var(--shadow-elevated);
-  }
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
 }

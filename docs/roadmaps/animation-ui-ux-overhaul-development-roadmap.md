@@ -406,14 +406,16 @@ This is the most important micro-interaction in the entire app. It must feel *sa
 
 > **Note:** `PullToRefresh` component uses `useMotionValue(pullDistance)`, `useTransform` for Mochi `scale`/`y`. Mochi spins during refresh (`rotate: [0, 360]`), stretches during pull (scale 1→1.4). Used in TodayScreen wrapping HabitList.
 
-### D.5 — Card Stack / Tinder-Style Sprint Review
+### D.5 — Card Stack / Tinder-Style Sprint Review ✅
 
-- [ ] Sprint tasks review: swipe through completed tasks as a card stack
-- [ ] Cards have depth/perspective stacking (top card full, next card slightly smaller/dimmer)
-- [ ] Swipe right = approve, swipe left = flag for review
-- [ ] Card rotation follows swipe direction (subtle, ±15°)
-- [ ] Stamp overlay appears: "DONE ✓" or "REVIEW 🔍"
-- [ ] **Chrome verification:** Test full card stack swipe-through sequence
+- [x] Sprint tasks review: swipe through completed tasks as a card stack
+- [x] Cards have depth/perspective stacking (top card full, next card slightly smaller/dimmer)
+- [x] Swipe right = approve, swipe left = flag for review
+- [x] Card rotation follows swipe direction (subtle, ±12°)
+- [x] Stamp overlay appears: "DONE ✓" or "REVIEW 🔍"
+- [x] **Chrome verification:** Test full card stack swipe-through sequence
+
+> **Note:** `SprintTaskStack` component fetches `habit_completions` joined with `tasks` for the sprint week, deduplicates by title, renders as swipeable card stack. `SwipeCard` uses `drag="x"`, 120px offset or 600px/s velocity thresholds. Decisions tracked locally. Rendered in `SprintResultsView` after `KiraSprintVerdict`.
 
 ### Phase D — Definition of Done
 

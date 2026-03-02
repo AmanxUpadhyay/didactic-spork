@@ -3,6 +3,7 @@ import { Card } from '@/components/ui'
 import { SprintResultsReveal } from './SprintResultsReveal'
 import { ScoreBreakdown } from './ScoreBreakdown'
 import { SprintHistoryCard } from './SprintHistoryCard'
+import { SprintTaskStack } from './SprintTaskStack'
 import { KiraSprintVerdict } from '@/components/kira/KiraSprintVerdict'
 import { PunishmentDateFlow } from '@/components/punishment/PunishmentDateFlow'
 import { supabase } from '@/lib/supabase'
@@ -22,6 +23,7 @@ interface SprintHistoryItem {
 
 interface SprintResultsViewProps {
   sprintId: string
+  weekStart?: string
   myScore: number
   partnerScore: number
   myName: string
@@ -36,6 +38,7 @@ interface SprintResultsViewProps {
 
 export function SprintResultsView({
   sprintId,
+  weekStart,
   myScore,
   partnerScore,
   myName,
@@ -92,6 +95,9 @@ export function SprintResultsView({
 
       {/* Kira's sprint verdict */}
       <KiraSprintVerdict sprintId={sprintId} />
+
+      {/* Sprint task card stack review */}
+      {weekStart && <SprintTaskStack weekStart={weekStart} />}
 
       {/* Punishment date flow (both winner and loser) */}
       <PunishmentDateFlow
